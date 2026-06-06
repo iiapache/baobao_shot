@@ -1,0 +1,21 @@
+{
+  "request": {
+    "method": "POST",
+    "urlPath": "/api/ad/ssv/pangle"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "code": 0,
+      "message": "success",
+      "data": {
+        "transaction_id": "ad_mock_pangle_001",
+        "reward_amount": 10,
+        "user_id": "usr_smoke_001"
+      }
+    }
+  }
+}

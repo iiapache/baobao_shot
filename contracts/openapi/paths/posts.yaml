@@ -1,0 +1,170 @@
+# design-api.md §7 家庭圈
+paths:
+  /v1/posts:
+    post:
+      tags: [feed]
+      summary: 发布作品
+      operationId: postCreate
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 发布成功
+          content:
+            application/json:
+              schema:
+                $ref: '../components/common.yaml#/components/schemas/ApiResponse'
+
+  /v1/posts/{postId}:
+    parameters:
+      - name: postId
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      tags: [feed]
+      summary: 作品详情
+      operationId: postGet
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 作品详情
+          content:
+            application/json:
+              schema:
+                $ref: '../components/common.yaml#/components/schemas/ApiResponse'
+    delete:
+      tags: [feed]
+      summary: 撤回发布
+      operationId: postDelete
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 撤回成功
+          content:
+            application/json:
+              schema:
+                $ref: '../components/common.yaml#/components/schemas/ApiResponse'
+
+  /v1/feeds/family:
+    get:
+      tags: [feed]
+      summary: 家庭 Feed
+      operationId: feedListFamily
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: familyId
+          in: query
+          required: true
+          schema:
+            type: string
+        - $ref: '../components/common.yaml#/components/parameters/Cursor'
+        - $ref: '../components/common.yaml#/components/parameters/Limit'
+      responses:
+        '200':
+          description: Feed 列表
+          content:
+            application/json:
+              schema:
+                $ref: '../components/common.yaml#/components/schemas/ApiResponse'
+
+  /v1/posts/{postId}/likes:
+    parameters:
+      - name: postId
+        in: path
+        required: true
+        schema:
+          type: string
+    post:
+      tags: [feed]
+      summary: 点赞
+      operationId: postLike
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 点赞成功
+          content:
+            application/json:
+              schema:
+                $ref: '../components/common.yaml#/components/schemas/ApiResponse'
+    delete:
+      tags: [feed]
+      summary: 取消点赞
+      operationId: postUnlike
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 取消成功
+          content:
+            application/json:
+              schema:
+                $ref: '../components/common.yaml#/components/schemas/ApiResponse'
+
+  /v1/posts/{postId}/comments:
+    parameters:
+      - name: postId
+        in: path
+        required: true
+        schema:
+          type: string
+    post:
+      tags: [feed]
+      summary: 评论
+      operationId: postCreateComment
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 评论成功
+          content:
+            application/json:
+              schema:
+                $ref: '../components/common.yaml#/components/schemas/ApiResponse'
+    get:
+      tags: [feed]
+      summary: 评论分页
+      operationId: postListComments
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '../components/common.yaml#/components/parameters/Cursor'
+        - $ref: '../components/common.yaml#/components/parameters/Limit'
+      responses:
+        '200':
+          description: 评论列表
+          content:
+            application/json:
+              schema:
+                $ref: '../components/common.yaml#/components/schemas/ApiResponse'
+
+  /v1/posts/{postId}/comments/{commentId}:
+    parameters:
+      - name: postId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: commentId
+        in: path
+        required: true
+        schema:
+          type: string
+    delete:
+      tags: [feed]
+      summary: 删评论
+      operationId: postDeleteComment
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 删除成功
+          content:
+            application/json:
+              schema:
+                $ref: '../components/common.yaml#/components/schemas/ApiResponse'

@@ -1,0 +1,37 @@
+# ArgoCD Application 模板 — hello dev（ACK 中国）
+# 使用前替换 spec.source.repoURL 为实际 Git 仓库地址
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: hello-dev
+  namespace: argocd
+  labels:
+    app.kubernetes.io/part-of: baobao
+    baobao.io/cluster: ack-cn
+    baobao.io/environment: dev
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://gitlab.example.com/baobao/baobao.git
+    targetRevision: main
+    path: infra/k8s/charts/hello
+    helm:
+      releaseName: hello
+      valueFiles:
+        - ../../clusters/ack-cn/cluster-values.yaml
+        - ../../clusters/ack-cn/dev-hello-values.yaml
+  destination:
+    # ACK 中国集群 API Server（ArgoCD cluster secret 中注册的名称）
+    name: ack-cn
+    namespace: dev
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=false
+      - ApplyOutOfSyncOnly=true
+  revisionHistoryLimit: 5

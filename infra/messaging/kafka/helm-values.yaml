@@ -1,0 +1,106 @@
+# Bitnami Kafka Helm Chart values — 3 broker KRaft 模式
+# 安装：helm install kafka oci://registry-1.docker.io/bitnamicharts/kafka -f helm-values.yaml -n baobao-messaging
+# 版本对齐：Kafka 3.x（chart 默认镜像）
+
+global:
+  storageClass: "" # 按集群覆盖：ack-cn 用 alicloud-disk-ssd，eks-os 用 gp3
+
+fullnameOverride: kafka
+
+kraft:
+  enabled: true
+
+broker:
+  replicaCount: 3
+  heapOpts: "-Xmx1024m -Xms1024m"
+  persistence:
+    enabled: true
+    size: 50Gi
+  resources:
+    requests:
+      cpu: 500m
+      memory: 1Gi
+    limits:
+      cpu: "2"
+      memory: 2Gi
+  podAntiAffinityPreset: hard
+
+controller:
+  replicaCount: 3
+  persistence:
+    enabled: true
+    size: 10Gi
+  resources:
+    requests:
+      cpu: 250m
+      memory: 512Mi
+    limits:
+      cpu: "1"
+      memory: 1Gi
+
+listeners:
+  client:
+    protocol: SASL_PLAINTEXT
+  controller:
+    protocol: PLAINTEXT
+  interbroker:
+    protocol: SASL_PLAINTEXT
+
+sasl:
+  client:
+    users:
+      - baobao-producer
+      - baobao-consumer
+    passwords: "" # 部署时由 Vault / External Secrets 注入，禁止写入仓库
+
+metrics:
+  kafka:
+    enabled: true
+  jmx:
+    enabled: true
+  serviceMonitor:
+    enabled: true
+
+defaultInitContainers:
+  autoDiscovery:
+    enabled: true
+
+# 与 topics.yaml 对齐的默认 topic 配置（chart 支持 extraConfig）
+extraConfig: |
+  num.partitions=3
+  default.replication.factor=3
+  min.insync.replicas=2
+  log.retention.hours=168
+  log.segment.bytes=1073741824
+  compression.type=lz4
+  auto.create.topics.enable=false
+
+provisioning:
+  enabled: true
+  numPartitions: 3
+  replicationFactor: 3
+  topics:
+    - name: ai.events
+      partitions: 3
+      replicationFactor: 3
+      config:
+        retention.ms: "604800000"
+        cleanup.policy: delete
+    - name: iap.events
+      partitions: 3
+      replicationFactor: 3
+      config:
+        retention.ms: "1209600000"
+        cleanup.policy: delete
+    - name: feed.events
+      partitions: 3
+      replicationFactor: 3
+      config:
+        retention.ms: "604800000"
+        cleanup.policy: delete
+    - name: credit.events
+      partitions: 3
+      replicationFactor: 3
+      config:
+        retention.ms: "1209600000"
+        cleanup.policy: delete

@@ -1,0 +1,27 @@
+# AWS EKS 新加坡集群 — 全局默认值
+# 适用命名空间：dev / staging / prod-os
+
+global:
+  cluster: eks-os
+  region: os
+  cloudProvider: aws
+
+ingressDefaults:
+  className: nginx
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+
+domains:
+  dev: dev-api-os.example.com
+  staging: staging-api-os.example.com
+  prod: api-os.example.com
+
+imageRegistry: "<AWS_ACCOUNT_ID>.dkr.ecr.ap-southeast-1.amazonaws.com/baobao"
+
+resourceDefaults:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi

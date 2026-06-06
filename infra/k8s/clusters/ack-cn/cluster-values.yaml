@@ -1,0 +1,31 @@
+# 阿里云 ACK 中国集群 — 全局默认值
+# 适用命名空间：dev / staging / prod-cn
+
+global:
+  cluster: ack-cn
+  region: cn
+  cloudProvider: alibaba
+
+# 集群级 Ingress 默认（ACK 通常使用 nginx-ingress 或 ALB Ingress Controller）
+ingressDefaults:
+  className: nginx
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+
+# 生产环境域名占位（勿写入真实证书/凭据）
+domains:
+  dev: dev-api-cn.example.com
+  staging: staging-api-cn.example.com
+  prod: api-cn.example.com
+
+# 镜像拉取：ACK 可使用 ACR 镜像加速（示例占位）
+imageRegistry: registry.cn-hangzhou.aliyuncs.com/baobao
+
+# 资源配额参考
+resourceDefaults:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi

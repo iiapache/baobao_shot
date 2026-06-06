@@ -1,0 +1,9 @@
+# oasdiff breaking change 检查配置
+# 详见 contracts/README.md
+#
+# CI MR 流程：将当前 openapi.bundle.yaml 与 origin/main 同文件对比
+# 本地：./scripts/contract-lint.sh --breaking
+
+breaking-change-detection:
+  # 与 oasdiff breaking 默认规则一致；破坏性变更需升 v2 或走豁免流程
+  severity: error

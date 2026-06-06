@@ -1,0 +1,28 @@
+{
+  "request": {
+    "method": "POST",
+    "urlPath": "/verifyReceipt"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "status": 0,
+      "environment": "Sandbox",
+      "receipt": {
+        "bundle_id": "app.baobao.camera",
+        "application_version": "1.0.0"
+      },
+      "latest_receipt_info": [
+        {
+          "product_id": "com.baobao.credits.100",
+          "transaction_id": "2000000123456789",
+          "original_transaction_id": "2000000123456789",
+          "purchase_date_ms": "1717632000000"
+        }
+      ]
+    }
+  }
+}

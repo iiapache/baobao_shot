@@ -1,0 +1,31 @@
+{
+  "request": {
+    "method": "POST",
+    "urlPath": "/green/image/scan"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "code": 200,
+      "msg": "OK",
+      "data": [
+        {
+          "code": 200,
+          "msg": "OK",
+          "results": [
+            {
+              "scene": "porn",
+              "label": "normal",
+              "rate": 99.9,
+              "suggestion": "pass"
+            }
+          ]
+        }
+      ],
+      "requestId": "audit_mock_img_001"
+    }
+  }
+}

@@ -1,0 +1,18 @@
+# EKS 新加坡 — prod-os
+auth:
+  existingSecret: baobao-redis
+
+commonLabels:
+  baobao.io/cluster: eks-os
+  baobao.io/region: os
+  baobao.io/environment: prod
+
+master:
+  persistence:
+    storageClass: gp3
+    size: 32Gi
+
+replica:
+  persistence:
+    storageClass: gp3
+    size: 32Gi

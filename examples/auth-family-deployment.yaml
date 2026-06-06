@@ -1,0 +1,126 @@
+# auth-family-svc 部署示例 — Vault 注入 PostgreSQL 密码
+#
+# T0.7 验收：展示服务如何从 Vault 获取 DB 密码（与 infra/data 对齐）
+#
+# ┌─────────────────────────────────────────────────────────────────────────┐
+# │ Vault KV v2 路径                                                         │
+# │   secret/data/{env}/{region}/shared/postgres-auth-family                 │
+# │                                                                          │
+# │ 字段（见 infra/vault/secrets-template/shared-postgres.env.example）       │
+# │   host, port, database, username, password, postgres_password           │
+# │                                                                          │
+# │ K8s Secret 对齐（PostgreSQL Bitnami Chart）                               │
+# │   name: baobao-postgresql                                                │
+# │   keys: postgres-password ← postgres_password, password ← password       │
+# └─────────────────────────────────────────────────────────────────────────┘
+#
+# 部署:
+#   kubectl apply -f examples/auth-family-deployment.yaml -n dev
+#
+# 前置:
+#   - Vault Helm: infra/vault/helm/values-dev.yaml
+#   - Kubernetes Auth role: auth-family-svc（policies/auth-family-svc.hcl）
+#   - Vault 已写入: vault kv put secret/dev/cn/shared/postgres-auth-family ...
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: auth-family-svc
+  namespace: dev
+  labels:
+    app.kubernetes.io/name: auth-family-svc
+    app.kubernetes.io/component: backend
+    app.kubernetes.io/part-of: baobao
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-family-svc
+  namespace: dev
+  labels:
+    app.kubernetes.io/name: auth-family-svc
+    app.kubernetes.io/part-of: baobao
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: auth-family-svc
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: auth-family-svc
+      annotations:
+        # --- Vault Agent Injector ---
+        vault.hashicorp.com/agent-inject: "true"
+        vault.hashicorp.com/role: "auth-family-svc"
+        vault.hashicorp.com/agent-pre-populate-only: "true"
+        vault.hashicorp.com/agent-inject-secret-postgres.env: "secret/data/dev/cn/shared/postgres-auth-family"
+        vault.hashicorp.com/agent-inject-template-postgres.env: |
+          {{- with secret "secret/data/dev/cn/shared/postgres-auth-family" -}}
+          POSTGRES_HOST={{ .Data.data.host }}
+          POSTGRES_PORT={{ .Data.data.port }}
+          POSTGRES_DB={{ .Data.data.database }}
+          POSTGRES_USER={{ .Data.data.username }}
+          POSTGRES_PASSWORD={{ .Data.data.password }}
+          {{- end }}
+    spec:
+      serviceAccountName: auth-family-svc
+      containers:
+        - name: auth-family-svc
+          image: registry.example.com/baobao/auth-family-svc:latest
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: VAULT_ADDR
+              value: "http://vault.vault-dev.svc.cluster.local:8200"
+            - name: APP_ENV
+              value: "dev"
+          command:
+            - /bin/sh
+            - -c
+            - |
+              set -e
+              if [ ! -f /vault/secrets/postgres.env ]; then
+                echo "FATAL: Vault secret not injected at /vault/secrets/postgres.env" >&2
+                exit 1
+              fi
+              set -a
+              . /vault/secrets/postgres.env
+              set +a
+              echo "DB host=${POSTGRES_HOST} user=${POSTGRES_USER} (password redacted)"
+              exec /app/auth-family-svc
+          ports:
+            - name: http
+              containerPort: 8080
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: http
+            initialDelaySeconds: 5
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth-family-svc
+  namespace: dev
+  labels:
+    app.kubernetes.io/name: auth-family-svc
+spec:
+  selector:
+    app.kubernetes.io/name: auth-family-svc
+  ports:
+    - name: http
+      port: 80
+      targetPort: http

@@ -1,0 +1,98 @@
+# design-api.md §10 通知
+paths:
+  /v1/notifications/devices:
+    post:
+      tags: [notifications]
+      summary: 注册 / 更新 APNs Token
+      operationId: notificationsRegisterDevice
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 注册成功
+          content:
+            application/json:
+              schema:
+                $ref: '../components/common.yaml#/components/schemas/ApiResponse'
+
+  /v1/notifications/devices/{deviceId}:
+    parameters:
+      - name: deviceId
+        in: path
+        required: true
+        schema:
+          type: string
+    delete:
+      tags: [notifications]
+      summary: 注销设备
+      operationId: notificationsUnregisterDevice
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 注销成功
+          content:
+            application/json:
+              schema:
+                $ref: '../components/common.yaml#/components/schemas/ApiResponse'
+
+  /v1/notifications:
+    get:
+      tags: [notifications]
+      summary: 消息中心分页
+      operationId: notificationsList
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '../components/common.yaml#/components/parameters/Cursor'
+        - $ref: '../components/common.yaml#/components/parameters/Limit'
+      responses:
+        '200':
+          description: 消息列表
+          content:
+            application/json:
+              schema:
+                $ref: '../components/common.yaml#/components/schemas/ApiResponse'
+
+  /v1/notifications/mark-read:
+    post:
+      tags: [notifications]
+      summary: 标记为已读
+      operationId: notificationsMarkRead
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 标记成功
+          content:
+            application/json:
+              schema:
+                $ref: '../components/common.yaml#/components/schemas/ApiResponse'
+
+  /v1/notifications/subscriptions:
+    get:
+      tags: [notifications]
+      summary: 类目订阅状态
+      operationId: notificationsGetSubscriptions
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 订阅状态
+          content:
+            application/json:
+              schema:
+                $ref: '../components/common.yaml#/components/schemas/ApiResponse'
+    patch:
+      tags: [notifications]
+      summary: 修改类目订阅
+      operationId: notificationsUpdateSubscriptions
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                $ref: '../components/common.yaml#/components/schemas/ApiResponse'

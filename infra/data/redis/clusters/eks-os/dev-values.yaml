@@ -1,0 +1,12 @@
+# EKS 新加坡 — dev
+auth:
+  existingSecret: baobao-redis
+
+commonLabels:
+  baobao.io/cluster: eks-os
+  baobao.io/region: os
+  baobao.io/environment: dev
+
+master:
+  persistence:
+    storageClass: gp3

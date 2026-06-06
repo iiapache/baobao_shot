@@ -1,0 +1,33 @@
+# hello ServiceMonitor — 任意 Go 微服务可复制并改 selector
+#
+# 前置：Pod 需暴露 /metrics 并添加注解:
+#   prometheus.io/scrape: "true"
+#   prometheus.io/port: "8080"
+#   prometheus.io/path: "/metrics"
+#
+# OTEL tracing 与 metrics 并存；tracing 走 OTEL_EXPORTER_OTLP_ENDPOINT，
+# metrics 由 prometheus/client_golang 或 otel-collector spanmetrics 提供。
+#
+# kubectl apply -f infra/observability/prometheus/scrape-configs/hello-servicemonitor.yaml
+
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: hello
+  namespace: dev
+  labels:
+    app.kubernetes.io/name: hello
+    app.kubernetes.io/part-of: baobao
+    release: prometheus
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: hello
+  namespaceSelector:
+    matchNames:
+      - dev
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 30s
+      honorLabels: true

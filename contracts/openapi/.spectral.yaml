@@ -1,0 +1,35 @@
+extends:
+  - spectral:oas
+
+rules:
+  info-contact: warn
+  info-description: error
+  info-license: warn
+  operation-description: off
+  operation-operationId: error
+  operation-operationId-unique: error
+  operation-tags: error
+  openapi-tags: error
+  tag-description: warn
+  path-params: error
+  no-$ref-siblings: error
+
+  # 项目约定：REST 路径必须以 /v1/ 为前缀
+  baobao-path-version-prefix:
+    description: API paths must use /v1/ URI version prefix
+    message: "{{property}} must start with /v1/"
+    severity: error
+    given: $.paths[*]~
+    then:
+      function: pattern
+      functionOptions:
+        match: "^/v1/"
+
+  # 统一响应体应引用 ApiResponse / ErrorResponse（骨架阶段 warn）
+  baobao-response-schema-named:
+    description: Prefer ApiResponse or ErrorResponse schema refs in JSON responses
+    message: "{{property}} should reference shared response schemas"
+    severity: warn
+    given: $.paths..responses[?(@property >= 200 && @property < 300)]..schema
+    then:
+      function: truthy

@@ -1,0 +1,24 @@
+{
+  "request": {
+    "method": "POST",
+    "urlPath": "/api/v1/services/aigc/text2image/image-synthesis"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "output": {
+        "task_id": "ai_mock_dashscope_001",
+        "task_status": "SUCCEEDED",
+        "results": [
+          {
+            "url": "https://example.com/mock-ai-output.png"
+          }
+        ]
+      },
+      "request_id": "ai_mock_req_001"
+    }
+  }
+}

@@ -1,0 +1,286 @@
+# design-api.md §4.1 家庭
+paths:
+  /v1/families:
+    post:
+      tags: [family]
+      summary: 创建家庭
+      operationId: familyCreate
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name:
+                  type: string
+      responses:
+        '200':
+          description: 创建成功
+          content:
+            application/json:
+              schema:
+                $ref: '../components/common.yaml#/components/schemas/ApiResponse'
+        '409':
+          description: 家庭数量达上限
+          content:
+            application/json:
+              schema:
+                $ref: '../components/common.yaml#/components/schemas/ErrorResponse'
+    get:
+      tags: [family]
+      summary: 获取我加入的家庭列表
+      operationId: familyListMine
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 家庭列表
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '../components/common.yaml#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          items:
+                            type: array
+                            items:
+                              $ref: '../components/common.yaml#/components/schemas/FamilySummary'
+
+  /v1/families/{familyId}:
+    parameters:
+      - $ref: '../components/common.yaml#/components/parameters/FamilyId'
+    get:
+      tags: [family]
+      summary: 家庭详情（含成员、宝宝）
+      operationId: familyGet
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 家庭详情
+          content:
+            application/json:
+              schema:
+                $ref: '../components/common.yaml#/components/schemas/ApiResponse'
+        '404':
+          $ref: '../components/common.yaml#/components/responses/NotFound'
+    patch:
+      tags: [family]
+      summary: 修改家庭名称
+      operationId: familyUpdate
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name:
+                  type: string
+      responses:
+        '200':
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                $ref: '../components/common.yaml#/components/schemas/ApiResponse'
+    delete:
+      tags: [family]
+      summary: 解散家庭（管理员）
+      operationId: familyDelete
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 解散成功
+          content:
+            application/json:
+              schema:
+                $ref: '../components/common.yaml#/components/schemas/ApiResponse'
+        '403':
+          $ref: '../components/common.yaml#/components/responses/Forbidden'
+
+  /v1/families/{familyId}/invitations:
+    parameters:
+      - $ref: '../components/common.yaml#/components/parameters/FamilyId'
+    post:
+      tags: [family]
+      summary: 生成邀请码
+      operationId: familyCreateInvitation
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 邀请码
+          content:
+            application/json:
+              schema:
+                $ref: '../components/common.yaml#/components/schemas/ApiResponse'
+
+  /v1/families/{familyId}/invitations/{code}:
+    parameters:
+      - $ref: '../components/common.yaml#/components/parameters/FamilyId'
+      - $ref: '../components/common.yaml#/components/parameters/InvitationCode'
+    delete:
+      tags: [family]
+      summary: 立即作废邀请码
+      operationId: familyRevokeInvitation
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 作废成功
+          content:
+            application/json:
+              schema:
+                $ref: '../components/common.yaml#/components/schemas/ApiResponse'
+
+  /v1/invitations/{code}/join:
+    parameters:
+      - $ref: '../components/common.yaml#/components/parameters/InvitationCode'
+    post:
+      tags: [family]
+      summary: 通过邀请码加入家庭
+      operationId: familyJoinByInvitation
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [relation]
+              properties:
+                relation:
+                  type: string
+                nickname:
+                  type: string
+      responses:
+        '200':
+          description: 加入成功
+          content:
+            application/json:
+              schema:
+                $ref: '../components/common.yaml#/components/schemas/ApiResponse'
+        '409':
+          description: 邀请码已用尽或成员达上限
+          content:
+            application/json:
+              schema:
+                $ref: '../components/common.yaml#/components/schemas/ErrorResponse'
+
+  /v1/families/{familyId}/transfer:
+    parameters:
+      - $ref: '../components/common.yaml#/components/parameters/FamilyId'
+    post:
+      tags: [family]
+      summary: 主动转让管理员
+      operationId: familyTransferAdmin
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [targetUserId]
+              properties:
+                targetUserId:
+                  type: string
+      responses:
+        '200':
+          description: 转让成功
+          content:
+            application/json:
+              schema:
+                $ref: '../components/common.yaml#/components/schemas/ApiResponse'
+
+  /v1/families/{familyId}/takeover:
+    parameters:
+      - $ref: '../components/common.yaml#/components/parameters/FamilyId'
+    post:
+      tags: [family]
+      summary: 发起 / 投票失联接管
+      operationId: familyTakeover
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 接管流程状态
+          content:
+            application/json:
+              schema:
+                $ref: '../components/common.yaml#/components/schemas/ApiResponse'
+
+  /v1/families/{familyId}/members:
+    parameters:
+      - $ref: '../components/common.yaml#/components/parameters/FamilyId'
+    get:
+      tags: [family]
+      summary: 成员列表
+      operationId: familyListMembers
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 成员列表
+          content:
+            application/json:
+              schema:
+                $ref: '../components/common.yaml#/components/schemas/ApiResponse'
+
+  /v1/families/{familyId}/members/{userId}:
+    parameters:
+      - $ref: '../components/common.yaml#/components/parameters/FamilyId'
+      - $ref: '../components/common.yaml#/components/parameters/UserId'
+    patch:
+      tags: [family]
+      summary: 修改成员角色 / 备注
+      operationId: familyUpdateMember
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                role:
+                  type: string
+                  enum: [admin, family, guest]
+                nickname:
+                  type: string
+      responses:
+        '200':
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                $ref: '../components/common.yaml#/components/schemas/ApiResponse'
+    delete:
+      tags: [family]
+      summary: 移除成员
+      operationId: familyRemoveMember
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 移除成功
+          content:
+            application/json:
+              schema:
+                $ref: '../components/common.yaml#/components/schemas/ApiResponse'

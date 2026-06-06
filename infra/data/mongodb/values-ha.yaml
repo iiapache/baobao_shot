@@ -1,0 +1,21 @@
+# MongoDB 6 — prod 副本集（3 节点）
+# 适用命名空间: prod-cn / prod-os
+
+architecture: replicaset
+replicaCount: 3
+replicaSetName: baobao-rs
+
+arbiter:
+  enabled: false
+
+persistence:
+  size: 500Gi
+
+podAntiAffinityPreset: hard
+
+configuration: |
+  operationProfiling:
+    mode: slowOp
+    slowOpThresholdMs: 100
+  replication:
+    oplogSizeMB: 2048

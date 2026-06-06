@@ -1,0 +1,242 @@
+# design-api.md §3 鉴权与账号
+paths:
+  /v1/auth/apple:
+    post:
+      tags: [auth]
+      summary: Apple ID 登录 / 注册
+      operationId: authAppleLogin
+      security: []
+      parameters:
+        - $ref: '../components/common.yaml#/components/parameters/HeaderXRegion'
+        - $ref: '../components/common.yaml#/components/parameters/HeaderXAppVersion'
+        - $ref: '../components/common.yaml#/components/parameters/HeaderXDeviceId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [identityToken, authorizationCode, region]
+              properties:
+                identityToken:
+                  type: string
+                authorizationCode:
+                  type: string
+                nickname:
+                  type: string
+                region:
+                  type: string
+                  enum: [cn, os]
+      responses:
+        '200':
+          description: 登录成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '../components/common.yaml#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '../components/common.yaml#/components/schemas/AuthTokens'
+        '400':
+          $ref: '../components/common.yaml#/components/responses/BadRequest'
+        '401':
+          $ref: '../components/common.yaml#/components/responses/Unauthorized'
+
+  /v1/auth/phone/code:
+    post:
+      tags: [auth]
+      summary: 发送短信验证码（仅中国区）
+      operationId: authPhoneSendCode
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [phone]
+              properties:
+                phone:
+                  type: string
+      responses:
+        '200':
+          description: 发送成功
+          content:
+            application/json:
+              schema:
+                $ref: '../components/common.yaml#/components/schemas/ApiResponse'
+        '429':
+          description: 限流
+          content:
+            application/json:
+              schema:
+                $ref: '../components/common.yaml#/components/schemas/ErrorResponse'
+
+  /v1/auth/phone/login:
+    post:
+      tags: [auth]
+      summary: 手机号 + 验证码登录 / 注册
+      operationId: authPhoneLogin
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [phone, code]
+              properties:
+                phone:
+                  type: string
+                code:
+                  type: string
+      responses:
+        '200':
+          description: 登录成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '../components/common.yaml#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '../components/common.yaml#/components/schemas/AuthTokens'
+
+  /v1/auth/refresh:
+    post:
+      tags: [auth]
+      summary: 刷新 Access Token（Refresh Rotation）
+      operationId: authRefresh
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [refreshToken]
+              properties:
+                refreshToken:
+                  type: string
+      responses:
+        '200':
+          description: 刷新成功
+          content:
+            application/json:
+              schema:
+                $ref: '../components/common.yaml#/components/schemas/ApiResponse'
+        '401':
+          $ref: '../components/common.yaml#/components/responses/Unauthorized'
+
+  /v1/account/logout:
+    post:
+      tags: [account]
+      summary: 主动登出（撤销当前会话）
+      operationId: accountLogout
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 登出成功
+          content:
+            application/json:
+              schema:
+                $ref: '../components/common.yaml#/components/schemas/ApiResponse'
+
+  /v1/account/me:
+    get:
+      tags: [account]
+      summary: 获取当前用户基本信息
+      operationId: accountGetMe
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 用户信息
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '../components/common.yaml#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '../components/common.yaml#/components/schemas/UserProfile'
+    patch:
+      tags: [account]
+      summary: 更新昵称 / 头像
+      operationId: accountUpdateMe
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nickname:
+                  type: string
+                avatarUrl:
+                  type: string
+                  nullable: true
+      responses:
+        '200':
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                $ref: '../components/common.yaml#/components/schemas/ApiResponse'
+
+  /v1/account/consents/child-data:
+    post:
+      tags: [account]
+      summary: 提交监护人同意
+      operationId: accountSubmitChildConsent
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [version, accepted]
+              properties:
+                version:
+                  type: string
+                accepted:
+                  type: boolean
+      responses:
+        '200':
+          description: 提交成功
+          content:
+            application/json:
+              schema:
+                $ref: '../components/common.yaml#/components/schemas/ApiResponse'
+        '422':
+          description: 业务校验未通过
+          content:
+            application/json:
+              schema:
+                $ref: '../components/common.yaml#/components/schemas/ErrorResponse'
+
+  /v1/account:
+    delete:
+      tags: [account]
+      summary: 注销账号（异步处理 + 软删 + 7 天可撤销）
+      operationId: accountDelete
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 注销已受理
+          content:
+            application/json:
+              schema:
+                $ref: '../components/common.yaml#/components/schemas/ApiResponse'
+        '403':
+          $ref: '../components/common.yaml#/components/responses/Forbidden'

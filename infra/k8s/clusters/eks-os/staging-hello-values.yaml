@@ -1,0 +1,21 @@
+# EKS 新加坡 — staging 环境 hello 服务 values
+
+global:
+  cluster: eks-os
+  region: os
+  environment: staging
+
+replicaCount: 2
+
+ingress:
+  enabled: true
+  className: nginx
+  hosts:
+    - host: hello-staging-os.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+
+commonLabels:
+  baobao.io/team: infra
+  baobao.io/tier: demo

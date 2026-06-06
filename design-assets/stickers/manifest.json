@@ -1,0 +1,1571 @@
+{
+  "schemaVersion": "1.0.0",
+  "taskRef": "T0.11 / T2.13",
+  "description": "编辑器 StickerStep 贴纸库，分类与 PRD §4.4 对齐",
+  "odrTag": "editor-stickers",
+  "minAppVersion": "1.0.0",
+  "categories": [
+    {
+      "id": "numbers",
+      "name": "数字",
+      "sort": 1,
+      "description": "0-9 及组合数字，里程碑天数"
+    },
+    {
+      "id": "festivals",
+      "name": "节日",
+      "sort": 2,
+      "description": "春节、中秋、端午、圣诞等"
+    },
+    {
+      "id": "text",
+      "name": "文字",
+      "sort": 3,
+      "description": "祝福语录、常用短语"
+    },
+    {
+      "id": "animals",
+      "name": "动物",
+      "sort": 4,
+      "description": "生肖、萌宠、农场动物"
+    },
+    {
+      "id": "food",
+      "name": "食物",
+      "sort": 5,
+      "description": "奶瓶、辅食、水果蛋糕"
+    },
+    {
+      "id": "daily",
+      "name": "日常",
+      "sort": 6,
+      "description": "玩具、衣物、出行"
+    },
+    {
+      "id": "milestones",
+      "name": "里程碑",
+      "sort": 7,
+      "description": "满月、百天、周岁、抓周"
+    },
+    {
+      "id": "cute",
+      "name": "可爱表情",
+      "sort": 8,
+      "description": "emoji 风格、星星爱心"
+    }
+  ],
+  "stickers": [
+    {
+      "id": "sticker_num_0",
+      "category": "numbers",
+      "categoryLabel": "数字",
+      "name": "Num 0",
+      "file": "stickers/numbers/num_0.png",
+      "size": {
+        "width": 512,
+        "height": 512
+      },
+      "scaleVariants": [
+        "@1x",
+        "@2x",
+        "@3x"
+      ],
+      "tags": [
+        "numbers"
+      ],
+      "defaultScale": 0.3,
+      "odrTag": "editor-stickers"
+    },
+    {
+      "id": "sticker_num_1",
+      "category": "numbers",
+      "categoryLabel": "数字",
+      "name": "Num 1",
+      "file": "stickers/numbers/num_1.png",
+      "size": {
+        "width": 512,
+        "height": 512
+      },
+      "scaleVariants": [
+        "@1x",
+        "@2x",
+        "@3x"
+      ],
+      "tags": [
+        "numbers"
+      ],
+      "defaultScale": 0.3,
+      "odrTag": "editor-stickers"
+    },
+    {
+      "id": "sticker_num_2",
+      "category": "numbers",
+      "categoryLabel": "数字",
+      "name": "Num 2",
+      "file": "stickers/numbers/num_2.png",
+      "size": {
+        "width": 512,
+        "height": 512
+      },
+      "scaleVariants": [
+        "@1x",
+        "@2x",
+        "@3x"
+      ],
+      "tags": [
+        "numbers"
+      ],
+      "defaultScale": 0.3,
+      "odrTag": "editor-stickers"
+    },
+    {
+      "id": "sticker_num_3",
+      "category": "numbers",
+      "categoryLabel": "数字",
+      "name": "Num 3",
+      "file": "stickers/numbers/num_3.png",
+      "size": {
+        "width": 512,
+        "height": 512
+      },
+      "scaleVariants": [
+        "@1x",
+        "@2x",
+        "@3x"
+      ],
+      "tags": [
+        "numbers"
+      ],
+      "defaultScale": 0.3,
+      "odrTag": "editor-stickers"
+    },
+    {
+      "id": "sticker_num_4",
+      "category": "numbers",
+      "categoryLabel": "数字",
+      "name": "Num 4",
+      "file": "stickers/numbers/num_4.png",
+      "size": {
+        "width": 512,
+        "height": 512
+      },
+      "scaleVariants": [
+        "@1x",
+        "@2x",
+        "@3x"
+      ],
+      "tags": [
+        "numbers"
+      ],
+      "defaultScale": 0.3,
+      "odrTag": "editor-stickers"
+    },
+    {
+      "id": "sticker_num_5",
+      "category": "numbers",
+      "categoryLabel": "数字",
+      "name": "Num 5",
+      "file": "stickers/numbers/num_5.png",
+      "size": {
+        "width": 512,
+        "height": 512
+      },
+      "scaleVariants": [
+        "@1x",
+        "@2x",
+        "@3x"
+      ],
+      "tags": [
+        "numbers"
+      ],
+      "defaultScale": 0.3,
+      "odrTag": "editor-stickers"
+    },
+    {
+      "id": "sticker_num_6",
+      "category": "numbers",
+      "categoryLabel": "数字",
+      "name": "Num 6",
+      "file": "stickers/numbers/num_6.png",
+      "size": {
+        "width": 512,
+        "height": 512
+      },
+      "scaleVariants": [
+        "@1x",
+        "@2x",
+        "@3x"
+      ],
+      "tags": [
+        "numbers"
+      ],
+      "defaultScale": 0.3,
+      "odrTag": "editor-stickers"
+    },
+    {
+      "id": "sticker_num_7",
+      "category": "numbers",
+      "categoryLabel": "数字",
+      "name": "Num 7",
+      "file": "stickers/numbers/num_7.png",
+      "size": {
+        "width": 512,
+        "height": 512
+      },
+      "scaleVariants": [
+        "@1x",
+        "@2x",
+        "@3x"
+      ],
+      "tags": [
+        "numbers"
+      ],
+      "defaultScale": 0.3,
+      "odrTag": "editor-stickers"
+    },
+    {
+      "id": "sticker_num_8",
+      "category": "numbers",
+      "categoryLabel": "数字",
+      "name": "Num 8",
+      "file": "stickers/numbers/num_8.png",
+      "size": {
+        "width": 512,
+        "height": 512
+      },
+      "scaleVariants": [
+        "@1x",
+        "@2x",
+        "@3x"
+      ],
+      "tags": [
+        "numbers"
+      ],
+      "defaultScale": 0.3,
+      "odrTag": "editor-stickers"
+    },
+    {
+      "id": "sticker_num_9",
+      "category": "numbers",
+      "categoryLabel": "数字",
+      "name": "Num 9",
+      "file": "stickers/numbers/num_9.png",
+      "size": {
+        "width": 512,
+        "height": 512
+      },
+      "scaleVariants": [
+        "@1x",
+        "@2x",
+        "@3x"
+      ],
+      "tags": [
+        "numbers"
+      ],
+      "defaultScale": 0.3,
+      "odrTag": "editor-stickers"
+    },
+    {
+      "id": "sticker_num_100",
+      "category": "numbers",
+      "categoryLabel": "数字",
+      "name": "Num 100",
+      "file": "stickers/numbers/num_100.png",
+      "size": {
+        "width": 512,
+        "height": 512
+      },
+      "scaleVariants": [
+        "@1x",
+        "@2x",
+        "@3x"
+      ],
+      "tags": [
+        "numbers"
+      ],
+      "defaultScale": 0.3,
+      "odrTag": "editor-stickers"
+    },
+    {
+      "id": "sticker_num_365",
+      "category": "numbers",
+      "categoryLabel": "数字",
+      "name": "Num 365",
+      "file": "stickers/numbers/num_365.png",
+      "size": {
+        "width": 512,
+        "height": 512
+      },
+      "scaleVariants": [
+        "@1x",
+        "@2x",
+        "@3x"
+      ],
+      "tags": [
+        "numbers"
+      ],
+      "defaultScale": 0.3,
+      "odrTag": "editor-stickers"
+    },
+    {
+      "id": "sticker_spring_festival",
+      "category": "festivals",
+      "categoryLabel": "节日",
+      "name": "Spring Festival",
+      "file": "stickers/festivals/spring_festival.png",
+      "size": {
+        "width": 512,
+        "height": 512
+      },
+      "scaleVariants": [
+        "@1x",
+        "@2x",
+        "@3x"
+      ],
+      "tags": [
+        "festivals"
+      ],
+      "defaultScale": 0.3,
+      "odrTag": "editor-stickers"
+    },
+    {
+      "id": "sticker_lantern",
+      "category": "festivals",
+      "categoryLabel": "节日",
+      "name": "Lantern",
+      "file": "stickers/festivals/lantern.png",
+      "size": {
+        "width": 512,
+        "height": 512
+      },
+      "scaleVariants": [
+        "@1x",
+        "@2x",
+        "@3x"
+      ],
+      "tags": [
+        "festivals"
+      ],
+      "defaultScale": 0.3,
+      "odrTag": "editor-stickers"
+    },
+    {
+      "id": "sticker_dragon_boat",
+      "category": "festivals",
+      "categoryLabel": "节日",
+      "name": "Dragon Boat",
+      "file": "stickers/festivals/dragon_boat.png",
+      "size": {
+        "width": 512,
+        "height": 512
+      },
+      "scaleVariants": [
+        "@1x",
+        "@2x",
+        "@3x"
+      ],
+      "tags": [
+        "festivals"
+      ],
+      "defaultScale": 0.3,
+      "odrTag": "editor-stickers"
+    },
+    {
+      "id": "sticker_mid_autumn",
+      "category": "festivals",
+      "categoryLabel": "节日",
+      "name": "Mid Autumn",
+      "file": "stickers/festivals/mid_autumn.png",
+      "size": {
+        "width": 512,
+        "height": 512
+      },
+      "scaleVariants": [
+        "@1x",
+        "@2x",
+        "@3x"
+      ],
+      "tags": [
+        "festivals"
+      ],
+      "defaultScale": 0.3,
+      "odrTag": "editor-stickers"
+    },
+    {
+      "id": "sticker_christmas",
+      "category": "festivals",
+      "categoryLabel": "节日",
+      "name": "Christmas",
+      "file": "stickers/festivals/christmas.png",
+      "size": {
+        "width": 512,
+        "height": 512
+      },
+      "scaleVariants": [
+        "@1x",
+        "@2x",
+        "@3x"
+      ],
+      "tags": [
+        "festivals"
+      ],
+      "defaultScale": 0.3,
+      "odrTag": "editor-stickers"
+    },
+    {
+      "id": "sticker_new_year",
+      "category": "festivals",
+      "categoryLabel": "节日",
+      "name": "New Year",
+      "file": "stickers/festivals/new_year.png",
+      "size": {
+        "width": 512,
+        "height": 512
+      },
+      "scaleVariants": [
+        "@1x",
+        "@2x",
+        "@3x"
+      ],
+      "tags": [
+        "festivals"
+      ],
+      "defaultScale": 0.3,
+      "odrTag": "editor-stickers"
+    },
+    {
+      "id": "sticker_valentine",
+      "category": "festivals",
+      "categoryLabel": "节日",
+      "name": "Valentine",
+      "file": "stickers/festivals/valentine.png",
+      "size": {
+        "width": 512,
+        "height": 512
+      },
+      "scaleVariants": [
+        "@1x",
+        "@2x",
+        "@3x"
+      ],
+      "tags": [
+        "festivals"
+      ],
+      "defaultScale": 0.3,
+      "odrTag": "editor-stickers"
+    },
+    {
+      "id": "sticker_children_day",
+      "category": "festivals",
+      "categoryLabel": "节日",
+      "name": "Children Day",
+      "file": "stickers/festivals/children_day.png",
+      "size": {
+        "width": 512,
+        "height": 512
+      },
+      "scaleVariants": [
+        "@1x",
+        "@2x",
+        "@3x"
+      ],
+      "tags": [
+        "festivals"
+      ],
+      "defaultScale": 0.3,
+      "odrTag": "editor-stickers"
+    },
+    {
+      "id": "sticker_national_day",
+      "category": "festivals",
+      "categoryLabel": "节日",
+      "name": "National Day",
+      "file": "stickers/festivals/national_day.png",
+      "size": {
+        "width": 512,
+        "height": 512
+      },
+      "scaleVariants": [
+        "@1x",
+        "@2x",
+        "@3x"
+      ],
+      "tags": [
+        "festivals"
+      ],
+      "defaultScale": 0.3,
+      "odrTag": "editor-stickers"
+    },
+    {
+      "id": "sticker_birthday_cake",
+      "category": "festivals",
+      "categoryLabel": "节日",
+      "name": "Birthday Cake",
+      "file": "stickers/festivals/birthday_cake.png",
+      "size": {
+        "width": 512,
+        "height": 512
+      },
+      "scaleVariants": [
+        "@1x",
+        "@2x",
+        "@3x"
+      ],
+      "tags": [
+        "festivals"
+      ],
+      "defaultScale": 0.3,
+      "odrTag": "editor-stickers"
+    },
+    {
+      "id": "sticker_text_love",
+      "category": "text",
+      "categoryLabel": "文字",
+      "name": "Text Love",
+      "file": "stickers/text/text_love.png",
+      "size": {
+        "width": 512,
+        "height": 512
+      },
+      "scaleVariants": [
+        "@1x",
+        "@2x",
+        "@3x"
+      ],
+      "tags": [
+        "text"
+      ],
+      "defaultScale": 0.3,
+      "odrTag": "editor-stickers"
+    },
+    {
+      "id": "sticker_text_growth",
+      "category": "text",
+      "categoryLabel": "文字",
+      "name": "Text Growth",
+      "file": "stickers/text/text_growth.png",
+      "size": {
+        "width": 512,
+        "height": 512
+      },
+      "scaleVariants": [
+        "@1x",
+        "@2x",
+        "@3x"
+      ],
+      "tags": [
+        "text"
+      ],
+      "defaultScale": 0.3,
+      "odrTag": "editor-stickers"
+    },
+    {
+      "id": "sticker_text_happy",
+      "category": "text",
+      "categoryLabel": "文字",
+      "name": "Text Happy",
+      "file": "stickers/text/text_happy.png",
+      "size": {
+        "width": 512,
+        "height": 512
+      },
+      "scaleVariants": [
+        "@1x",
+        "@2x",
+        "@3x"
+      ],
+      "tags": [
+        "text"
+      ],
+      "defaultScale": 0.3,
+      "odrTag": "editor-stickers"
+    },
+    {
+      "id": "sticker_text_sweet",
+      "category": "text",
+      "categoryLabel": "文字",
+      "name": "Text Sweet",
+      "file": "stickers/text/text_sweet.png",
+      "size": {
+        "width": 512,
+        "height": 512
+      },
+      "scaleVariants": [
+        "@1x",
+        "@2x",
+        "@3x"
+      ],
+      "tags": [
+        "text"
+      ],
+      "defaultScale": 0.3,
+      "odrTag": "editor-stickers"
+    },
+    {
+      "id": "sticker_text_baby",
+      "category": "text",
+      "categoryLabel": "文字",
+      "name": "Text Baby",
+      "file": "stickers/text/text_baby.png",
+      "size": {
+        "width": 512,
+        "height": 512
+      },
+      "scaleVariants": [
+        "@1x",
+        "@2x",
+        "@3x"
+      ],
+      "tags": [
+        "text"
+      ],
+      "defaultScale": 0.3,
+      "odrTag": "editor-stickers"
+    },
+    {
+      "id": "sticker_text_milestone",
+      "category": "text",
+      "categoryLabel": "文字",
+      "name": "Text Milestone",
+      "file": "stickers/text/text_milestone.png",
+      "size": {
+        "width": 512,
+        "height": 512
+      },
+      "scaleVariants": [
+        "@1x",
+        "@2x",
+        "@3x"
+      ],
+      "tags": [
+        "text"
+      ],
+      "defaultScale": 0.3,
+      "odrTag": "editor-stickers"
+    },
+    {
+      "id": "sticker_text_blessing",
+      "category": "text",
+      "categoryLabel": "文字",
+      "name": "Text Blessing",
+      "file": "stickers/text/text_blessing.png",
+      "size": {
+        "width": 512,
+        "height": 512
+      },
+      "scaleVariants": [
+        "@1x",
+        "@2x",
+        "@3x"
+      ],
+      "tags": [
+        "text"
+      ],
+      "defaultScale": 0.3,
+      "odrTag": "editor-stickers"
+    },
+    {
+      "id": "sticker_text_family",
+      "category": "text",
+      "categoryLabel": "文字",
+      "name": "Text Family",
+      "file": "stickers/text/text_family.png",
+      "size": {
+        "width": 512,
+        "height": 512
+      },
+      "scaleVariants": [
+        "@1x",
+        "@2x",
+        "@3x"
+      ],
+      "tags": [
+        "text"
+      ],
+      "defaultScale": 0.3,
+      "odrTag": "editor-stickers"
+    },
+    {
+      "id": "sticker_animal_rabbit",
+      "category": "animals",
+      "categoryLabel": "动物",
+      "name": "Animal Rabbit",
+      "file": "stickers/animals/animal_rabbit.png",
+      "size": {
+        "width": 512,
+        "height": 512
+      },
+      "scaleVariants": [
+        "@1x",
+        "@2x",
+        "@3x"
+      ],
+      "tags": [
+        "animals"
+      ],
+      "defaultScale": 0.3,
+      "odrTag": "editor-stickers"
+    },
+    {
+      "id": "sticker_animal_bear",
+      "category": "animals",
+      "categoryLabel": "动物",
+      "name": "Animal Bear",
+      "file": "stickers/animals/animal_bear.png",
+      "size": {
+        "width": 512,
+        "height": 512
+      },
+      "scaleVariants": [
+        "@1x",
+        "@2x",
+        "@3x"
+      ],
+      "tags": [
+        "animals"
+      ],
+      "defaultScale": 0.3,
+      "odrTag": "editor-stickers"
+    },
+    {
+      "id": "sticker_animal_duck",
+      "category": "animals",
+      "categoryLabel": "动物",
+      "name": "Animal Duck",
+      "file": "stickers/animals/animal_duck.png",
+      "size": {
+        "width": 512,
+        "height": 512
+      },
+      "scaleVariants": [
+        "@1x",
+        "@2x",
+        "@3x"
+      ],
+      "tags": [
+        "animals"
+      ],
+      "defaultScale": 0.3,
+      "odrTag": "editor-stickers"
+    },
+    {
+      "id": "sticker_animal_panda",
+      "category": "animals",
+      "categoryLabel": "动物",
+      "name": "Animal Panda",
+      "file": "stickers/animals/animal_panda.png",
+      "size": {
+        "width": 512,
+        "height": 512
+      },
+      "scaleVariants": [
+        "@1x",
+        "@2x",
+        "@3x"
+      ],
+      "tags": [
+        "animals"
+      ],
+      "defaultScale": 0.3,
+      "odrTag": "editor-stickers"
+    },
+    {
+      "id": "sticker_animal_cat",
+      "category": "animals",
+      "categoryLabel": "动物",
+      "name": "Animal Cat",
+      "file": "stickers/animals/animal_cat.png",
+      "size": {
+        "width": 512,
+        "height": 512
+      },
+      "scaleVariants": [
+        "@1x",
+        "@2x",
+        "@3x"
+      ],
+      "tags": [
+        "animals"
+      ],
+      "defaultScale": 0.3,
+      "odrTag": "editor-stickers"
+    },
+    {
+      "id": "sticker_animal_dog",
+      "category": "animals",
+      "categoryLabel": "动物",
+      "name": "Animal Dog",
+      "file": "stickers/animals/animal_dog.png",
+      "size": {
+        "width": 512,
+        "height": 512
+      },
+      "scaleVariants": [
+        "@1x",
+        "@2x",
+        "@3x"
+      ],
+      "tags": [
+        "animals"
+      ],
+      "defaultScale": 0.3,
+      "odrTag": "editor-stickers"
+    },
+    {
+      "id": "sticker_animal_elephant",
+      "category": "animals",
+      "categoryLabel": "动物",
+      "name": "Animal Elephant",
+      "file": "stickers/animals/animal_elephant.png",
+      "size": {
+        "width": 512,
+        "height": 512
+      },
+      "scaleVariants": [
+        "@1x",
+        "@2x",
+        "@3x"
+      ],
+      "tags": [
+        "animals"
+      ],
+      "defaultScale": 0.3,
+      "odrTag": "editor-stickers"
+    },
+    {
+      "id": "sticker_animal_giraffe",
+      "category": "animals",
+      "categoryLabel": "动物",
+      "name": "Animal Giraffe",
+      "file": "stickers/animals/animal_giraffe.png",
+      "size": {
+        "width": 512,
+        "height": 512
+      },
+      "scaleVariants": [
+        "@1x",
+        "@2x",
+        "@3x"
+      ],
+      "tags": [
+        "animals"
+      ],
+      "defaultScale": 0.3,
+      "odrTag": "editor-stickers"
+    },
+    {
+      "id": "sticker_animal_chicken",
+      "category": "animals",
+      "categoryLabel": "动物",
+      "name": "Animal Chicken",
+      "file": "stickers/animals/animal_chicken.png",
+      "size": {
+        "width": 512,
+        "height": 512
+      },
+      "scaleVariants": [
+        "@1x",
+        "@2x",
+        "@3x"
+      ],
+      "tags": [
+        "animals"
+      ],
+      "defaultScale": 0.3,
+      "odrTag": "editor-stickers"
+    },
+    {
+      "id": "sticker_animal_dragon",
+      "category": "animals",
+      "categoryLabel": "动物",
+      "name": "Animal Dragon",
+      "file": "stickers/animals/animal_dragon.png",
+      "size": {
+        "width": 512,
+        "height": 512
+      },
+      "scaleVariants": [
+        "@1x",
+        "@2x",
+        "@3x"
+      ],
+      "tags": [
+        "animals"
+      ],
+      "defaultScale": 0.3,
+      "odrTag": "editor-stickers"
+    },
+    {
+      "id": "sticker_food_bottle",
+      "category": "food",
+      "categoryLabel": "食物",
+      "name": "Food Bottle",
+      "file": "stickers/food/food_bottle.png",
+      "size": {
+        "width": 512,
+        "height": 512
+      },
+      "scaleVariants": [
+        "@1x",
+        "@2x",
+        "@3x"
+      ],
+      "tags": [
+        "food"
+      ],
+      "defaultScale": 0.3,
+      "odrTag": "editor-stickers"
+    },
+    {
+      "id": "sticker_food_bowl",
+      "category": "food",
+      "categoryLabel": "食物",
+      "name": "Food Bowl",
+      "file": "stickers/food/food_bowl.png",
+      "size": {
+        "width": 512,
+        "height": 512
+      },
+      "scaleVariants": [
+        "@1x",
+        "@2x",
+        "@3x"
+      ],
+      "tags": [
+        "food"
+      ],
+      "defaultScale": 0.3,
+      "odrTag": "editor-stickers"
+    },
+    {
+      "id": "sticker_food_apple",
+      "category": "food",
+      "categoryLabel": "食物",
+      "name": "Food Apple",
+      "file": "stickers/food/food_apple.png",
+      "size": {
+        "width": 512,
+        "height": 512
+      },
+      "scaleVariants": [
+        "@1x",
+        "@2x",
+        "@3x"
+      ],
+      "tags": [
+        "food"
+      ],
+      "defaultScale": 0.3,
+      "odrTag": "editor-stickers"
+    },
+    {
+      "id": "sticker_food_banana",
+      "category": "food",
+      "categoryLabel": "食物",
+      "name": "Food Banana",
+      "file": "stickers/food/food_banana.png",
+      "size": {
+        "width": 512,
+        "height": 512
+      },
+      "scaleVariants": [
+        "@1x",
+        "@2x",
+        "@3x"
+      ],
+      "tags": [
+        "food"
+      ],
+      "defaultScale": 0.3,
+      "odrTag": "editor-stickers"
+    },
+    {
+      "id": "sticker_food_cake",
+      "category": "food",
+      "categoryLabel": "食物",
+      "name": "Food Cake",
+      "file": "stickers/food/food_cake.png",
+      "size": {
+        "width": 512,
+        "height": 512
+      },
+      "scaleVariants": [
+        "@1x",
+        "@2x",
+        "@3x"
+      ],
+      "tags": [
+        "food"
+      ],
+      "defaultScale": 0.3,
+      "odrTag": "editor-stickers"
+    },
+    {
+      "id": "sticker_food_cookie",
+      "category": "food",
+      "categoryLabel": "食物",
+      "name": "Food Cookie",
+      "file": "stickers/food/food_cookie.png",
+      "size": {
+        "width": 512,
+        "height": 512
+      },
+      "scaleVariants": [
+        "@1x",
+        "@2x",
+        "@3x"
+      ],
+      "tags": [
+        "food"
+      ],
+      "defaultScale": 0.3,
+      "odrTag": "editor-stickers"
+    },
+    {
+      "id": "sticker_food_milk",
+      "category": "food",
+      "categoryLabel": "食物",
+      "name": "Food Milk",
+      "file": "stickers/food/food_milk.png",
+      "size": {
+        "width": 512,
+        "height": 512
+      },
+      "scaleVariants": [
+        "@1x",
+        "@2x",
+        "@3x"
+      ],
+      "tags": [
+        "food"
+      ],
+      "defaultScale": 0.3,
+      "odrTag": "editor-stickers"
+    },
+    {
+      "id": "sticker_food_strawberry",
+      "category": "food",
+      "categoryLabel": "食物",
+      "name": "Food Strawberry",
+      "file": "stickers/food/food_strawberry.png",
+      "size": {
+        "width": 512,
+        "height": 512
+      },
+      "scaleVariants": [
+        "@1x",
+        "@2x",
+        "@3x"
+      ],
+      "tags": [
+        "food"
+      ],
+      "defaultScale": 0.3,
+      "odrTag": "editor-stickers"
+    },
+    {
+      "id": "sticker_daily_stroller",
+      "category": "daily",
+      "categoryLabel": "日常",
+      "name": "Daily Stroller",
+      "file": "stickers/daily/daily_stroller.png",
+      "size": {
+        "width": 512,
+        "height": 512
+      },
+      "scaleVariants": [
+        "@1x",
+        "@2x",
+        "@3x"
+      ],
+      "tags": [
+        "daily"
+      ],
+      "defaultScale": 0.3,
+      "odrTag": "editor-stickers"
+    },
+    {
+      "id": "sticker_daily_bed",
+      "category": "daily",
+      "categoryLabel": "日常",
+      "name": "Daily Bed",
+      "file": "stickers/daily/daily_bed.png",
+      "size": {
+        "width": 512,
+        "height": 512
+      },
+      "scaleVariants": [
+        "@1x",
+        "@2x",
+        "@3x"
+      ],
+      "tags": [
+        "daily"
+      ],
+      "defaultScale": 0.3,
+      "odrTag": "editor-stickers"
+    },
+    {
+      "id": "sticker_daily_bath",
+      "category": "daily",
+      "categoryLabel": "日常",
+      "name": "Daily Bath",
+      "file": "stickers/daily/daily_bath.png",
+      "size": {
+        "width": 512,
+        "height": 512
+      },
+      "scaleVariants": [
+        "@1x",
+        "@2x",
+        "@3x"
+      ],
+      "tags": [
+        "daily"
+      ],
+      "defaultScale": 0.3,
+      "odrTag": "editor-stickers"
+    },
+    {
+      "id": "sticker_daily_clothes",
+      "category": "daily",
+      "categoryLabel": "日常",
+      "name": "Daily Clothes",
+      "file": "stickers/daily/daily_clothes.png",
+      "size": {
+        "width": 512,
+        "height": 512
+      },
+      "scaleVariants": [
+        "@1x",
+        "@2x",
+        "@3x"
+      ],
+      "tags": [
+        "daily"
+      ],
+      "defaultScale": 0.3,
+      "odrTag": "editor-stickers"
+    },
+    {
+      "id": "sticker_daily_book",
+      "category": "daily",
+      "categoryLabel": "日常",
+      "name": "Daily Book",
+      "file": "stickers/daily/daily_book.png",
+      "size": {
+        "width": 512,
+        "height": 512
+      },
+      "scaleVariants": [
+        "@1x",
+        "@2x",
+        "@3x"
+      ],
+      "tags": [
+        "daily"
+      ],
+      "defaultScale": 0.3,
+      "odrTag": "editor-stickers"
+    },
+    {
+      "id": "sticker_daily_ball",
+      "category": "daily",
+      "categoryLabel": "日常",
+      "name": "Daily Ball",
+      "file": "stickers/daily/daily_ball.png",
+      "size": {
+        "width": 512,
+        "height": 512
+      },
+      "scaleVariants": [
+        "@1x",
+        "@2x",
+        "@3x"
+      ],
+      "tags": [
+        "daily"
+      ],
+      "defaultScale": 0.3,
+      "odrTag": "editor-stickers"
+    },
+    {
+      "id": "sticker_daily_camera",
+      "category": "daily",
+      "categoryLabel": "日常",
+      "name": "Daily Camera",
+      "file": "stickers/daily/daily_camera.png",
+      "size": {
+        "width": 512,
+        "height": 512
+      },
+      "scaleVariants": [
+        "@1x",
+        "@2x",
+        "@3x"
+      ],
+      "tags": [
+        "daily"
+      ],
+      "defaultScale": 0.3,
+      "odrTag": "editor-stickers"
+    },
+    {
+      "id": "sticker_daily_heart",
+      "category": "daily",
+      "categoryLabel": "日常",
+      "name": "Daily Heart",
+      "file": "stickers/daily/daily_heart.png",
+      "size": {
+        "width": 512,
+        "height": 512
+      },
+      "scaleVariants": [
+        "@1x",
+        "@2x",
+        "@3x"
+      ],
+      "tags": [
+        "daily"
+      ],
+      "defaultScale": 0.3,
+      "odrTag": "editor-stickers"
+    },
+    {
+      "id": "sticker_ms_full_moon",
+      "category": "milestones",
+      "categoryLabel": "里程碑",
+      "name": "Ms Full Moon",
+      "file": "stickers/milestones/ms_full_moon.png",
+      "size": {
+        "width": 512,
+        "height": 512
+      },
+      "scaleVariants": [
+        "@1x",
+        "@2x",
+        "@3x"
+      ],
+      "tags": [
+        "milestones"
+      ],
+      "defaultScale": 0.3,
+      "odrTag": "editor-stickers"
+    },
+    {
+      "id": "sticker_ms_hundred_days",
+      "category": "milestones",
+      "categoryLabel": "里程碑",
+      "name": "Ms Hundred Days",
+      "file": "stickers/milestones/ms_hundred_days.png",
+      "size": {
+        "width": 512,
+        "height": 512
+      },
+      "scaleVariants": [
+        "@1x",
+        "@2x",
+        "@3x"
+      ],
+      "tags": [
+        "milestones"
+      ],
+      "defaultScale": 0.3,
+      "odrTag": "editor-stickers"
+    },
+    {
+      "id": "sticker_ms_first_birthday",
+      "category": "milestones",
+      "categoryLabel": "里程碑",
+      "name": "Ms First Birthday",
+      "file": "stickers/milestones/ms_first_birthday.png",
+      "size": {
+        "width": 512,
+        "height": 512
+      },
+      "scaleVariants": [
+        "@1x",
+        "@2x",
+        "@3x"
+      ],
+      "tags": [
+        "milestones"
+      ],
+      "defaultScale": 0.3,
+      "odrTag": "editor-stickers"
+    },
+    {
+      "id": "sticker_ms_crawl",
+      "category": "milestones",
+      "categoryLabel": "里程碑",
+      "name": "Ms Crawl",
+      "file": "stickers/milestones/ms_crawl.png",
+      "size": {
+        "width": 512,
+        "height": 512
+      },
+      "scaleVariants": [
+        "@1x",
+        "@2x",
+        "@3x"
+      ],
+      "tags": [
+        "milestones"
+      ],
+      "defaultScale": 0.3,
+      "odrTag": "editor-stickers"
+    },
+    {
+      "id": "sticker_ms_walk",
+      "category": "milestones",
+      "categoryLabel": "里程碑",
+      "name": "Ms Walk",
+      "file": "stickers/milestones/ms_walk.png",
+      "size": {
+        "width": 512,
+        "height": 512
+      },
+      "scaleVariants": [
+        "@1x",
+        "@2x",
+        "@3x"
+      ],
+      "tags": [
+        "milestones"
+      ],
+      "defaultScale": 0.3,
+      "odrTag": "editor-stickers"
+    },
+    {
+      "id": "sticker_ms_tooth",
+      "category": "milestones",
+      "categoryLabel": "里程碑",
+      "name": "Ms Tooth",
+      "file": "stickers/milestones/ms_tooth.png",
+      "size": {
+        "width": 512,
+        "height": 512
+      },
+      "scaleVariants": [
+        "@1x",
+        "@2x",
+        "@3x"
+      ],
+      "tags": [
+        "milestones"
+      ],
+      "defaultScale": 0.3,
+      "odrTag": "editor-stickers"
+    },
+    {
+      "id": "sticker_ms_zodiac",
+      "category": "milestones",
+      "categoryLabel": "里程碑",
+      "name": "Ms Zodiac",
+      "file": "stickers/milestones/ms_zodiac.png",
+      "size": {
+        "width": 512,
+        "height": 512
+      },
+      "scaleVariants": [
+        "@1x",
+        "@2x",
+        "@3x"
+      ],
+      "tags": [
+        "milestones"
+      ],
+      "defaultScale": 0.3,
+      "odrTag": "editor-stickers"
+    },
+    {
+      "id": "sticker_ms_growth",
+      "category": "milestones",
+      "categoryLabel": "里程碑",
+      "name": "Ms Growth",
+      "file": "stickers/milestones/ms_growth.png",
+      "size": {
+        "width": 512,
+        "height": 512
+      },
+      "scaleVariants": [
+        "@1x",
+        "@2x",
+        "@3x"
+      ],
+      "tags": [
+        "milestones"
+      ],
+      "defaultScale": 0.3,
+      "odrTag": "editor-stickers"
+    },
+    {
+      "id": "sticker_cute_star",
+      "category": "cute",
+      "categoryLabel": "可爱表情",
+      "name": "Cute Star",
+      "file": "stickers/cute/cute_star.png",
+      "size": {
+        "width": 512,
+        "height": 512
+      },
+      "scaleVariants": [
+        "@1x",
+        "@2x",
+        "@3x"
+      ],
+      "tags": [
+        "cute"
+      ],
+      "defaultScale": 0.3,
+      "odrTag": "editor-stickers"
+    },
+    {
+      "id": "sticker_cute_heart",
+      "category": "cute",
+      "categoryLabel": "可爱表情",
+      "name": "Cute Heart",
+      "file": "stickers/cute/cute_heart.png",
+      "size": {
+        "width": 512,
+        "height": 512
+      },
+      "scaleVariants": [
+        "@1x",
+        "@2x",
+        "@3x"
+      ],
+      "tags": [
+        "cute"
+      ],
+      "defaultScale": 0.3,
+      "odrTag": "editor-stickers"
+    },
+    {
+      "id": "sticker_cute_rainbow",
+      "category": "cute",
+      "categoryLabel": "可爱表情",
+      "name": "Cute Rainbow",
+      "file": "stickers/cute/cute_rainbow.png",
+      "size": {
+        "width": 512,
+        "height": 512
+      },
+      "scaleVariants": [
+        "@1x",
+        "@2x",
+        "@3x"
+      ],
+      "tags": [
+        "cute"
+      ],
+      "defaultScale": 0.3,
+      "odrTag": "editor-stickers"
+    },
+    {
+      "id": "sticker_cute_cloud",
+      "category": "cute",
+      "categoryLabel": "可爱表情",
+      "name": "Cute Cloud",
+      "file": "stickers/cute/cute_cloud.png",
+      "size": {
+        "width": 512,
+        "height": 512
+      },
+      "scaleVariants": [
+        "@1x",
+        "@2x",
+        "@3x"
+      ],
+      "tags": [
+        "cute"
+      ],
+      "defaultScale": 0.3,
+      "odrTag": "editor-stickers"
+    },
+    {
+      "id": "sticker_cute_sun",
+      "category": "cute",
+      "categoryLabel": "可爱表情",
+      "name": "Cute Sun",
+      "file": "stickers/cute/cute_sun.png",
+      "size": {
+        "width": 512,
+        "height": 512
+      },
+      "scaleVariants": [
+        "@1x",
+        "@2x",
+        "@3x"
+      ],
+      "tags": [
+        "cute"
+      ],
+      "defaultScale": 0.3,
+      "odrTag": "editor-stickers"
+    },
+    {
+      "id": "sticker_cute_moon",
+      "category": "cute",
+      "categoryLabel": "可爱表情",
+      "name": "Cute Moon",
+      "file": "stickers/cute/cute_moon.png",
+      "size": {
+        "width": 512,
+        "height": 512
+      },
+      "scaleVariants": [
+        "@1x",
+        "@2x",
+        "@3x"
+      ],
+      "tags": [
+        "cute"
+      ],
+      "defaultScale": 0.3,
+      "odrTag": "editor-stickers"
+    },
+    {
+      "id": "sticker_cute_flower",
+      "category": "cute",
+      "categoryLabel": "可爱表情",
+      "name": "Cute Flower",
+      "file": "stickers/cute/cute_flower.png",
+      "size": {
+        "width": 512,
+        "height": 512
+      },
+      "scaleVariants": [
+        "@1x",
+        "@2x",
+        "@3x"
+      ],
+      "tags": [
+        "cute"
+      ],
+      "defaultScale": 0.3,
+      "odrTag": "editor-stickers"
+    },
+    {
+      "id": "sticker_cute_bubble",
+      "category": "cute",
+      "categoryLabel": "可爱表情",
+      "name": "Cute Bubble",
+      "file": "stickers/cute/cute_bubble.png",
+      "size": {
+        "width": 512,
+        "height": 512
+      },
+      "scaleVariants": [
+        "@1x",
+        "@2x",
+        "@3x"
+      ],
+      "tags": [
+        "cute"
+      ],
+      "defaultScale": 0.3,
+      "odrTag": "editor-stickers"
+    }
+  ]
+}

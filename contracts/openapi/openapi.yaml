@@ -1,0 +1,177 @@
+openapi: 3.0.3
+info:
+  title: 宝宝成长相机 REST API
+  version: 1.0.0
+  description: |
+    端 ↔ 后端 REST 契约，对齐 [design-api.md](../../docs/design-api.md)。
+    大版本 URI 前缀 `v1`；非破坏性变更仅增字段，破坏性变更升至 `v2`。
+  contact:
+    name: baobao API
+  license:
+    name: Proprietary
+
+servers:
+  - url: https://api-cn.babygrowth.app
+    description: 中国区域
+  - url: https://api-os.babygrowth.app
+    description: 海外区域
+
+tags:
+  - name: auth
+    description: 鉴权（design-api §3）
+  - name: account
+    description: 账号（design-api §3）
+  - name: family
+    description: 家庭（design-api §4.1）
+  - name: baby
+    description: 宝宝档案（design-api §4.2）
+  - name: upload
+    description: 媒体上传（design-api §5）
+  - name: ai
+    description: AI 任务（design-api §6）
+  - name: feed
+    description: 家庭圈（design-api §7）
+  - name: credits
+    description: 积分（design-api §8.1）
+  - name: subscriptions
+    description: 订阅（design-api §8.2）
+  - name: caption
+    description: 智能文案（design-api §9）
+  - name: notifications
+    description: 通知（design-api §10）
+  - name: backup
+    description: 备份凭据（design-api §11）
+  - name: config
+    description: 灰度与运营配置（config-svc）
+
+paths:
+  /v1/auth/apple:
+    $ref: './paths/auth.yaml#/paths/~1v1~1auth~1apple'
+  /v1/auth/phone/code:
+    $ref: './paths/auth.yaml#/paths/~1v1~1auth~1phone~1code'
+  /v1/auth/phone/login:
+    $ref: './paths/auth.yaml#/paths/~1v1~1auth~1phone~1login'
+  /v1/auth/refresh:
+    $ref: './paths/auth.yaml#/paths/~1v1~1auth~1refresh'
+  /v1/account/logout:
+    $ref: './paths/auth.yaml#/paths/~1v1~1account~1logout'
+  /v1/account/me:
+    $ref: './paths/auth.yaml#/paths/~1v1~1account~1me'
+  /v1/account/consents/child-data:
+    $ref: './paths/auth.yaml#/paths/~1v1~1account~1consents~1child-data'
+  /v1/account:
+    $ref: './paths/auth.yaml#/paths/~1v1~1account'
+
+  /v1/families:
+    $ref: './paths/family.yaml#/paths/~1v1~1families'
+  /v1/families/{familyId}:
+    $ref: './paths/family.yaml#/paths/~1v1~1families~1{familyId}'
+  /v1/families/{familyId}/invitations:
+    $ref: './paths/family.yaml#/paths/~1v1~1families~1{familyId}~1invitations'
+  /v1/families/{familyId}/invitations/{code}:
+    $ref: './paths/family.yaml#/paths/~1v1~1families~1{familyId}~1invitations~1{code}'
+  /v1/invitations/{code}/join:
+    $ref: './paths/family.yaml#/paths/~1v1~1invitations~1{code}~1join'
+  /v1/families/{familyId}/transfer:
+    $ref: './paths/family.yaml#/paths/~1v1~1families~1{familyId}~1transfer'
+  /v1/families/{familyId}/takeover:
+    $ref: './paths/family.yaml#/paths/~1v1~1families~1{familyId}~1takeover'
+  /v1/families/{familyId}/members:
+    $ref: './paths/family.yaml#/paths/~1v1~1families~1{familyId}~1members'
+  /v1/families/{familyId}/members/{userId}:
+    $ref: './paths/family.yaml#/paths/~1v1~1families~1{familyId}~1members~1{userId}'
+
+  /v1/families/{familyId}/babies:
+    $ref: './paths/baby.yaml#/paths/~1v1~1families~1{familyId}~1babies'
+  /v1/babies/{babyId}:
+    $ref: './paths/baby.yaml#/paths/~1v1~1babies~1{babyId}'
+  /v1/babies/{babyId}/milestones:
+    $ref: './paths/baby.yaml#/paths/~1v1~1babies~1{babyId}~1milestones'
+
+  /v1/uploads/init:
+    $ref: './paths/uploads.yaml#/paths/~1v1~1uploads~1init'
+  /v1/uploads/complete:
+    $ref: './paths/uploads.yaml#/paths/~1v1~1uploads~1complete'
+
+  /v1/ai/plays:
+    $ref: './paths/ai.yaml#/paths/~1v1~1ai~1plays'
+  /v1/ai/tasks:
+    $ref: './paths/ai.yaml#/paths/~1v1~1ai~1tasks'
+  /v1/ai/tasks/{taskId}:
+    $ref: './paths/ai.yaml#/paths/~1v1~1ai~1tasks~1{taskId}'
+  /v1/ai/tasks/{taskId}/cancel:
+    $ref: './paths/ai.yaml#/paths/~1v1~1ai~1tasks~1{taskId}~1cancel'
+  /v1/ai/tasks/{taskId}/appeal:
+    $ref: './paths/ai.yaml#/paths/~1v1~1ai~1tasks~1{taskId}~1appeal'
+
+  /v1/posts:
+    $ref: './paths/posts.yaml#/paths/~1v1~1posts'
+  /v1/posts/{postId}:
+    $ref: './paths/posts.yaml#/paths/~1v1~1posts~1{postId}'
+  /v1/feeds/family:
+    $ref: './paths/posts.yaml#/paths/~1v1~1feeds~1family'
+  /v1/posts/{postId}/likes:
+    $ref: './paths/posts.yaml#/paths/~1v1~1posts~1{postId}~1likes'
+  /v1/posts/{postId}/comments:
+    $ref: './paths/posts.yaml#/paths/~1v1~1posts~1{postId}~1comments'
+  /v1/posts/{postId}/comments/{commentId}:
+    $ref: './paths/posts.yaml#/paths/~1v1~1posts~1{postId}~1comments~1{commentId}'
+
+  /v1/credits/balance:
+    $ref: './paths/credits.yaml#/paths/~1v1~1credits~1balance'
+  /v1/credits/transactions:
+    $ref: './paths/credits.yaml#/paths/~1v1~1credits~1transactions'
+  /v1/credits/sign-in:
+    $ref: './paths/credits.yaml#/paths/~1v1~1credits~1sign-in'
+  /v1/credits/ad-reward:
+    $ref: './paths/credits.yaml#/paths/~1v1~1credits~1ad-reward'
+  /v1/credits/iap-verify:
+    $ref: './paths/credits.yaml#/paths/~1v1~1credits~1iap-verify'
+  /v1/credits/rates:
+    $ref: './paths/credits.yaml#/paths/~1v1~1credits~1rates'
+
+  /v1/subscriptions/me:
+    $ref: './paths/subscriptions.yaml#/paths/~1v1~1subscriptions~1me'
+  /v1/subscriptions/iap-verify:
+    $ref: './paths/subscriptions.yaml#/paths/~1v1~1subscriptions~1iap-verify'
+  /v1/subscriptions/products:
+    $ref: './paths/subscriptions.yaml#/paths/~1v1~1subscriptions~1products'
+
+  /v1/caption/generate:
+    $ref: './paths/caption.yaml#/paths/~1v1~1caption~1generate'
+
+  /v1/notifications/devices:
+    $ref: './paths/notifications.yaml#/paths/~1v1~1notifications~1devices'
+  /v1/notifications/devices/{deviceId}:
+    $ref: './paths/notifications.yaml#/paths/~1v1~1notifications~1devices~1{deviceId}'
+  /v1/notifications:
+    $ref: './paths/notifications.yaml#/paths/~1v1~1notifications'
+  /v1/notifications/mark-read:
+    $ref: './paths/notifications.yaml#/paths/~1v1~1notifications~1mark-read'
+  /v1/notifications/subscriptions:
+    $ref: './paths/notifications.yaml#/paths/~1v1~1notifications~1subscriptions'
+
+  /v1/backup/providers:
+    $ref: './paths/backup.yaml#/paths/~1v1~1backup~1providers'
+  /v1/backup/providers/{id}:
+    $ref: './paths/backup.yaml#/paths/~1v1~1backup~1providers~1{id}'
+  /v1/backup/status:
+    $ref: './paths/backup.yaml#/paths/~1v1~1backup~1status'
+
+  /v1/config/features:
+    $ref: './paths/config.yaml#/paths/~1v1~1config~1features'
+  /v1/config/plays:
+    $ref: './paths/config.yaml#/paths/~1v1~1config~1plays'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      $ref: './components/common.yaml#/components/securitySchemes/bearerAuth'
+  schemas:
+    ApiResponse:
+      $ref: './components/common.yaml#/components/schemas/ApiResponse'
+    ErrorResponse:
+      $ref: './components/common.yaml#/components/schemas/ErrorResponse'
+
+security:
+  - bearerAuth: []

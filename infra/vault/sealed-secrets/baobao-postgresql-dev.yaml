@@ -1,0 +1,34 @@
+# SealedSecret 加密占位 — 部署前必须用 kubeseal 重新生成（见 README.md）
+# 明文 Secret 名称: baobao-postgresql
+# 命名空间: dev
+# 对齐 Vault: secret/data/dev/cn/shared/postgres-auth-family
+# 对齐 Bitnami: existingSecret baobao-postgresql, keys postgres-password / password
+#
+# 生成命令:
+#   kubectl create secret generic baobao-postgresql -n dev \
+#     --from-literal=postgres-password='REPLACE_ME' \
+#     --from-literal=password='REPLACE_ME' \
+#     --dry-run=client -o yaml | kubeseal -o yaml > baobao-postgresql-dev.yaml
+
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  name: baobao-postgresql
+  namespace: dev
+  labels:
+    app.kubernetes.io/name: postgresql
+    baobao.io/data-store: postgresql
+    baobao.io/sealed-secret: placeholder
+spec:
+  encryptedData:
+    # PLACEHOLDER — 非真实密文；kubeseal 后替换为 Ag... 前缀的加密 blob
+    postgres-password: PLACEHOLDER_RUN_KUBESEAL_postgres-password
+    password: PLACEHOLDER_RUN_KUBESEAL_password
+  template:
+    metadata:
+      name: baobao-postgresql
+      namespace: dev
+      labels:
+        app.kubernetes.io/name: postgresql
+        baobao.io/managed-by: sealed-secrets
+    type: Opaque

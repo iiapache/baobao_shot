@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package baobao.ai.v1;
+
+option go_package = "github.com/baobao/gen/baobao/ai/v1;aiv1";
+
+// AiDispatchService — ai-dispatch-svc 占位（REST 见 design-api §6）
+service AiDispatchService {
+  rpc GetTask(GetTaskRequest) returns (GetTaskResponse);
+}
+
+message GetTaskRequest {
+  string task_id = 1;
+}
+
+message GetTaskResponse {
+  string task_id = 1;
+  string state = 2;
+}

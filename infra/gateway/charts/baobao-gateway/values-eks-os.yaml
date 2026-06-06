@@ -1,0 +1,38 @@
+# AWS EKS 新加坡 — 网关 values
+# helm upgrade --install gateway ./infra/gateway/charts/baobao-gateway \
+#   -n gateway --create-namespace \
+#   -f infra/gateway/charts/baobao-gateway/values.yaml \
+#   -f infra/gateway/charts/baobao-gateway/values-eks-os.yaml
+
+global:
+  cluster: eks-os
+  region: os
+  environment: dev
+
+apisix:
+  gateway:
+    type: LoadBalancer
+    annotations:
+      # AWS NLB 占位
+      service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
+      service.beta.kubernetes.io/aws-load-balancer-scheme: "internet-facing"
+
+  ingress-controller:
+    config:
+      apisix:
+        serviceNamespace: gateway
+
+gateway:
+  hosts:
+    api: dev-api-os.example.com
+    ws: dev-ws-os.example.com
+
+  upstream:
+    hello:
+      namespace: dev
+      serviceName: hello
+      servicePort: 80
+
+commonLabels:
+  baobao.io/cluster: eks-os
+  baobao.io/region: os

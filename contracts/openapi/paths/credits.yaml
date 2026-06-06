@@ -1,0 +1,94 @@
+# design-api.md §8.1 积分
+paths:
+  /v1/credits/balance:
+    get:
+      tags: [credits]
+      summary: 当前余额
+      operationId: creditsGetBalance
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 余额
+          content:
+            application/json:
+              schema:
+                $ref: '../components/common.yaml#/components/schemas/ApiResponse'
+
+  /v1/credits/transactions:
+    get:
+      tags: [credits]
+      summary: 账本流水（分页）
+      operationId: creditsListTransactions
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '../components/common.yaml#/components/parameters/Cursor'
+        - $ref: '../components/common.yaml#/components/parameters/Limit'
+      responses:
+        '200':
+          description: 流水列表
+          content:
+            application/json:
+              schema:
+                $ref: '../components/common.yaml#/components/schemas/ApiResponse'
+
+  /v1/credits/sign-in:
+    post:
+      tags: [credits]
+      summary: 每日签到
+      operationId: creditsSignIn
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 签到成功
+          content:
+            application/json:
+              schema:
+                $ref: '../components/common.yaml#/components/schemas/ApiResponse'
+
+  /v1/credits/ad-reward:
+    post:
+      tags: [credits]
+      summary: 激励广告回调
+      operationId: creditsAdReward
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 奖励已发放
+          content:
+            application/json:
+              schema:
+                $ref: '../components/common.yaml#/components/schemas/ApiResponse'
+
+  /v1/credits/iap-verify:
+    post:
+      tags: [credits]
+      summary: IAP 充值校验
+      operationId: creditsIapVerify
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 校验成功
+          content:
+            application/json:
+              schema:
+                $ref: '../components/common.yaml#/components/schemas/ApiResponse'
+
+  /v1/credits/rates:
+    get:
+      tags: [credits]
+      summary: 各玩法当前积分单价
+      operationId: creditsGetRates
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 单价列表
+          content:
+            application/json:
+              schema:
+                $ref: '../components/common.yaml#/components/schemas/ApiResponse'

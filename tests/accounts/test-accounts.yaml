@@ -1,0 +1,129 @@
+# 测试账号池（占位）
+#
+# 用途：staging 回归、冒烟、E2E、性能基线
+# 安全：禁止提交真实密码/Token；产线凭据走 Vault（见 infra/accounts/THIRD_PARTY_ACCOUNTS.md）
+# 对齐：contracts/openapi paths/auth.yaml、family.yaml、baby.yaml
+#
+# 维护：QA 负责人更新 status；开通后替换 placeholder 字段
+
+schema_version: "1"
+updated_at: "2026-06-06"
+environment: staging
+
+# ---------------------------------------------------------------------------
+# 中国区手机号账号（POST /v1/auth/phone/code + /v1/auth/phone/login）
+# ---------------------------------------------------------------------------
+phone_accounts:
+  - id: qa-cn-admin-001
+    phone: "13800138001"
+    region: cn
+    role: admin
+    description: 主冒烟账号 · 家庭管理员
+    sms_code_mock: "123456"          # 仅 mock-api / staging 测试网关生效
+    status: placeholder              # placeholder | active | disabled
+    family_id: fam_smoke_001
+    baby_ids: [bb_smoke_001]
+    notes: 创建家庭、发布 Feed 默认使用此账号
+
+  - id: qa-cn-member-002
+    phone: "13800138002"
+    region: cn
+    role: family
+    description: 家庭成员 · 点赞/评论
+    sms_code_mock: "123456"
+    status: placeholder
+    family_id: fam_smoke_001
+    notes: 通过邀请码 join 后启用
+
+  - id: qa-cn-guest-003
+    phone: "13800138003"
+    region: cn
+    role: guest
+    description: 访客只读
+    sms_code_mock: "123456"
+    status: placeholder
+    family_id: fam_smoke_001
+
+# ---------------------------------------------------------------------------
+# Apple ID（POST /v1/auth/apple）
+# ---------------------------------------------------------------------------
+apple_accounts:
+  - id: qa-apple-cn-001
+    region: cn
+    sandbox_email: "qa.apple.cn.001@icloud.com"
+    sandbox_password: "<VAULT:staging/apple-sandbox/qa-apple-cn-001>"
+    device_udid: "<TestFlight 注册后填写>"
+    status: placeholder
+    notes: App Store Connect 沙盒测试员
+
+  - id: qa-apple-os-001
+    region: os
+    sandbox_email: "qa.apple.os.001@icloud.com"
+    sandbox_password: "<VAULT:staging/apple-sandbox/qa-apple-os-001>"
+    status: placeholder
+
+# ---------------------------------------------------------------------------
+# 微信开放平台（V1.1 · 后端调 mock-wechat 或开放平台测试 App）
+# ---------------------------------------------------------------------------
+wechat_accounts:
+  - id: qa-wechat-001
+    openid: "oMock_openid_smoke_001"
+    unionid: "uMock_unionid_smoke_001"
+    test_app_id: "<开放平台测试 AppID>"
+    status: placeholder
+    notes: mock-wechat 默认返回此 openid
+
+# ---------------------------------------------------------------------------
+# IAP / 订阅沙盒（POST /v1/credits/iap-verify、/v1/subscriptions/iap-verify）
+# ---------------------------------------------------------------------------
+iap_sandbox:
+  - id: qa-iap-credits-100
+    product_id: "com.baobao.credits.100"
+    type: consumable
+    sandbox_transaction_id: "2000000123456789"
+    status: placeholder
+
+  - id: qa-iap-sub-monthly
+    product_id: "com.baobao.sub.monthly"
+    type: subscription
+    sandbox_transaction_id: "2000000987654321"
+    status: placeholder
+
+# ---------------------------------------------------------------------------
+# 预置家庭 / 宝宝（staging 种子数据 · 可选）
+# ---------------------------------------------------------------------------
+seed_data:
+  families:
+    - family_id: fam_smoke_001
+      name: "冒烟测试家庭"
+      admin_account_id: qa-cn-admin-001
+  babies:
+    - baby_id: bb_smoke_001
+      family_id: fam_smoke_001
+      name: "小测"
+      birthday: "2024-01-01"
+      gender: unknown
+
+# ---------------------------------------------------------------------------
+# 设备绑定（X-Device-Id 与真机矩阵交叉引用）
+# ---------------------------------------------------------------------------
+devices:
+  - device_id: qa-device-iphone12-001
+    model: iPhone 12
+    os: iOS 17
+    owner_account_id: qa-cn-admin-001
+  - device_id: qa-device-iphone16-001
+    model: iPhone 16
+    os: iOS 18
+    owner_account_id: qa-cn-admin-001
+
+# ---------------------------------------------------------------------------
+# 使用说明
+# ---------------------------------------------------------------------------
+usage:
+  smoke_script:
+    env_mapping:
+      SMOKE_PHONE: phone_accounts[0].phone
+      SMOKE_CODE: phone_accounts[0].sms_code_mock
+      SMOKE_DEVICE_ID: devices[0].device_id
+  rotation_policy: 每季度轮换手机号；Apple 沙盒密码变更后同步 Vault

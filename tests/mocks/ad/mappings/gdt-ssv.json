@@ -1,0 +1,20 @@
+{
+  "request": {
+    "method": "POST",
+    "urlPath": "/api/ad/ssv/gdt"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "ret": 0,
+      "msg": "ok",
+      "data": {
+        "bill_no": "ad_mock_gdt_001",
+        "reward": 10
+      }
+    }
+  }
+}

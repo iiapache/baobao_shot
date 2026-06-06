@@ -1,0 +1,28 @@
+# ACK 中国 — dev 环境 hello 服务 values
+# helm install hello ./infra/k8s/charts/hello \
+#   -n dev --create-namespace \
+#   -f infra/k8s/clusters/ack-cn/cluster-values.yaml \
+#   -f infra/k8s/clusters/ack-cn/dev-hello-values.yaml
+
+global:
+  cluster: ack-cn
+  region: cn
+  environment: dev
+
+replicaCount: 1
+
+ingress:
+  enabled: true
+  className: nginx
+  hosts:
+    - host: hello-dev-cn.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+
+commonLabels:
+  baobao.io/team: infra
+  baobao.io/tier: demo
+
+commonAnnotations:
+  baobao.io/deployed-by: helm

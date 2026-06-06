@@ -1,0 +1,210 @@
+{
+  "info": {
+    "name": "Baobao P0 Smoke",
+    "description": "登录 → 拍照(mock) → 发布(mock)。对齐 contracts/openapi operationId。",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:18080" },
+    { "key": "region", "value": "cn" },
+    { "key": "appVersion", "value": "1.0.0-staging" },
+    { "key": "deviceId", "value": "qa-device-iphone12-001" },
+    { "key": "phone", "value": "13800138001" },
+    { "key": "code", "value": "123456" },
+    { "key": "accessToken", "value": "" },
+    { "key": "uploadUrl", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "P0 Smoke",
+      "item": [
+        {
+          "name": "0 Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/health"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "1 authPhoneSendCode",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-Region", "value": "{{region}}" },
+              { "key": "X-App-Version", "value": "{{appVersion}}" },
+              { "key": "X-Device-Id", "value": "{{deviceId}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"{{phone}}\"\n}"
+            },
+            "url": "{{baseUrl}}/v1/auth/phone/code"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('code OK', () => pm.expect(j.code).to.eql('OK'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "2 authPhoneLogin",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-Region", "value": "{{region}}" },
+              { "key": "X-App-Version", "value": "{{appVersion}}" },
+              { "key": "X-Device-Id", "value": "{{deviceId}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"{{phone}}\",\n  \"code\": \"{{code}}\"\n}"
+            },
+            "url": "{{baseUrl}}/v1/auth/phone/login"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('accessToken', () => pm.expect(j.data.accessToken).to.be.a('string'));",
+                  "pm.collectionVariables.set('accessToken', j.data.accessToken);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "3 uploadInit (photo mock)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" },
+              { "key": "X-Region", "value": "{{region}}" },
+              { "key": "X-App-Version", "value": "{{appVersion}}" },
+              { "key": "X-Device-Id", "value": "{{deviceId}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"purpose\": \"post-item\",\n  \"familyId\": \"fam_smoke_001\",\n  \"items\": [{\n    \"clientRef\": \"photo-ref-001\",\n    \"kind\": \"photo\",\n    \"mime\": \"image/jpeg\",\n    \"size\": 1024,\n    \"sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\"\n  }]\n}"
+            },
+            "url": "{{baseUrl}}/v1/uploads/init"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.collectionVariables.set('uploadUrl', j.data.items[0].uploadUrl);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "4 mock OSS PUT",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "image/jpeg" }
+            ],
+            "body": { "mode": "raw", "raw": "" },
+            "url": "{{uploadUrl}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "5 uploadComplete",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" },
+              { "key": "X-Region", "value": "{{region}}" },
+              { "key": "X-App-Version", "value": "{{appVersion}}" },
+              { "key": "X-Device-Id", "value": "{{deviceId}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"uploadId\": \"upl_smoke_001\"\n}"
+            },
+            "url": "{{baseUrl}}/v1/uploads/complete"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "6 postCreate (publish mock)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" },
+              { "key": "X-Region", "value": "{{region}}" },
+              { "key": "X-App-Version", "value": "{{appVersion}}" },
+              { "key": "X-Device-Id", "value": "{{deviceId}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"familyId\": \"fam_smoke_001\",\n  \"babyId\": \"bb_smoke_001\",\n  \"caption\": \"P0 冒烟发布（mock）\",\n  \"media\": [{\n    \"objectKey\": \"mock/cn/fam_smoke_001/photo_smoke_001.jpg\",\n    \"kind\": \"photo\"\n  }]\n}"
+            },
+            "url": "{{baseUrl}}/v1/posts"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('postId', () => pm.expect(j.data.postId).to.be.a('string'));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

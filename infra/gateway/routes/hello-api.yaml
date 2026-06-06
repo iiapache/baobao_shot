@@ -1,0 +1,117 @@
+# REST API 路由 — hello 上游健康检查与 /v1 占位
+#
+# 验收：curl https://<api-host>/health → 200
+#       curl https://<api-host>/v1/echo → hello echo-server 200
+#
+# 变量说明（部署前 sed/envsubst 或 Kustomize 替换）:
+#   API_HOST       — 如 dev-api-cn.example.com
+#   HELLO_NS       — hello Service 所在命名空间，默认 dev
+#   INGRESS_CLASS  — 默认 apisix
+
+---
+apiVersion: apisix.apache.org/v2
+kind: ApisixRoute
+metadata:
+  name: hello-api
+  labels:
+    app.kubernetes.io/part-of: baobao
+    app.kubernetes.io/component: gateway-route
+    baobao.io/upstream: hello
+spec:
+  ingressClassName: apisix
+  http:
+    # 健康检查 — 网关直通 hello /
+    - name: hello-health
+      priority: 100
+      match:
+        hosts:
+          - dev-api-cn.example.com
+          # OS 集群部署时改为 dev-api-os.example.com，或拆分为独立 manifest
+        paths:
+          - /health
+          - /health/*
+      backends:
+        - serviceName: hello
+          servicePort: 80
+      plugins:
+        - name: proxy-rewrite
+          enable: true
+          config:
+            # hello echo-server 根路径响应 200
+            regex_uri:
+              - "^/health(.*)$"
+              - "/$1"
+
+    # 版本化 API 占位 — 后续替换为 auth-family-svc 等
+    - name: hello-v1-echo
+      priority: 10
+      match:
+        hosts:
+          - dev-api-cn.example.com
+        paths:
+          - /v1/*
+      backends:
+        - serviceName: hello
+          servicePort: 80
+      plugins:
+        - name: proxy-rewrite
+          enable: true
+          config:
+            regex_uri:
+              - "^/v1/(.*)$"
+              - "/$1"
+        - name: limit-count
+          enable: true
+          config:
+            count: 1000
+            time_window: 60
+            rejected_code: 429
+            key: remote_addr
+
+---
+# 海外区 dev 路由（eks-os）— 与 ack-cn 分离便于 ArgoCD Application 按集群选取
+apiVersion: apisix.apache.org/v2
+kind: ApisixRoute
+metadata:
+  name: hello-api-os
+  labels:
+    app.kubernetes.io/part-of: baobao
+    baobao.io/region: os
+spec:
+  ingressClassName: apisix
+  http:
+    - name: hello-health-os
+      priority: 100
+      match:
+        hosts:
+          - dev-api-os.example.com
+        paths:
+          - /health
+          - /health/*
+      backends:
+        - serviceName: hello
+          servicePort: 80
+      plugins:
+        - name: proxy-rewrite
+          enable: true
+          config:
+            regex_uri:
+              - "^/health(.*)$"
+              - "/$1"
+    - name: hello-v1-echo-os
+      priority: 10
+      match:
+        hosts:
+          - dev-api-os.example.com
+        paths:
+          - /v1/*
+      backends:
+        - serviceName: hello
+          servicePort: 80
+      plugins:
+        - name: proxy-rewrite
+          enable: true
+          config:
+            regex_uri:
+              - "^/v1/(.*)$"
+              - "/$1"

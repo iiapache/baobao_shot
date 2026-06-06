@@ -1,0 +1,43 @@
+# Fastlane lanes — 宝宝成长相机 iOS
+# 本地: cd ios && bundle exec fastlane <lane>
+# CI:   macOS runner 或 Xcode Cloud workflow 调用
+
+default_platform(:ios)
+
+platform :ios do
+  # MR / 本地单测入口
+  desc "Run unit tests (xcodebuild test)"
+  lane :test do
+    # T0.13 创建 Xcode 工程后取消注释并调整 scheme
+    # scan(
+    #   scheme: "BabyCamera",
+    #   device: "iPhone 16",
+    #   clean: true,
+    #   code_coverage: true,
+    #   output_directory: "./fastlane/test_output",
+    #   fail_build: true
+    # )
+
+    UI.message(">>> fastlane test — 占位模式（无 Xcode 工程）")
+    UI.message(">>> T0.13 后启用 scan + xcodebuild test")
+    UI.message(">>> GitLab MR: test:ios job 在 Linux 验证本 lane 存在")
+    UI.message(">>> 正式 CI: macOS runner 执行 bundle exec fastlane test")
+
+    if ENV["CI"]
+      sh("echo 'CI environment detected — skipping xcodebuild on non-macOS runner'")
+    end
+  end
+
+  # TestFlight 内测（T7.12）
+  desc "Build and upload to TestFlight"
+  lane :beta do
+    UI.user_error!("beta lane 待 T0.13 Xcode 工程 + T0.12 Apple 账号就绪后启用")
+    # gym + pilot
+  end
+
+  # App Store 提审（T7.13）
+  desc "Submit to App Store"
+  lane :release do
+    UI.user_error!("release lane 待上架流程就绪后启用")
+  end
+end

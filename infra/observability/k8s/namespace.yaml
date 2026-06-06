@@ -1,0 +1,13 @@
+# observability 命名空间 — Prometheus / Grafana / Loki / Tempo / OTEL Collector
+#
+# kubectl apply -f infra/observability/k8s/namespace.yaml
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: observability
+  labels:
+    app.kubernetes.io/part-of: baobao
+    app.kubernetes.io/component: observability
+    baobao.io/managed-by: kubectl

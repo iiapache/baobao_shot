@@ -1,0 +1,78 @@
+# WebSocket 路由 — ws-cn / ws-os 域名
+#
+# 对应 design.md §3.2 WSS 通道；上游暂用 hello echo-server 验证 WS 升级。
+# 生产替换为 notification-svc / feed-svc 实时通道。
+#
+# 验收：websocat/wscat 连接 wss://<ws-host>/ws/v1/events → 101 Switching Protocols
+
+---
+apiVersion: apisix.apache.org/v2
+kind: ApisixRoute
+metadata:
+  name: hello-ws-cn
+  labels:
+    app.kubernetes.io/part-of: baobao
+    baobao.io/region: cn
+    baobao.io/channel: websocket
+spec:
+  ingressClassName: apisix
+  http:
+    - name: ws-events-cn
+      priority: 50
+      match:
+        hosts:
+          - dev-ws-cn.example.com
+        paths:
+          - /ws/*
+          - /ws/v1/*
+      websocket: true
+      backends:
+        - serviceName: hello
+          servicePort: 80
+      plugins:
+        - name: proxy-rewrite
+          enable: true
+          config:
+            regex_uri:
+              - "^/ws/v1/(.*)$"
+              - "/$1"
+        # JWT 校验占位 — T1.x auth 插件启用
+        - name: jwt-auth
+          enable: false
+          config:
+            header: Authorization
+            query: jwt
+
+---
+apiVersion: apisix.apache.org/v2
+kind: ApisixRoute
+metadata:
+  name: hello-ws-os
+  labels:
+    app.kubernetes.io/part-of: baobao
+    baobao.io/region: os
+    baobao.io/channel: websocket
+spec:
+  ingressClassName: apisix
+  http:
+    - name: ws-events-os
+      priority: 50
+      match:
+        hosts:
+          - dev-ws-os.example.com
+        paths:
+          - /ws/*
+          - /ws/v1/*
+      websocket: true
+      backends:
+        - serviceName: hello
+          servicePort: 80
+      plugins:
+        - name: proxy-rewrite
+          enable: true
+          config:
+            regex_uri:
+              - "^/ws/v1/(.*)$"
+              - "/$1"
+        - name: jwt-auth
+          enable: false

@@ -1,0 +1,43 @@
+# 双集群共享命名空间定义
+# ack-cn（阿里云 ACK 中国）：dev / staging / prod-cn
+# eks-os（AWS EKS 新加坡）：dev / staging / prod-os
+#
+# 应用方式：kubectl apply -f infra/k8s/namespaces/namespaces.yaml
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: dev
+  labels:
+    app.kubernetes.io/part-of: baobao
+    baobao.io/environment: dev
+    baobao.io/managed-by: infra
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: staging
+  labels:
+    app.kubernetes.io/part-of: baobao
+    baobao.io/environment: staging
+    baobao.io/managed-by: infra
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: prod-cn
+  labels:
+    app.kubernetes.io/part-of: baobao
+    baobao.io/environment: prod
+    baobao.io/region: cn
+    baobao.io/managed-by: infra
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: prod-os
+  labels:
+    app.kubernetes.io/part-of: baobao
+    baobao.io/environment: prod
+    baobao.io/region: os
+    baobao.io/managed-by: infra

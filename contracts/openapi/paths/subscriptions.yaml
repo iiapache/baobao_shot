@@ -1,0 +1,46 @@
+# design-api.md §8.2 订阅
+paths:
+  /v1/subscriptions/me:
+    get:
+      tags: [subscriptions]
+      summary: 当前订阅状态与权益
+      operationId: subscriptionsGetMe
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 订阅状态
+          content:
+            application/json:
+              schema:
+                $ref: '../components/common.yaml#/components/schemas/ApiResponse'
+
+  /v1/subscriptions/iap-verify:
+    post:
+      tags: [subscriptions]
+      summary: 订阅 IAP 校验
+      operationId: subscriptionsIapVerify
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 校验成功
+          content:
+            application/json:
+              schema:
+                $ref: '../components/common.yaml#/components/schemas/ApiResponse'
+
+  /v1/subscriptions/products:
+    get:
+      tags: [subscriptions]
+      summary: SKU 列表
+      operationId: subscriptionsListProducts
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: SKU 列表
+          content:
+            application/json:
+              schema:
+                $ref: '../components/common.yaml#/components/schemas/ApiResponse'

@@ -1,0 +1,35 @@
+{
+  "request": {
+    "method": "POST",
+    "urlPath": "/v1/uploads/complete",
+    "headers": {
+      "Authorization": {
+        "contains": "Bearer"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "code": "OK",
+      "message": "ok",
+      "requestId": "req_mock_upload_complete",
+      "data": {
+        "uploadId": "upl_smoke_001",
+        "status": "completed",
+        "items": [
+          {
+            "clientRef": "photo-ref-001",
+            "objectKey": "mock/cn/fam_smoke_001/photo_smoke_001.jpg",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "size": 1024,
+            "mime": "image/jpeg"
+          }
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,85 @@
+# Kafka topic 定义 — 宝宝成长相机
+# 参考：docs/design-backend.md §3.2、§12.2
+# 集群：3 broker，默认 replicationFactor=3，min.insync.replicas=2
+
+version: "1"
+
+cluster:
+  brokers: 3
+  defaultReplicationFactor: 3
+  minInSyncReplicas: 2
+  # 生产 bootstrap（占位，按环境覆盖）
+  bootstrapServers:
+    cn: "kafka-0.kafka-headless.baobao-messaging.svc:9092,kafka-1.kafka-headless.baobao-messaging.svc:9092,kafka-2.kafka-headless.baobao-messaging.svc:9092"
+    os: "kafka-0.kafka-headless.baobao-messaging.svc:9092,kafka-1.kafka-headless.baobao-messaging.svc:9092,kafka-2.kafka-headless.baobao-messaging.svc:9092"
+    local: "localhost:9092"
+
+topics:
+  - name: ai.events
+    partitions: 3
+    retentionMs: 604800000 # 7d
+    cleanupPolicy: delete
+    producers:
+      - ai-dispatch-svc
+    consumers:
+      - notification-svc
+    description: >
+      AI 任务生命周期事件（succeeded / failed / rejected / watermarking）。
+      notification-svc 按类目 AI_DONE 推送，含静默推送触发端侧后台下载。
+
+  - name: iap.events
+    partitions: 3
+    retentionMs: 1209600000 # 14d
+    cleanupPolicy: delete
+    producers:
+      - iap-callback-svc
+    consumers:
+      - credit-sub-ad-svc
+    description: >
+      Apple Server Notifications v2 标准化事件（PURCHASE / REFUND / REVOKE 等）。
+      credit-sub-ad-svc 消费后更新积分账本与订阅状态。
+
+  - name: feed.events
+    partitions: 3
+    retentionMs: 604800000 # 7d
+    cleanupPolicy: delete
+    producers:
+      - feed-svc
+    consumers:
+      - notification-svc
+    description: >
+      Feed 域事件（新发布、点赞、评论、@提及）。
+      notification-svc 按类目 FAMILY_ACTIVITY / MILESTONE 路由推送。
+
+  - name: credit.events
+    partitions: 3
+    retentionMs: 1209600000 # 14d
+    cleanupPolicy: delete
+    producers:
+      - credit-sub-ad-svc
+      - ai-dispatch-svc
+    consumers:
+      - notification-svc
+    description: >
+      积分变动事件（预扣 / 确认 / 退回 / 对账差异）。
+      notification-svc 按类目 CREDIT 推送；对账任务可旁路消费。
+
+# 内部 Worker 队列（T3.6 启用，非跨服务事件总线）
+internalTopics:
+  - name: ai.image
+    partitions: 6
+    retentionMs: 259200000 # 3d
+    producers:
+      - ai-dispatch-svc
+    consumers:
+      - ai-dispatch-worker
+    description: AI 图像任务 Worker 消费队列
+
+  - name: ai.video
+    partitions: 3
+    retentionMs: 259200000 # 3d
+    producers:
+      - ai-dispatch-svc
+    consumers:
+      - ai-dispatch-worker
+    description: AI 视频任务 Worker 消费队列（长耗时，分区较少）

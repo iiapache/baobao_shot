@@ -1,0 +1,52 @@
+# Redis 7 — Bitnami chart 基础 values
+# Chart: bitnami/redis (appVersion 7.x)
+
+global:
+  redis:
+    password: ""  # 使用 existingSecret
+  storageClass: ""
+
+auth:
+  enabled: true
+  existingSecret: baobao-redis
+  existingSecretPasswordKey: redis-password
+
+image:
+  tag: "7.2"
+
+architecture: standalone
+
+master:
+  persistence:
+    enabled: true
+    size: 32Gi
+  resources:
+    requests:
+      cpu: 250m
+      memory: 512Mi
+    limits:
+      cpu: 2
+      memory: 4Gi
+  # 慢日志：10ms 以上（10000 微秒）
+  configuration: |
+    slowlog-log-slower-than 10000
+    slowlog-max-len 256
+    appendonly yes
+    appendfsync everysec
+    maxmemory-policy allkeys-lru
+
+replica:
+  replicaCount: 0
+
+metrics:
+  enabled: true
+  serviceMonitor:
+    enabled: false
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+
+commonLabels:
+  app.kubernetes.io/component: redis
+  baobao.io/data-store: redis

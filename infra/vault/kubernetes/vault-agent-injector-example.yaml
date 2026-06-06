@@ -1,0 +1,76 @@
+# Vault Agent Injector 示例 — auth-family-svc 读取 PostgreSQL 密码
+# 前提：Vault Kubernetes Auth 已配置 role=auth-family-svc（见 policies/auth-family-svc.hcl）
+#
+# Vault path（与 infra/data 对齐）:
+#   secret/data/dev/cn/shared/postgres-auth-family
+#
+# 应用 env:
+#   POSTGRES_PASSWORD  ← /vault/secrets/postgres.env
+#
+# 部署: kubectl apply -f infra/vault/kubernetes/vault-agent-injector-example.yaml -n dev
+
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: auth-family-svc
+  namespace: dev
+  labels:
+    app.kubernetes.io/name: auth-family-svc
+    app.kubernetes.io/part-of: baobao
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-family-svc
+  namespace: dev
+  labels:
+    app.kubernetes.io/name: auth-family-svc
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: auth-family-svc
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: auth-family-svc
+      annotations:
+        vault.hashicorp.com/agent-inject: "true"
+        vault.hashicorp.com/role: "auth-family-svc"
+        vault.hashicorp.com/agent-inject-secret-postgres.env: "secret/data/dev/cn/shared/postgres-auth-family"
+        vault.hashicorp.com/agent-inject-template-postgres.env: |
+          {{- with secret "secret/data/dev/cn/shared/postgres-auth-family" -}}
+          POSTGRES_HOST={{ .Data.data.host }}
+          POSTGRES_PORT={{ .Data.data.port }}
+          POSTGRES_DB={{ .Data.data.database }}
+          POSTGRES_USER={{ .Data.data.username }}
+          POSTGRES_PASSWORD={{ .Data.data.password }}
+          {{- end }}
+        vault.hashicorp.com/agent-inject-secret-jwt-signing.env: "secret/data/dev/cn/auth-family/jwt-signing"
+        vault.hashicorp.com/agent-inject-template-jwt-signing.env: |
+          {{- with secret "secret/data/dev/cn/auth-family/jwt-signing" -}}
+          JWT_SIGNING_KEY={{ .Data.data.JWT_SIGNING_KEY }}
+          JWT_REFRESH_SIGNING_KEY={{ .Data.data.JWT_REFRESH_SIGNING_KEY }}
+          {{- end }}
+        vault.hashicorp.com/agent-pre-populate-only: "true"
+    spec:
+      serviceAccountName: auth-family-svc
+      containers:
+        - name: auth-family-svc
+          image: registry.example.com/baobao/auth-family-svc:latest
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: VAULT_ADDR
+              value: "http://vault.vault-dev.svc.cluster.local:8200"
+          command:
+            - /bin/sh
+            - -c
+            - |
+              set -a
+              [ -f /vault/secrets/postgres.env ] && . /vault/secrets/postgres.env
+              [ -f /vault/secrets/jwt-signing.env ] && . /vault/secrets/jwt-signing.env
+              set +a
+              exec /app/auth-family-svc
+          ports:
+            - name: http
+              containerPort: 8080

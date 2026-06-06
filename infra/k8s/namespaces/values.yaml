@@ -1,0 +1,39 @@
+# Helm values 参考：供后续 namespaces chart 或 ArgoCD 使用
+# 与 namespaces.yaml 保持 label 一致
+
+namespaces:
+  - name: dev
+    labels:
+      app.kubernetes.io/part-of: baobao
+      baobao.io/environment: dev
+      baobao.io/managed-by: infra
+    clusters:
+      - ack-cn
+      - eks-os
+
+  - name: staging
+    labels:
+      app.kubernetes.io/part-of: baobao
+      baobao.io/environment: staging
+      baobao.io/managed-by: infra
+    clusters:
+      - ack-cn
+      - eks-os
+
+  - name: prod-cn
+    labels:
+      app.kubernetes.io/part-of: baobao
+      baobao.io/environment: prod
+      baobao.io/region: cn
+      baobao.io/managed-by: infra
+    clusters:
+      - ack-cn
+
+  - name: prod-os
+    labels:
+      app.kubernetes.io/part-of: baobao
+      baobao.io/environment: prod
+      baobao.io/region: os
+      baobao.io/managed-by: infra
+    clusters:
+      - eks-os

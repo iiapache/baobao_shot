@@ -1,0 +1,78 @@
+# design-api.md §11 备份凭据
+paths:
+  /v1/backup/providers:
+    post:
+      tags: [backup]
+      summary: 绑定备份目标
+      operationId: backupBindProvider
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 绑定成功
+          content:
+            application/json:
+              schema:
+                $ref: '../components/common.yaml#/components/schemas/ApiResponse'
+    get:
+      tags: [backup]
+      summary: 当前已绑定列表
+      operationId: backupListProviders
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 绑定列表
+          content:
+            application/json:
+              schema:
+                $ref: '../components/common.yaml#/components/schemas/ApiResponse'
+
+  /v1/backup/providers/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    delete:
+      tags: [backup]
+      summary: 解绑
+      operationId: backupUnbindProvider
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 解绑成功
+          content:
+            application/json:
+              schema:
+                $ref: '../components/common.yaml#/components/schemas/ApiResponse'
+
+  /v1/backup/status:
+    get:
+      tags: [backup]
+      summary: 总体备份状态
+      operationId: backupGetStatus
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 备份状态
+          content:
+            application/json:
+              schema:
+                $ref: '../components/common.yaml#/components/schemas/ApiResponse'
+    post:
+      tags: [backup]
+      summary: 端侧上报最近一次备份结果
+      operationId: backupReportStatus
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 上报成功
+          content:
+            application/json:
+              schema:
+                $ref: '../components/common.yaml#/components/schemas/ApiResponse'

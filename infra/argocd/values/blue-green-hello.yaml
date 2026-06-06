@@ -1,0 +1,47 @@
+# hello 服务蓝绿部署 Helm values 覆盖（占位）
+# 启用方式：在 Application / ApplicationSet 的 helm.valueFiles 中追加本文件
+#
+# 路径 A（Argo Rollouts）：需将 chart 中 Deployment 改为 Rollout，见 infra/argocd/README.md
+# 路径 B（双 Deployment）：使用以下字段扩展 hello chart（T0.6+ 实现）
+
+# ── 蓝绿元数据（供 Service / Ingress 路由） ────────────────
+commonLabels:
+  baobao.io/deployment-strategy: blue-green
+
+commonAnnotations:
+  argocd.argoproj.io/sync-wave: "1"
+
+# ── 镜像（CI 构建后由 GitOps 更新 tag） ─────────────────────
+image:
+  repository: registry.example.com/baobao/hello
+  tag: "latest"          # 覆盖为 CI_COMMIT_SHORT_SHA
+  pullPolicy: IfNotPresent
+
+# ── 双实例预览（路径 B 占位，chart 需支持 blueGreen 块） ───
+# blueGreen:
+#   enabled: true
+#   activeVersion: blue      # blue | green
+#   previewEnabled: true     # 是否暴露 preview Ingress
+#   previewHost: hello-preview-staging-cn.example.com
+
+# ── Rollouts Canary 步进（路径 A 占位） ───────────────────
+# rollout:
+#   strategy: blueGreen
+#   blueGreen:
+#     autoPromotionEnabled: false
+#     previewReplicaCount: 1
+#   canary:
+#     steps:
+#       - setWeight: 5
+#       - pause: { duration: 5m }
+#       - setWeight: 25
+#       - pause: { duration: 10m }
+#       - setWeight: 100
+
+replicaCount: 2
+
+ingress:
+  enabled: true
+  annotations:
+    # 网关灰度权重（Kong/APISIX T0.6 启用）
+    # baobao.io/canary-weight: "0"

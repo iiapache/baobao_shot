@@ -1,0 +1,29 @@
+# APISIX Gateway ServiceMonitor
+#
+# 前置：gateway Helm values 启用 prometheus 插件与 metrics Service
+#   apisix.prometheus.enabled: true
+#   apisix.prometheus.path: /apisix/prometheus/metrics
+#
+# kubectl apply -f infra/observability/prometheus/scrape-configs/gateway-servicemonitor.yaml
+
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: apisix-gateway
+  namespace: gateway
+  labels:
+    app.kubernetes.io/name: apisix
+    app.kubernetes.io/part-of: baobao
+    release: prometheus
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: apisix
+      app.kubernetes.io/component: gateway
+  namespaceSelector:
+    matchNames:
+      - gateway
+  endpoints:
+    - port: prometheus
+      path: /apisix/prometheus/metrics
+      interval: 30s

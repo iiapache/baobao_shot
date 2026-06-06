@@ -1,0 +1,35 @@
+# ArgoCD Application 模板 — hello staging（ACK 中国）
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: hello-staging
+  namespace: argocd
+  labels:
+    app.kubernetes.io/part-of: baobao
+    baobao.io/cluster: ack-cn
+    baobao.io/environment: staging
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://gitlab.example.com/baobao/baobao.git
+    targetRevision: main
+    path: infra/k8s/charts/hello
+    helm:
+      releaseName: hello
+      valueFiles:
+        - ../../clusters/ack-cn/cluster-values.yaml
+        - ../../clusters/ack-cn/staging-hello-values.yaml
+  destination:
+    name: ack-cn
+    namespace: staging
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=false
+      - ApplyOutOfSyncOnly=true
+  revisionHistoryLimit: 5

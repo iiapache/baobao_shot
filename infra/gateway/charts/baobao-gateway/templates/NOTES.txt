@@ -1,0 +1,15 @@
+Baobao Gateway (Apache APISIX) 已安装。
+
+集群: {{ .Values.global.cluster }}
+区域: {{ .Values.global.region }}
+环境: {{ .Values.global.environment }}
+
+API 域名: {{ .Values.gateway.hosts.api }}
+WebSocket 域名: {{ .Values.gateway.hosts.ws }}
+
+下一步:
+1. 应用 TLS 证书: kubectl apply -f infra/gateway/tls/
+2. 应用路由: kubectl apply -f infra/gateway/routes/ -n {{ .Values.gateway.upstream.hello.namespace }}
+3. 健康检查: ./infra/gateway/scripts/health-check.sh --host {{ .Values.gateway.hosts.api }}
+
+TLS 1.3 + HTTP/2 说明见 infra/gateway/tls/README.md

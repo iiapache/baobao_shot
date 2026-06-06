@@ -1,0 +1,70 @@
+{
+  "Rules": [
+    {
+      "ID": "expire-ai-tmp-24h",
+      "Status": "Enabled",
+      "Filter": {
+        "Prefix": "ai-tmp/"
+      },
+      "Expiration": {
+        "Days": 1
+      },
+      "AbortIncompleteMultipartUpload": {
+        "DaysAfterInitiation": 1
+      }
+    },
+    {
+      "ID": "expire-ai-out-30d",
+      "Status": "Enabled",
+      "Filter": {
+        "Prefix": "ai-out/"
+      },
+      "Expiration": {
+        "Days": 30
+      },
+      "AbortIncompleteMultipartUpload": {
+        "DaysAfterInitiation": 7
+      }
+    },
+    {
+      "ID": "family-long-term-ia-transition",
+      "Status": "Enabled",
+      "Filter": {
+        "Prefix": "family/"
+      },
+      "Transitions": [
+        {
+          "Days": 90,
+          "StorageClass": "STANDARD_IA"
+        },
+        {
+          "Days": 365,
+          "StorageClass": "GLACIER_IR"
+        }
+      ]
+    },
+    {
+      "ID": "avatar-long-term",
+      "Status": "Enabled",
+      "Filter": {
+        "Prefix": "avatar/"
+      },
+      "Transitions": [
+        {
+          "Days": 180,
+          "StorageClass": "STANDARD_IA"
+        }
+      ]
+    },
+    {
+      "ID": "caption-cache-7d",
+      "Status": "Enabled",
+      "Filter": {
+        "Prefix": "caption-cache/"
+      },
+      "Expiration": {
+        "Days": 7
+      }
+    }
+  ]
+}

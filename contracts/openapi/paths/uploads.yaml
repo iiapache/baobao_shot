@@ -1,0 +1,59 @@
+# design-api.md §5 媒体上传
+paths:
+  /v1/uploads/init:
+    post:
+      tags: [upload]
+      summary: 申请 OSS 直传凭据
+      operationId: uploadInit
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [purpose, items]
+              properties:
+                purpose:
+                  type: string
+                  enum: [ai-input, post-item]
+                familyId:
+                  type: string
+                items:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      clientRef:
+                        type: string
+                      kind:
+                        type: string
+                      mime:
+                        type: string
+                      size:
+                        type: integer
+                      sha256:
+                        type: string
+      responses:
+        '200':
+          description: 直传凭据
+          content:
+            application/json:
+              schema:
+                $ref: '../components/common.yaml#/components/schemas/ApiResponse'
+
+  /v1/uploads/complete:
+    post:
+      tags: [upload]
+      summary: 完成上传回调
+      operationId: uploadComplete
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 上传完成
+          content:
+            application/json:
+              schema:
+                $ref: '../components/common.yaml#/components/schemas/ApiResponse'

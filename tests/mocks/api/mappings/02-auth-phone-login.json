@@ -1,0 +1,41 @@
+{
+  "request": {
+    "method": "POST",
+    "urlPath": "/v1/auth/phone/login",
+    "bodyPatterns": [
+      {
+        "matchesJsonPath": "$.phone"
+      },
+      {
+        "matchesJsonPath": "$.code"
+      }
+    ]
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "code": "OK",
+      "message": "ok",
+      "requestId": "req_mock_phone_login",
+      "data": {
+        "userId": "usr_smoke_001",
+        "isNewUser": false,
+        "accessToken": "mock_access_token_smoke",
+        "accessTokenExpiresIn": 3600,
+        "refreshToken": "mock_refresh_token_smoke",
+        "refreshTokenExpiresIn": 2592000,
+        "profile": {
+          "nickname": "冒烟测试用户",
+          "avatarUrl": null,
+          "region": "cn",
+          "consents": {
+            "childData": true
+          }
+        }
+      }
+    }
+  }
+}

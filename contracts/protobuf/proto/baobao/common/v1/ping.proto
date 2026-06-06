@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package baobao.common.v1;
+
+option go_package = "github.com/baobao/gen/baobao/common/v1;commonv1";
+
+// Ping 占位 RPC — 健康检查 / 脚手架连通性
+service PingService {
+  rpc Ping(PingRequest) returns (PingResponse);
+}
+
+message PingRequest {}
+
+message PingResponse {
+  string message = 1;
+}

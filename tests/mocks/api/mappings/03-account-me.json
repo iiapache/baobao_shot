@@ -1,0 +1,30 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPath": "/v1/account/me",
+    "headers": {
+      "Authorization": {
+        "contains": "Bearer mock_access_token_smoke"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "code": "OK",
+      "message": "ok",
+      "requestId": "req_mock_account_me",
+      "data": {
+        "nickname": "冒烟测试用户",
+        "avatarUrl": null,
+        "region": "cn",
+        "consents": {
+          "childData": true
+        }
+      }
+    }
+  }
+}

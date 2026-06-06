@@ -1,0 +1,105 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "DenyInsecureTransport",
+      "Effect": "Deny",
+      "Principal": "*",
+      "Action": "s3:*",
+      "Resource": [
+        "arn:aws:s3:::${S3_BUCKET_NAME}",
+        "arn:aws:s3:::${S3_BUCKET_NAME}/*"
+      ],
+      "Condition": {
+        "Bool": {
+          "aws:SecureTransport": "false"
+        }
+      }
+    },
+    {
+      "Sid": "AllowMediaSvcUpload",
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": "${MEDIA_SVC_IAM_ROLE_ARN}"
+      },
+      "Action": [
+        "s3:PutObject",
+        "s3:AbortMultipartUpload",
+        "s3:ListMultipartUploadParts"
+      ],
+      "Resource": [
+        "arn:aws:s3:::${S3_BUCKET_NAME}/ai-tmp/*",
+        "arn:aws:s3:::${S3_BUCKET_NAME}/ai-out/*",
+        "arn:aws:s3:::${S3_BUCKET_NAME}/family/*",
+        "arn:aws:s3:::${S3_BUCKET_NAME}/avatar/*"
+      ]
+    },
+    {
+      "Sid": "AllowMediaSvcRead",
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": "${MEDIA_SVC_IAM_ROLE_ARN}"
+      },
+      "Action": [
+        "s3:GetObject",
+        "s3:GetObjectAttributes",
+        "s3:HeadObject"
+      ],
+      "Resource": [
+        "arn:aws:s3:::${S3_BUCKET_NAME}/ai-tmp/*",
+        "arn:aws:s3:::${S3_BUCKET_NAME}/ai-out/*",
+        "arn:aws:s3:::${S3_BUCKET_NAME}/family/*",
+        "arn:aws:s3:::${S3_BUCKET_NAME}/avatar/*",
+        "arn:aws:s3:::${S3_BUCKET_NAME}/caption-cache/*"
+      ]
+    },
+    {
+      "Sid": "AllowFeedSvcDelete",
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": "${FEED_SVC_IAM_ROLE_ARN}"
+      },
+      "Action": [
+        "s3:DeleteObject",
+        "s3:DeleteObjectVersion"
+      ],
+      "Resource": "arn:aws:s3:::${S3_BUCKET_NAME}/family/*"
+    },
+    {
+      "Sid": "AllowCloudFrontOACRead",
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "cloudfront.amazonaws.com"
+      },
+      "Action": "s3:GetObject",
+      "Resource": [
+        "arn:aws:s3:::${S3_BUCKET_NAME}/family/*",
+        "arn:aws:s3:::${S3_BUCKET_NAME}/ai-out/*",
+        "arn:aws:s3:::${S3_BUCKET_NAME}/avatar/*"
+      ],
+      "Condition": {
+        "StringEquals": {
+          "AWS:SourceArn": "arn:aws:cloudfront::${AWS_ACCOUNT_ID}:distribution/${CLOUDFRONT_DISTRIBUTION_ID}"
+        }
+      }
+    },
+    {
+      "Sid": "DenyPublicAcl",
+      "Effect": "Deny",
+      "Principal": "*",
+      "Action": [
+        "s3:PutObjectAcl",
+        "s3:PutBucketAcl"
+      ],
+      "Resource": [
+        "arn:aws:s3:::${S3_BUCKET_NAME}",
+        "arn:aws:s3:::${S3_BUCKET_NAME}/*"
+      ],
+      "Condition": {
+        "StringEquals": {
+          "s3:x-amz-acl": ["public-read", "public-read-write", "authenticated-read"]
+        }
+      }
+    }
+  ]
+}

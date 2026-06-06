@@ -1,0 +1,22 @@
+# APISIX Gateway Prometheus 指标 — 覆盖片段
+#
+# 合并到 infra/gateway/charts/baobao-gateway/values*.yaml 的 apisix 段:
+#
+#   helm upgrade baobao-gateway ./infra/gateway/charts/baobao-gateway \
+#     -f values.yaml -f values-ack-cn.yaml \
+#     --set apisix.prometheus.enabled=true
+
+apisix:
+  prometheus:
+    enabled: true
+    path: /apisix/prometheus/metrics
+    metricPrefix: apisix_
+    # 额外 containerPort，Service 暴露 prometheus port
+  service:
+    # 确保 Service 含 prometheus 端口（APISIX chart 启用 prometheus 后自动添加）
+    annotations:
+      prometheus.io/scrape: "true"
+      prometheus.io/port: "9091"
+      prometheus.io/path: "/apisix/prometheus/metrics"
+
+# ServiceMonitor 见 prometheus/scrape-configs/gateway-servicemonitor.yaml

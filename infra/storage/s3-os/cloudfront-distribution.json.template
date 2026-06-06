@@ -1,0 +1,68 @@
+{
+  "Comment": "baby-camera-os CDN — CloudFront 前置 S3 ap-southeast-1",
+  "Aliases": {
+    "Quantity": 1,
+    "Items": ["cdn-os.babygrowth.app"]
+  },
+  "Origins": {
+    "Quantity": 1,
+    "Items": [
+      {
+        "Id": "s3-baby-camera-os",
+        "DomainName": "${S3_BUCKET_NAME}.s3.ap-southeast-1.amazonaws.com",
+        "OriginAccessControlId": "${CLOUDFRONT_OAC_ID}",
+        "S3OriginConfig": {
+          "OriginAccessIdentity": ""
+        }
+      }
+    ]
+  },
+  "DefaultCacheBehavior": {
+    "TargetOriginId": "s3-baby-camera-os",
+    "ViewerProtocolPolicy": "redirect-to-https",
+    "AllowedMethods": {
+      "Quantity": 2,
+      "Items": ["GET", "HEAD"],
+      "CachedMethods": {
+        "Quantity": 2,
+        "Items": ["GET", "HEAD"]
+      }
+    },
+    "Compress": true,
+    "CachePolicyId": "658327ea-f89d-4fab-a63d-7e88639e58f6",
+    "ResponseHeadersPolicyId": "${RESPONSE_HEADERS_POLICY_ID}"
+  },
+  "CacheBehaviors": {
+    "Quantity": 2,
+    "Items": [
+      {
+        "PathPattern": "family/*/thumb/*",
+        "TargetOriginId": "s3-baby-camera-os",
+        "ViewerProtocolPolicy": "redirect-to-https",
+        "CachePolicyId": "658327ea-f89d-4fab-a63d-7e88639e58f6",
+        "TTL": 86400
+      },
+      {
+        "PathPattern": "avatar/*",
+        "TargetOriginId": "s3-baby-camera-os",
+        "ViewerProtocolPolicy": "redirect-to-https",
+        "CachePolicyId": "658327ea-f89d-4fab-a63d-7e88639e58f6",
+        "TTL": 86400
+      }
+    ]
+  },
+  "PriceClass": "PriceClass_200",
+  "Enabled": true,
+  "HttpVersion": "http2and3",
+  "IsIPV6Enabled": true,
+  "ViewerCertificate": {
+    "ACMCertificateArn": "${ACM_CERTIFICATE_ARN}",
+    "SSLSupportMethod": "sni-only",
+    "MinimumProtocolVersion": "TLSv1.2_2021"
+  },
+  "Restrictions": {
+    "GeoRestriction": {
+      "RestrictionType": "none"
+    }
+  }
+}

@@ -1,0 +1,15 @@
+# EKS 新加坡 — staging 命名空间 PostgreSQL 覆盖
+global:
+  postgresql:
+    auth:
+      existingSecret: baobao-postgresql
+
+commonLabels:
+  baobao.io/cluster: eks-os
+  baobao.io/region: os
+  baobao.io/environment: staging
+
+primary:
+  persistence:
+    storageClass: gp3
+    size: 50Gi

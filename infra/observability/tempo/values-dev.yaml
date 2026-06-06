@@ -1,0 +1,54 @@
+# Grafana Tempo — dev 分布式追踪（Jaeger 兼容查询 API）
+#
+# helm upgrade --install tempo grafana/tempo -n observability \
+#   -f infra/observability/otel-collector/values-dev.yaml 的前置依赖
+#
+# helm upgrade --install tempo grafana/tempo -n observability \
+#   -f infra/observability/tempo/values-dev.yaml
+
+tempo:
+  reportingEnabled: false
+  retention: 168h  # 7 天
+
+  receivers:
+    otlp:
+      protocols:
+        grpc:
+          endpoint: 0.0.0.0:4317
+        http:
+          endpoint: 0.0.0.0:4318
+
+  storage:
+    trace:
+      backend: local
+      local:
+        path: /var/tempo/traces
+      wal:
+        path: /var/tempo/wal
+
+  metricsGenerator:
+    enabled: true
+    remoteWriteUrl: http://prometheus-kube-prometheus-prometheus.observability.svc:9090/api/v1/write
+
+persistence:
+  enabled: true
+  size: 10Gi
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    cpu: 500m
+    memory: 1Gi
+
+serviceMonitor:
+  enabled: true
+  labels:
+    release: prometheus
+
+# 可选：Jaeger UI 兼容（Tempo 自带 Grafana datasource 更推荐）
+# traces:
+#   jaeger:
+#     grpc:
+#       enabled: true

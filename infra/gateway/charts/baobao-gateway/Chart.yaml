@@ -1,0 +1,19 @@
+apiVersion: v2
+name: baobao-gateway
+description: Baobao API gateway (Apache APISIX) — TLS termination, dual-region ingress
+type: application
+version: 0.1.0
+appVersion: "3.9.1"
+keywords:
+  - apisix
+  - gateway
+  - tls
+  - baobao
+maintainers:
+  - name: baobao-infra
+dependencies:
+  # 官方 chart：https://github.com/apache/apisix-helm-chart
+  - name: apisix
+    version: "2.7.0"
+    repository: https://charts.apiseven.com
+    condition: apisix.enabled

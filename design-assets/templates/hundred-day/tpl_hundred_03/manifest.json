@@ -1,0 +1,86 @@
+{
+  "schemaVersion": "1.0.0",
+  "taskRef": "T0.11 / T2.14",
+  "id": "tpl_hundred_03",
+  "name": "百天卡 · 中国风",
+  "category": "hundred-day",
+  "categoryLabel": "百天卡",
+  "description": "祥云纹样，百天书法字",
+  "preview": "templates/hundred-day/tpl_hundred_03/preview.jpg",
+  "thumbnail": "templates/hundred-day/tpl_hundred_03/thumb.jpg",
+  "canvas": {
+    "width": 1080,
+    "height": 1440,
+    "dpi": 72
+  },
+  "placeholders": [
+    {
+      "id": "photo_main",
+      "type": "photo",
+      "label": "主照片",
+      "rect": {
+        "x": 0.1,
+        "y": 0.15,
+        "width": 0.8,
+        "height": 0.55
+      },
+      "aspectRatio": "3:4"
+    },
+    {
+      "id": "baby_name",
+      "type": "text",
+      "label": "宝宝昵称",
+      "fontId": "font_baobao_bold",
+      "defaultValue": "{{baby_name}}",
+      "rect": {
+        "x": 0.1,
+        "y": 0.75,
+        "width": 0.8,
+        "height": 0.08
+      },
+      "editable": true
+    },
+    {
+      "id": "milestone_label",
+      "type": "text",
+      "label": "百天标题",
+      "fontId": "font_baobao_bold",
+      "defaultValue": "百天快乐",
+      "rect": {
+        "x": 0.1,
+        "y": 0.05,
+        "width": 0.8,
+        "height": 0.1
+      },
+      "editable": true
+    },
+    {
+      "id": "date_label",
+      "type": "text",
+      "label": "日期",
+      "fontId": "font_baobao_serif",
+      "defaultValue": "{{capture_date}}",
+      "rect": {
+        "x": 0.1,
+        "y": 0.85,
+        "width": 0.8,
+        "height": 0.06
+      },
+      "editable": true
+    }
+  ],
+  "steps": [],
+  "resources": {
+    "background": "templates/hundred-day/tpl_hundred_03/background.png",
+    "overlay": "templates/hundred-day/tpl_hundred_03/overlay.png",
+    "fonts": [
+      "font_baobao_serif",
+      "font_baobao_bold"
+    ],
+    "stickers": []
+  },
+  "remoteConfigurable": true,
+  "configSvcKey": "editor.templates.tpl_hundred_03",
+  "minAppVersion": "1.0.0",
+  "editorStepType": "TemplateStep"
+}

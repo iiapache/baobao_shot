@@ -1,0 +1,35 @@
+# PostgreSQL 15 — prod 主备（异步流复制）
+# 适用命名空间: prod-cn / prod-os
+
+architecture: replication
+
+readReplicas:
+  replicaCount: 1
+  persistence:
+    enabled: true
+    size: 100Gi
+  resources:
+    requests:
+      cpu: 500m
+      memory: 1Gi
+    limits:
+      cpu: 2
+      memory: 4Gi
+
+primary:
+  persistence:
+    size: 100Gi
+  podAntiAffinityPreset: hard
+  # 流复制参数（可按 RPO 调整）
+  extendedConfiguration: |
+    log_min_duration_statement = 500
+    log_statement = 'none'
+    log_line_prefix = '%t [%p] %u@%d %a '
+    shared_preload_libraries = 'pg_stat_statements'
+    pg_stat_statements.track = all
+    pg_stat_statements.max = 10000
+    max_connections = 200
+    timezone = 'UTC'
+    wal_level = replica
+    max_wal_senders = 5
+    hot_standby = on

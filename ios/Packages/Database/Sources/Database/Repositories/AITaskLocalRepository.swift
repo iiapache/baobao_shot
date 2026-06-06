@@ -1,0 +1,40 @@
+import Foundation
+
+public struct AITaskLocalRecord: Sendable, Equatable {
+    public var id: String
+    public var state: String
+    public var model: String?
+    public var style: String?
+    public var costCredits: Int
+    public var sourceUrl: String
+    public var resultUrl: String?
+    public var createdAt: Int64
+
+    public init(
+        id: String,
+        state: String,
+        model: String? = nil,
+        style: String? = nil,
+        costCredits: Int = 0,
+        sourceUrl: String,
+        resultUrl: String? = nil,
+        createdAt: Int64
+    ) {
+        self.id = id
+        self.state = state
+        self.model = model
+        self.style = style
+        self.costCredits = costCredits
+        self.sourceUrl = sourceUrl
+        self.resultUrl = resultUrl
+        self.createdAt = createdAt
+    }
+}
+
+/// Local mirror of in-flight / recent AI tasks (`ai_task_local` table).
+public protocol AITaskLocalRepository: Sendable {
+    func fetch(id: String) async throws -> AITaskLocalRecord?
+    func fetchByState(_ state: String) async throws -> [AITaskLocalRecord]
+    func save(_ task: AITaskLocalRecord) async throws
+    func delete(id: String) async throws
+}

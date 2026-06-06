@@ -1,0 +1,87 @@
+# 本地开发：PostgreSQL 15 + MongoDB 6 + Redis 7 一键启动
+# 用法：cp .env.example .env && docker compose -f docker-compose.dev.yml up -d
+
+services:
+  postgresql:
+    image: postgres:15-alpine
+    container_name: baobao-postgresql-dev
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-baobao}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-REPLACE_ME_POSTGRES}
+      POSTGRES_DB: ${POSTGRES_DB:-baobao}
+      # 慢查询：超过 500ms 记录（与 K8s values 一致）
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C"
+    command:
+      - postgres
+      - -c
+      - log_min_duration_statement=500
+      - -c
+      - log_statement=none
+      - -c
+      - log_line_prefix=%t [%p] %u@%d
+      - -c
+      - shared_preload_libraries=pg_stat_statements
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - baobao_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-baobao} -d ${POSTGRES_DB:-baobao}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  mongodb:
+    image: mongo:6
+    container_name: baobao-mongodb-dev
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGODB_ROOT_USER:-baobao}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGODB_ROOT_PASSWORD:-REPLACE_ME_MONGODB}
+      MONGO_INITDB_DATABASE: ${MONGODB_DATABASE:-baobao}
+    command:
+      - mongod
+      - --bind_ip_all
+      - --slowms
+      - "100"
+      - --profile
+      - "1"
+    ports:
+      - "${MONGODB_PORT:-27017}:27017"
+    volumes:
+      - baobao_mongo_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    container_name: baobao-redis-dev
+    restart: unless-stopped
+    command:
+      - redis-server
+      - --requirepass
+      - ${REDIS_PASSWORD:-REPLACE_ME_REDIS}
+      - --slowlog-log-slower-than
+      - "10000"
+      - --slowlog-max-len
+      - "128"
+      - --appendonly
+      - "yes"
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - baobao_redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-REPLACE_ME_REDIS}", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  baobao_pg_data:
+  baobao_mongo_data:
+  baobao_redis_data:

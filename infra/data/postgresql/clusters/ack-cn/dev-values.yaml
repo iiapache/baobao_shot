@@ -1,0 +1,14 @@
+# ACK 中国 — dev 命名空间 PostgreSQL 覆盖
+global:
+  postgresql:
+    auth:
+      existingSecret: baobao-postgresql
+
+commonLabels:
+  baobao.io/cluster: ack-cn
+  baobao.io/region: cn
+  baobao.io/environment: dev
+
+primary:
+  persistence:
+    storageClass: alicloud-disk-ssd

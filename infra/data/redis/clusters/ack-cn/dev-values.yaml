@@ -1,0 +1,12 @@
+# ACK 中国 — dev
+auth:
+  existingSecret: baobao-redis
+
+commonLabels:
+  baobao.io/cluster: ack-cn
+  baobao.io/region: cn
+  baobao.io/environment: dev
+
+master:
+  persistence:
+    storageClass: alicloud-disk-ssd

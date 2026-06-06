@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package baobao.notification.v1;
+
+option go_package = "github.com/baobao/gen/baobao/notification/v1;notificationv1";
+
+// NotificationService — notification-svc 占位（REST 见 design-api §10）
+service NotificationService {
+  rpc SendPush(SendPushRequest) returns (SendPushResponse);
+}
+
+message SendPushRequest {
+  string user_id = 1;
+  string title = 2;
+  string body = 3;
+}
+
+message SendPushResponse {
+  string message_id = 1;
+}

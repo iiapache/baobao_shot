@@ -1,0 +1,21 @@
+{
+  "request": {
+    "method": "POST",
+    "urlPath": "/v1/images/generations"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "created": 1717632000,
+      "data": [
+        {
+          "url": "https://example.com/mock-openai-output.png",
+          "revised_prompt": "mock baby photo stylized"
+        }
+      ]
+    }
+  }
+}

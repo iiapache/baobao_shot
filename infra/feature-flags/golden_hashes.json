@@ -1,0 +1,8 @@
+{
+  "algorithm": "fnv1a_mod100",
+  "vectors": [
+    { "userId": "usr_test_001", "hash": 18 },
+    { "userId": "placeholder-user", "hash": 38 },
+    { "userId": "", "hash": 0 }
+  ]
+}

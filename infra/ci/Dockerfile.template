@@ -1,0 +1,39 @@
+# 微服务 Dockerfile 模板（Go 多阶段构建）
+# 用法：复制到 services/<svc>/Dockerfile 并按服务修改
+#
+#   cp infra/ci/Dockerfile.template services/auth-family-svc/Dockerfile
+#   # 编辑 ARG SERVICE_NAME、端口等
+
+# ── 构建阶段 ──────────────────────────────────────────────
+ARG GO_VERSION=1.22
+FROM golang:${GO_VERSION}-alpine AS builder
+
+ARG SERVICE_NAME=service
+ARG CGO_ENABLED=0
+
+WORKDIR /src
+
+# 依赖层缓存（monorepo 可按需调整 COPY 路径）
+COPY go.mod go.sum ./
+RUN go mod download
+
+COPY . .
+
+RUN CGO_ENABLED=${CGO_ENABLED} GOOS=linux GOARCH=amd64 \
+    go build -trimpath -ldflags="-s -w" -o /out/${SERVICE_NAME} ./cmd/${SERVICE_NAME}
+
+# ── 运行阶段 ──────────────────────────────────────────────
+FROM gcr.io/distroless/static-debian12:nonroot
+
+ARG SERVICE_NAME=service
+ARG HTTP_PORT=8080
+
+COPY --from=builder /out/${SERVICE_NAME} /app/service
+
+USER nonroot:nonroot
+EXPOSE ${HTTP_PORT}
+
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD ["/app/service", "healthcheck"]
+
+ENTRYPOINT ["/app/service"]

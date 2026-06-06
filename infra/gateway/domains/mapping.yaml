@@ -1,0 +1,102 @@
+# 域名映射表
+#
+# 对应 design.md §7.2 域名规则；生产域名使用 babygrowth.app，本仓库使用 example.com 占位。
+# DNS A/AAAA/CNAME 指向各集群 APISIX LoadBalancer 外网 IP/hostname。
+#
+# 用法：部署前按环境选择 hosts 块，写入 Helm values 或 routes 中的 host 字段。
+
+schema_version: "1"
+base_domain_prod: babygrowth.app
+base_domain_placeholder: example.com
+
+# ---------------------------------------------------------------------------
+# 生产（prod）
+# ---------------------------------------------------------------------------
+prod:
+  cn:
+    cluster: ack-cn
+    namespace: prod-cn
+    hosts:
+      api: api-cn.babygrowth.app
+      ws: ws-cn.babygrowth.app
+      cdn: cdn-cn.babygrowth.app
+    tls_secret: baobao-gateway-api-cn-tls
+    cert_dns_names:
+      - api-cn.babygrowth.app
+      - ws-cn.babygrowth.app
+  os:
+    cluster: eks-os
+    namespace: prod-os
+    hosts:
+      api: api-os.babygrowth.app
+      ws: ws-os.babygrowth.app
+      cdn: cdn-os.babygrowth.app
+    tls_secret: baobao-gateway-api-os-tls
+    cert_dns_names:
+      - api-os.babygrowth.app
+      - ws-os.babygrowth.app
+
+# ---------------------------------------------------------------------------
+# 预发（staging）
+# ---------------------------------------------------------------------------
+staging:
+  cn:
+    cluster: ack-cn
+    namespace: staging
+    hosts:
+      api: staging-api-cn.example.com
+      ws: staging-ws-cn.example.com
+      cdn: staging-cdn-cn.example.com
+    tls_secret: baobao-gateway-staging-api-cn-tls
+  os:
+    cluster: eks-os
+    namespace: staging
+    hosts:
+      api: staging-api-os.example.com
+      ws: staging-ws-os.example.com
+      cdn: staging-cdn-os.example.com
+    tls_secret: baobao-gateway-staging-api-os-tls
+
+# ---------------------------------------------------------------------------
+# 开发（dev）— 与 infra/k8s/clusters/*/cluster-values.yaml domains 字段对齐
+# ---------------------------------------------------------------------------
+dev:
+  cn:
+    cluster: ack-cn
+    namespace: dev
+    hosts:
+      api: dev-api-cn.example.com
+      ws: dev-ws-cn.example.com
+      cdn: dev-cdn-cn.example.com
+    tls_secret: baobao-gateway-dev-api-cn-tls
+    # hello 示例上游（T0.3 chart）
+    upstream_hello: hello.dev.svc.cluster.local
+  os:
+    cluster: eks-os
+    namespace: dev
+    hosts:
+      api: dev-api-os.example.com
+      ws: dev-ws-os.example.com
+      cdn: dev-cdn-os.example.com
+    tls_secret: baobao-gateway-dev-api-os-tls
+    upstream_hello: hello.dev.svc.cluster.local
+
+# ---------------------------------------------------------------------------
+# 路由前缀约定（design-api §2）
+# ---------------------------------------------------------------------------
+routing:
+  api:
+    health: /health
+    versioned_prefix: /v1
+    # 网关 → 微服务 path 保持 /v1/* 透传
+  ws:
+    path_prefix: /ws
+    # WebSocket 升级路径示例：/ws/v1/events
+
+# ---------------------------------------------------------------------------
+# IngressClass / 网关 Release
+# ---------------------------------------------------------------------------
+gateway:
+  release_name: gateway
+  namespace: gateway
+  ingress_class: apisix

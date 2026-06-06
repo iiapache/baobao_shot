@@ -1,0 +1,138 @@
+# design-backend.md config-svc — 灰度与运营配置
+paths:
+  /v1/config/features:
+    get:
+      tags: [config]
+      summary: 获取 Feature Flags（按 region / userIdHash 分流）
+      operationId: configGetFeatures
+      security: []
+      parameters:
+        - $ref: '../components/common.yaml#/components/parameters/HeaderXRegion'
+        - $ref: '../components/common.yaml#/components/parameters/HeaderXAppVersion'
+        - $ref: '../components/common.yaml#/components/parameters/HeaderXDeviceId'
+        - name: X-User-Id-Hash
+          in: header
+          required: false
+          description: 客户端预计算 userId 分桶（0–99）；未传时服务端根据 JWT sub 计算
+          schema:
+            type: integer
+            minimum: 0
+            maximum: 99
+        - name: Authorization
+          in: header
+          required: false
+          description: 可选 Bearer JWT，用于 userIdHash 分桶
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Feature flags 列表
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '../components/common.yaml#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/FeatureFlagsPayload'
+        '400':
+          $ref: '../components/common.yaml#/components/responses/BadRequest'
+
+  /v1/config/plays:
+    get:
+      tags: [config]
+      summary: 玩法目录（config-svc 占位，与 ai-dispatch 目录可并存）
+      operationId: configListPlays
+      security: []
+      parameters:
+        - $ref: '../components/common.yaml#/components/parameters/HeaderXRegion'
+        - $ref: '../components/common.yaml#/components/parameters/HeaderXAppVersion'
+        - $ref: '../components/common.yaml#/components/parameters/HeaderXDeviceId'
+      responses:
+        '200':
+          description: 玩法目录
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '../components/common.yaml#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/PlaysCatalogPayload'
+
+components:
+  schemas:
+    FeatureFlagsPayload:
+      type: object
+      required: [version, ttlSeconds, context, features]
+      properties:
+        version:
+          type: string
+          example: "20250606001"
+        ttlSeconds:
+          type: integer
+          example: 300
+        context:
+          $ref: '#/components/schemas/FeatureEvalContext'
+        features:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/FeatureFlagResult'
+
+    FeatureEvalContext:
+      type: object
+      required: [region, userIdHash]
+      properties:
+        region:
+          type: string
+          enum: [cn, os]
+        appVersion:
+          type: string
+        userIdHash:
+          type: integer
+          minimum: 0
+          maximum: 99
+
+    FeatureFlagResult:
+      type: object
+      required: [enabled]
+      properties:
+        enabled:
+          type: boolean
+        variant:
+          type: string
+          nullable: true
+
+    PlaysCatalogPayload:
+      type: object
+      required: [version, plays, source]
+      properties:
+        version:
+          type: string
+        source:
+          type: string
+          example: config-svc
+        plays:
+          type: array
+          items:
+            $ref: '#/components/schemas/PlayCatalogItem'
+
+    PlayCatalogItem:
+      type: object
+      required: [id, name, enabled]
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        regions:
+          type: array
+          items:
+            type: string
+            enum: [cn, os]
+        enabled:
+          type: boolean

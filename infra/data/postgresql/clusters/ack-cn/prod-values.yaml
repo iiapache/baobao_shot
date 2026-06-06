@@ -1,0 +1,20 @@
+# ACK 中国 — prod-cn 命名空间 PostgreSQL 覆盖
+global:
+  postgresql:
+    auth:
+      existingSecret: baobao-postgresql
+
+commonLabels:
+  baobao.io/cluster: ack-cn
+  baobao.io/region: cn
+  baobao.io/environment: prod
+
+primary:
+  persistence:
+    storageClass: alicloud-disk-ssd
+    size: 100Gi
+
+readReplicas:
+  persistence:
+    storageClass: alicloud-disk-ssd
+    size: 100Gi

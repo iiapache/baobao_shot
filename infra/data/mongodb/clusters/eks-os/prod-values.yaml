@@ -1,0 +1,12 @@
+# EKS 新加坡 — prod-os
+auth:
+  existingSecret: baobao-mongodb
+
+commonLabels:
+  baobao.io/cluster: eks-os
+  baobao.io/region: os
+  baobao.io/environment: prod
+
+persistence:
+  storageClass: gp3
+  size: 500Gi

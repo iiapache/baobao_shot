@@ -1,0 +1,59 @@
+# PostgreSQL 15 — Bitnami chart 基础 values
+# Chart: bitnami/postgresql (appVersion 15.x)
+# 部署: helm upgrade --install postgresql bitnami/postgresql -f values.yaml -f values-single.yaml ...
+
+global:
+  postgresql:
+    auth:
+      username: baobao
+      database: baobao
+      # 生产通过 existingSecret 注入，勿在此填写真实密码
+      existingSecret: baobao-postgresql
+      secretKeys:
+        adminPasswordKey: postgres-password
+        userPasswordKey: password
+
+image:
+  tag: "15"
+
+primary:
+  resources:
+    requests:
+      cpu: 500m
+      memory: 1Gi
+    limits:
+      cpu: 2
+      memory: 4Gi
+  persistence:
+    enabled: true
+    size: 100Gi
+    storageClass: ""  # 使用集群默认 StorageClass
+  # 慢查询 + pg_stat_statements（见 monitoring/slow-query.md）
+  extendedConfiguration: |
+    log_min_duration_statement = 500
+    log_statement = 'none'
+    log_line_prefix = '%t [%p] %u@%d %a '
+    shared_preload_libraries = 'pg_stat_statements'
+    pg_stat_statements.track = all
+    pg_stat_statements.max = 10000
+    max_connections = 200
+    timezone = 'UTC'
+  podAnnotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "9187"
+
+metrics:
+  enabled: true
+  serviceMonitor:
+    enabled: false  # T0.8 启用 Prometheus Operator 后改为 true
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+
+backup:
+  enabled: false  # 使用 CronJob + BACKUP_POLICY.md 中的脚本
+
+commonLabels:
+  app.kubernetes.io/component: postgresql
+  baobao.io/data-store: postgresql

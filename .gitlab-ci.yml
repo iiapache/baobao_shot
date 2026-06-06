@@ -1,0 +1,244 @@
+# 宝宝成长相机 monorepo CI/CD
+# 任务 T0.2：lint / test / build / docker / deploy-staging
+# 触发：push 到任意分支、MR 到 main
+# 文档：infra/ci/README.md
+
+stages:
+  - lint
+  - test
+  - build
+  - docker
+  - deploy-staging
+
+variables:
+  GIT_DEPTH: "10"
+  # 容器镜像仓库（GitLab Container Registry 或 ECR/ACR，在 CI/CD Variables 中覆盖）
+  CI_REGISTRY: "${CI_REGISTRY:-registry.example.com/baobao}"
+  CI_REGISTRY_IMAGE: "${CI_REGISTRY_IMAGE:-${CI_REGISTRY}/baobao}"
+  DOCKER_TLS_CERTDIR: "/certs"
+  DOCKER_DRIVER: overlay2
+  DOCKER_BUILDKIT: "1"
+
+# ── 可复用规则 ────────────────────────────────────────────
+.default_rules:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "push"
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+
+.mr_only_rules:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+
+.push_only_rules:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "push"
+
+.service_changes_rules:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "push"
+      changes:
+        - services/**/*
+        - infra/ci/**/*
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes:
+        - services/**/*
+        - infra/ci/**/*
+
+.ios_changes_rules:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes:
+        - ios/**/*
+    - if: $CI_PIPELINE_SOURCE == "push"
+      changes:
+        - ios/**/*
+
+# ── Docker buildx 镜像构建模板 ─────────────────────────────
+.docker_build_template:
+  stage: docker
+  image: docker:24-cli
+  services:
+    - name: docker:24-dind
+      alias: docker
+  extends: .service_changes_rules
+  before_script:
+    - docker info
+    - |
+      if [ -n "${CI_REGISTRY_USER:-}" ] && [ -n "${CI_REGISTRY_PASSWORD:-}" ]; then
+        echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin "$CI_REGISTRY"
+      else
+        echo ">>> CI_REGISTRY_USER/PASSWORD 未配置，跳过 registry login（本地验证模式）"
+      fi
+    - docker buildx create --name ci-builder --driver docker-container --use 2>/dev/null || docker buildx use ci-builder
+    - docker buildx inspect --bootstrap
+  script:
+    - |
+      chmod +x infra/ci/docker-build.sh
+      ./infra/ci/docker-build.sh \
+        --service "${SERVICE_NAME}" \
+        --context "${BUILD_CONTEXT}" \
+        --dockerfile "${DOCKERFILE_PATH}" \
+        --registry "${CI_REGISTRY_IMAGE}" \
+        --tag "${CI_COMMIT_SHORT_SHA}" \
+        --push "${DOCKER_PUSH:-true}"
+  artifacts:
+    reports:
+      dotenv: build.env
+    expire_in: 1 week
+
+# ── lint ─────────────────────────────────────────────────
+lint:repo:
+  stage: lint
+  image: alpine:3.20
+  extends: .default_rules
+  script:
+    - echo ">>> lint:repo — 仓库结构检查"
+    - test -d ios && test -d services && test -d contracts && test -d infra && test -d tests && test -d docs
+    - test -f CONTRIBUTING.md && test -f CODEOWNERS
+    - test -f infra/ci/docker-build.sh && test -f infra/ci/Dockerfile.template
+    - echo ">>> 目录结构 OK"
+
+lint:contracts:
+  stage: lint
+  image: node:20-alpine
+  extends: .default_rules
+  before_script:
+    - apk add --no-cache bash curl git make
+    - |
+      BUF_VERSION=1.47.2
+      curl -sSL "https://github.com/bufbuild/buf/releases/download/v${BUF_VERSION}/buf-Linux-x86_64" \
+        -o /usr/local/bin/buf
+      chmod +x /usr/local/bin/buf
+      buf --version
+  script:
+    - chmod +x scripts/contract-lint.sh
+    - ./scripts/contract-lint.sh
+
+lint:contracts:breaking:
+  stage: lint
+  image: node:20-alpine
+  extends: .mr_only_rules
+  before_script:
+    - apk add --no-cache bash curl git make
+    - |
+      BUF_VERSION=1.47.2
+      curl -sSL "https://github.com/bufbuild/buf/releases/download/v${BUF_VERSION}/buf-Linux-x86_64" \
+        -o /usr/local/bin/buf
+      chmod +x /usr/local/bin/buf
+  script:
+    - chmod +x scripts/contract-lint.sh
+    - ./scripts/contract-lint.sh --breaking
+  allow_failure: false
+
+# ── test ─────────────────────────────────────────────────
+test:services:
+  stage: test
+  image: alpine:3.20
+  extends: .default_rules
+  script:
+    - echo ">>> test:services — 后端单测（占位，T0.17 后启用 go test）"
+    - test -d services/_template
+    - echo ">>> 无 Go 服务代码，跳过"
+
+test:ios:
+  stage: test
+  image: alpine:3.20
+  extends: .ios_changes_rules
+  script:
+    - echo ">>> test:ios — iOS 单测占位"
+    - test -d ios
+    - |
+      if [ -f ios/fastlane/Fastfile ]; then
+        echo ">>> fastlane 骨架已就绪；MR 环境无 macOS/Xcode，跳过 xcodebuild"
+        echo ">>> 本地验证: cd ios && bundle exec fastlane test"
+        echo ">>> CI 正式路径: macOS runner + xcodebuild test 或 Xcode Cloud"
+        grep -E "lane :test" ios/fastlane/Fastfile && echo ">>> Fastfile test lane 存在"
+      else
+        echo ">>> 待 ios/fastlane/ 创建后接入"
+        exit 1
+      fi
+    - echo ">>> iOS 单测占位通过"
+
+# macOS runner 正式 job（注释模板，启用时在 GitLab 配置 macos tag）
+# test:ios:xcodebuild:
+#   stage: test
+#   tags: [macos, xcode]
+#   extends: .ios_changes_rules
+#   script:
+#     - cd ios && bundle exec fastlane test
+
+# ── build ────────────────────────────────────────────────
+build:services:
+  stage: build
+  image: alpine:3.20
+  extends: .service_changes_rules
+  script:
+    - echo ">>> build:services — 编译检查（占位，T0.17 后 go build）"
+    - test -d services
+    - |
+      for svc in services/*/; do
+        [ -d "$svc" ] || continue
+        name=$(basename "$svc")
+        [ "$name" = "_template" ] && continue
+        echo ">>> 发现服务: $name"
+        if [ -f "${svc}Dockerfile" ]; then
+          echo ">>>   Dockerfile 存在，将由 docker stage 构建镜像"
+        fi
+      done
+    - echo ">>> build 占位通过"
+
+build:ios:
+  stage: build
+  image: alpine:3.20
+  extends: .ios_changes_rules
+  script:
+    - echo ">>> build:ios — iOS 构建（占位，T0.13 / fastlane 后启用）"
+    - echo ">>> 正式路径: fastlane beta 或 Xcode Cloud workflow"
+    - test -d ios/fastlane
+
+# ── docker：服务镜像 build + push ─────────────────────────
+docker:hello:
+  extends: .docker_build_template
+  variables:
+    SERVICE_NAME: hello
+    BUILD_CONTEXT: services/hello
+    DOCKERFILE_PATH: services/hello/Dockerfile
+  after_script:
+    - echo "IMAGE_TAG=${CI_REGISTRY_IMAGE}/hello:${CI_COMMIT_SHORT_SHA}" >> build.env
+
+# 新服务接入：复制此 job 并修改 SERVICE_NAME / BUILD_CONTEXT / DOCKERFILE_PATH
+# docker:auth-family-svc:
+#   extends: .docker_build_template
+#   variables:
+#     SERVICE_NAME: auth-family-svc
+#     BUILD_CONTEXT: services/auth-family-svc
+#     DOCKERFILE_PATH: services/auth-family-svc/Dockerfile
+
+# ── deploy-staging：触发 ArgoCD 同步 ─────────────────────
+deploy:staging:hello:
+  stage: deploy-staging
+  image: alpine:3.20
+  extends: .push_only_rules
+  needs:
+    - job: docker:hello
+      optional: true
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "main"
+      changes:
+        - services/hello/**/*
+        - infra/k8s/**/*
+        - infra/argocd/**/*
+  script:
+    - echo ">>> deploy:staging:hello — ArgoCD 部署占位"
+    - echo ">>> 镜像: ${CI_REGISTRY_IMAGE}/hello:${CI_COMMIT_SHORT_SHA}"
+    - echo ">>> 方式 1: GitOps — CI 更新 infra/k8s/clusters/*/staging-*-values.yaml 中 image.tag 并 push"
+    - echo ">>> 方式 2: argocd app sync hello-staging --grpc-web"
+    - echo ">>> 方式 3: ArgoCD Image Updater 监听 registry 新 tag 自动同步"
+    - test -f infra/k8s/argocd/applications/hello-staging.yaml
+    - test -f infra/argocd/applicationsets/baobao-staging.yaml
+    - echo ">>> ArgoCD Application 模板就绪，staging 部署占位通过"
+  environment:
+    name: staging/hello
+    url: https://hello-staging-cn.example.com
+  when: manual
+  allow_failure: true

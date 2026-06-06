@@ -1,0 +1,40 @@
+# Apple Developer 平台凭据（多服务共用，按用途拆分 Vault 子路径）
+# 本 YAML 为结构说明，实际写入 Vault 时拆分为各服务 path
+
+apple_developer:
+  team_id: REPLACE_ME
+  bundle_id: com.example.babycamera
+
+  # Sign in with Apple — auth-family-svc
+  sign_in_with_apple:
+    vault_path: "secret/data/{env}/{region}/auth-family/apple-sign-in"
+    key_id: REPLACE_ME
+    client_id: REPLACE_ME
+    private_key_ref: "见 auth-family.env.example"
+
+  # APNs — notification-svc
+  apns:
+    vault_path: "secret/data/{env}/{region}/notification/apns"
+    key_id: REPLACE_ME
+    private_key_ref: "见 notification.env.example"
+
+  # App Store Connect API — credit-sub-ad-svc / iap-callback-svc
+  app_store_connect:
+    vault_path: "secret/data/{env}/{region}/credit-sub-ad/apple-iap"
+    issuer_id: REPLACE_ME
+    key_id: REPLACE_ME
+    private_key_ref: "见 credit-sub-ad.env.example"
+
+  # 端侧配置（CI Variables，不进后端 Vault）
+  ios_ci_variables:
+    - DEVELOPMENT_TEAM
+    - PROVISIONING_PROFILE_UUID
+    - APP_STORE_CONNECT_API_KEY_PATH
+
+  # 能力开关（Developer Portal 勾选）
+  capabilities:
+    - Sign In with Apple
+    - Push Notifications
+    - In-App Purchase
+    - App Groups  # group.app.babycamera
+    - Associated Domains  # Universal Links

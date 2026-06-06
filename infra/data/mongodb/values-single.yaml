@@ -1,0 +1,15 @@
+# MongoDB 6 — dev / staging 单节点
+
+architecture: standalone
+replicaCount: 1
+
+persistence:
+  size: 20Gi
+
+resources:
+  requests:
+    cpu: 250m
+    memory: 512Mi
+  limits:
+    cpu: 2
+    memory: 4Gi

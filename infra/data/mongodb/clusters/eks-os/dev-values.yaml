@@ -1,0 +1,11 @@
+# EKS 新加坡 — dev
+auth:
+  existingSecret: baobao-mongodb
+
+commonLabels:
+  baobao.io/cluster: eks-os
+  baobao.io/region: os
+  baobao.io/environment: dev
+
+persistence:
+  storageClass: gp3

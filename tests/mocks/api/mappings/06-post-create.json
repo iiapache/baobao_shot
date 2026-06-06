@@ -1,0 +1,38 @@
+{
+  "request": {
+    "method": "POST",
+    "urlPath": "/v1/posts",
+    "headers": {
+      "Authorization": {
+        "contains": "Bearer"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "code": "OK",
+      "message": "ok",
+      "requestId": "req_mock_post_create",
+      "data": {
+        "postId": "post_smoke_001",
+        "status": "published",
+        "familyId": "fam_smoke_001",
+        "babyId": "bb_smoke_001",
+        "media": [
+          {
+            "objectKey": "mock/cn/fam_smoke_001/photo_smoke_001.jpg",
+            "kind": "photo",
+            "width": 4032,
+            "height": 3024
+          }
+        ],
+        "caption": "P0 冒烟发布（mock）",
+        "createdAt": "2026-06-06T00:00:00Z"
+      }
+    }
+  }
+}

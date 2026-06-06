@@ -1,0 +1,39 @@
+# 阿里云 ACK 中国 — 网关 values
+# helm upgrade --install gateway ./infra/gateway/charts/baobao-gateway \
+#   -n gateway --create-namespace \
+#   -f infra/gateway/charts/baobao-gateway/values.yaml \
+#   -f infra/gateway/charts/baobao-gateway/values-ack-cn.yaml \
+#   -f infra/gateway/domains/mapping.yaml --set-file 不可用，域名见 domains/
+
+global:
+  cluster: ack-cn
+  region: cn
+  environment: dev
+
+apisix:
+  gateway:
+    type: LoadBalancer
+    annotations:
+      # ACK SLB 占位；生产替换为实际 annotation
+      service.beta.kubernetes.io/alibaba-cloud-loadbalancer-spec: "slb.s1.small"
+      service.beta.kubernetes.io/alicloud-loadbalancer-force-override-listeners: "true"
+
+  ingress-controller:
+    config:
+      apisix:
+        serviceNamespace: gateway
+
+gateway:
+  hosts:
+    api: dev-api-cn.example.com
+    ws: dev-ws-cn.example.com
+
+  upstream:
+    hello:
+      namespace: dev
+      serviceName: hello
+      servicePort: 80
+
+commonLabels:
+  baobao.io/cluster: ack-cn
+  baobao.io/region: cn

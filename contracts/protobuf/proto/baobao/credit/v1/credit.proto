@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package baobao.credit.v1;
+
+option go_package = "github.com/baobao/gen/baobao/credit/v1;creditv1";
+
+// CreditSubAdService — credit-sub-ad-svc 占位（REST 见 design-api §8）
+service CreditSubAdService {
+  rpc GetBalance(GetBalanceRequest) returns (GetBalanceResponse);
+}
+
+message GetBalanceRequest {
+  string user_id = 1;
+}
+
+message GetBalanceResponse {
+  int32 balance = 1;
+}

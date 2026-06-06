@@ -1,0 +1,97 @@
+{
+  "Version": "1",
+  "Statement": [
+    {
+      "Sid": "DenyInsecureTransport",
+      "Effect": "Deny",
+      "Principal": ["*"],
+      "Action": "oss:*",
+      "Resource": [
+        "acs:oss:*:*:${OSS_BUCKET_NAME}",
+        "acs:oss:*:*:${OSS_BUCKET_NAME}/*"
+      ],
+      "Condition": {
+        "Bool": {
+          "acs:SecureTransport": ["false"]
+        }
+      }
+    },
+    {
+      "Sid": "AllowMediaSvcStsUpload",
+      "Effect": "Allow",
+      "Principal": ["${MEDIA_SVC_RAM_ROLE_ARN}"],
+      "Action": [
+        "oss:PutObject",
+        "oss:AbortMultipartUpload",
+        "oss:ListMultipartUploadParts",
+        "oss:ListParts"
+      ],
+      "Resource": [
+        "acs:oss:*:*:${OSS_BUCKET_NAME}/ai-tmp/*",
+        "acs:oss:*:*:${OSS_BUCKET_NAME}/ai-out/*",
+        "acs:oss:*:*:${OSS_BUCKET_NAME}/family/*",
+        "acs:oss:*:*:${OSS_BUCKET_NAME}/avatar/*"
+      ]
+    },
+    {
+      "Sid": "AllowMediaSvcRead",
+      "Effect": "Allow",
+      "Principal": ["${MEDIA_SVC_RAM_ROLE_ARN}"],
+      "Action": [
+        "oss:GetObject",
+        "oss:GetObjectMeta",
+        "oss:HeadObject"
+      ],
+      "Resource": [
+        "acs:oss:*:*:${OSS_BUCKET_NAME}/ai-tmp/*",
+        "acs:oss:*:*:${OSS_BUCKET_NAME}/ai-out/*",
+        "acs:oss:*:*:${OSS_BUCKET_NAME}/family/*",
+        "acs:oss:*:*:${OSS_BUCKET_NAME}/avatar/*",
+        "acs:oss:*:*:${OSS_BUCKET_NAME}/caption-cache/*"
+      ]
+    },
+    {
+      "Sid": "AllowFeedSvcDelete",
+      "Effect": "Allow",
+      "Principal": ["${FEED_SVC_RAM_ROLE_ARN}"],
+      "Action": [
+        "oss:DeleteObject",
+        "oss:DeleteObjectVersion"
+      ],
+      "Resource": [
+        "acs:oss:*:*:${OSS_BUCKET_NAME}/family/*"
+      ]
+    },
+    {
+      "Sid": "AllowCdnOriginRead",
+      "Effect": "Allow",
+      "Principal": ["${CDN_ORIGIN_RAM_ROLE_ARN}"],
+      "Action": [
+        "oss:GetObject",
+        "oss:HeadObject"
+      ],
+      "Resource": [
+        "acs:oss:*:*:${OSS_BUCKET_NAME}/family/*",
+        "acs:oss:*:*:${OSS_BUCKET_NAME}/ai-out/*",
+        "acs:oss:*:*:${OSS_BUCKET_NAME}/avatar/*"
+      ]
+    },
+    {
+      "Sid": "DenyPublicWrite",
+      "Effect": "Deny",
+      "Principal": ["*"],
+      "Action": [
+        "oss:PutObject",
+        "oss:DeleteObject"
+      ],
+      "Resource": [
+        "acs:oss:*:*:${OSS_BUCKET_NAME}/*"
+      ],
+      "Condition": {
+        "StringNotEquals": {
+          "acs:PrincipalAccount": ["${ALIYUN_ACCOUNT_ID}"]
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+# Baobao 三方 Mock — docker compose
+# 任务 T0.20 · WireMock 3.x
+
+services:
+  mock-api:
+    image: wiremock/wiremock:3.9.1
+    container_name: baobao-mock-api
+    ports:
+      - "18080:8080"
+    volumes:
+      - ./api/mappings:/home/wiremock/mappings:ro
+    command: ["--global-response-templating", "--verbose"]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  mock-iap:
+    image: wiremock/wiremock:3.9.1
+    container_name: baobao-mock-iap
+    ports:
+      - "18081:8080"
+    volumes:
+      - ./iap/mappings:/home/wiremock/mappings:ro
+    command: ["--global-response-templating"]
+
+  mock-wechat:
+    image: wiremock/wiremock:3.9.1
+    container_name: baobao-mock-wechat
+    ports:
+      - "18082:8080"
+    volumes:
+      - ./wechat/mappings:/home/wiremock/mappings:ro
+    command: ["--global-response-templating"]
+
+  mock-ad:
+    image: wiremock/wiremock:3.9.1
+    container_name: baobao-mock-ad
+    ports:
+      - "18083:8080"
+    volumes:
+      - ./ad/mappings:/home/wiremock/mappings:ro
+    command: ["--global-response-templating"]
+
+  mock-audit:
+    image: wiremock/wiremock:3.9.1
+    container_name: baobao-mock-audit
+    ports:
+      - "18084:8080"
+    volumes:
+      - ./audit/mappings:/home/wiremock/mappings:ro
+    command: ["--global-response-templating"]
+
+  mock-ai:
+    image: wiremock/wiremock:3.9.1
+    container_name: baobao-mock-ai
+    ports:
+      - "18085:8080"
+    volumes:
+      - ./ai/mappings:/home/wiremock/mappings:ro
+    command: ["--global-response-templating"]

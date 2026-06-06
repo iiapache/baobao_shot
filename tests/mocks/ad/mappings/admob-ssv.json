@@ -1,0 +1,22 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPath": "/reward/verify"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "ad_network": "AdMob",
+      "ad_unit": "ca-app-pub-test/mock",
+      "reward_amount": 10,
+      "reward_item": "credits",
+      "transaction_id": "ad_mock_admob_001",
+      "user_id": "usr_smoke_001",
+      "timestamp": "1717632000",
+      "signature": "mock_admob_signature"
+    }
+  }
+}

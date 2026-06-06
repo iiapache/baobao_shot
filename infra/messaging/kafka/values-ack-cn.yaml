@@ -1,0 +1,18 @@
+# ACK 中国区 Kafka values 覆盖 — 合并 helm-values.yaml 使用
+# helm upgrade --install kafka oci://registry-1.docker.io/bitnamicharts/kafka \
+#   -f infra/messaging/kafka/helm-values.yaml \
+#   -f infra/messaging/kafka/values-ack-cn.yaml \
+#   -n baobao-messaging
+
+global:
+  storageClass: alicloud-disk-ssd
+
+broker:
+  persistence:
+    size: 100Gi
+
+metrics:
+  serviceMonitor:
+    labels:
+      cluster: ack-cn
+      region: cn

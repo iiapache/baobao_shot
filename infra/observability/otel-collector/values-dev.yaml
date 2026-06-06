@@ -1,0 +1,128 @@
+# OpenTelemetry Collector — 接收 Go 服务 OTLP，转发 traces/metrics/logs
+#
+# 与 services/_template/go 对齐:
+#   OTEL_EXPORTER_OTLP_ENDPOINT=otel-collector.observability.svc:4317
+#
+# helm repo add open-telemetry https://open-telemetry.github.io/opentelemetry-helm-charts
+# helm upgrade --install otel-collector open-telemetry/opentelemetry-collector \
+#   -n observability \
+#   -f infra/observability/otel-collector/values-dev.yaml
+
+mode: deployment
+
+replicaCount: 1
+
+image:
+  repository: otel/opentelemetry-collector-contrib
+
+presets:
+  kubernetesAttributes:
+    enabled: true
+
+config:
+  receivers:
+    otlp:
+      protocols:
+        grpc:
+          endpoint: 0.0.0.0:4317
+        http:
+          endpoint: 0.0.0.0:4318
+
+  connectors:
+    spanmetrics:
+      histogram:
+        explicit:
+          buckets: [5ms, 10ms, 25ms, 50ms, 100ms, 250ms, 500ms, 1s, 2.5s, 5s, 10s]
+      dimensions:
+        - name: http.method
+        - name: http.status_code
+        - name: service.name
+      dimensions_cache_size: 1000
+      aggregation_temporality: AGGREGATION_TEMPORALITY_CUMULATIVE
+      metrics_flush_interval: 15s
+
+  processors:
+    batch:
+      timeout: 5s
+      send_batch_size: 1024
+    memory_limiter:
+      check_interval: 1s
+      limit_percentage: 80
+      spike_limit_percentage: 25
+    resource:
+      attributes:
+        - key: deployment.environment
+          action: upsert
+          from_attribute: env
+    attributes/loki:
+      actions:
+        - key: loki.attribute.labels
+          action: insert
+          value: service.name, deployment.environment
+
+  exporters:
+    otlp/tempo:
+      endpoint: tempo.observability.svc:4317
+      tls:
+        insecure: true
+    prometheus:
+      endpoint: 0.0.0.0:8889
+      namespace: traces_spanmetrics
+    loki:
+      endpoint: http://loki-gateway.observability.svc:80/loki/api/v1/push
+      tls:
+        insecure: true
+    debug:
+      verbosity: basic
+
+  service:
+    telemetry:
+      metrics:
+        address: 0.0.0.0:8888
+    extensions: []
+    pipelines:
+      traces:
+        receivers: [otlp]
+        processors: [memory_limiter, batch]
+        exporters: [otlp/tempo, spanmetrics]
+      metrics:
+        receivers: [otlp, spanmetrics]
+        processors: [memory_limiter, batch]
+        exporters: [prometheus]
+      logs:
+        receivers: [otlp]
+        processors: [memory_limiter, attributes/loki, batch]
+        exporters: [loki]
+
+ports:
+  otlp:
+    enabled: true
+    containerPort: 4317
+    servicePort: 4317
+    protocol: TCP
+  otlp-http:
+    enabled: true
+    containerPort: 4318
+    servicePort: 4318
+    protocol: TCP
+  metrics:
+    enabled: true
+    containerPort: 8889
+    servicePort: 8889
+    protocol: TCP
+
+serviceMonitor:
+  enabled: true
+  labels:
+    release: prometheus
+  metricsEndpoints:
+    - port: metrics
+      interval: 30s
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi

@@ -1,0 +1,52 @@
+# MongoDB 6 — Bitnami chart 基础 values
+# Chart: bitnami/mongodb (appVersion 6.x)
+
+global:
+  storageClass: ""
+
+auth:
+  enabled: true
+  rootUser: baobao
+  username: baobao
+  database: baobao
+  existingSecret: baobao-mongodb
+  existingSecretRootPasswordKey: mongodb-root-password
+  existingSecretPasswordKey: mongodb-password
+
+image:
+  tag: "6.0"
+
+architecture: standalone
+
+persistence:
+  enabled: true
+  size: 500Gi
+
+resources:
+  requests:
+    cpu: 500m
+    memory: 2Gi
+  limits:
+    cpu: 4
+    memory: 8Gi
+
+# 慢操作 profiling（见 monitoring/slow-query.md）
+configuration: |
+  operationProfiling:
+    mode: slowOp
+    slowOpThresholdMs: 100
+  setParameter:
+    diagnosticDataCollectionEnabled: true
+
+metrics:
+  enabled: true
+  serviceMonitor:
+    enabled: false
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+
+commonLabels:
+  app.kubernetes.io/component: mongodb
+  baobao.io/data-store: mongodb

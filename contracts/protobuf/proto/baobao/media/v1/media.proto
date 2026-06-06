@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package baobao.media.v1;
+
+option go_package = "github.com/baobao/gen/baobao/media/v1;mediav1";
+
+// MediaService — media-svc 占位（REST 见 design-api §5）
+service MediaService {
+  rpc GetUploadStatus(GetUploadStatusRequest) returns (GetUploadStatusResponse);
+}
+
+message GetUploadStatusRequest {
+  string object_key = 1;
+}
+
+message GetUploadStatusResponse {
+  string object_key = 1;
+  string status = 2;
+}

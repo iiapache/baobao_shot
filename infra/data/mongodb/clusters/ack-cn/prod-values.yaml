@@ -1,0 +1,12 @@
+# ACK 中国 — prod-cn
+auth:
+  existingSecret: baobao-mongodb
+
+commonLabels:
+  baobao.io/cluster: ack-cn
+  baobao.io/region: cn
+  baobao.io/environment: prod
+
+persistence:
+  storageClass: alicloud-disk-ssd
+  size: 500Gi

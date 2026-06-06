@@ -1,0 +1,21 @@
+# ACK 中国 — staging 环境 hello 服务 values
+
+global:
+  cluster: ack-cn
+  region: cn
+  environment: staging
+
+replicaCount: 2
+
+ingress:
+  enabled: true
+  className: nginx
+  hosts:
+    - host: hello-staging-cn.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+
+commonLabels:
+  baobao.io/team: infra
+  baobao.io/tier: demo

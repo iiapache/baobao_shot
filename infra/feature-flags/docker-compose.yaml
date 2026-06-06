@@ -1,0 +1,37 @@
+# 可选本地 Unleash — 仅开发/验收，生产请用托管或 K8s Helm
+services:
+  unleash-db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: unleash
+      POSTGRES_USER: unleash
+      POSTGRES_PASSWORD: unleash
+    volumes:
+      - unleash_pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U unleash -d unleash"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  unleash:
+    image: unleashorg/unleash-server:6.5
+    depends_on:
+      unleash-db:
+        condition: service_healthy
+    ports:
+      - "4242:4242"
+    environment:
+      DATABASE_URL: postgres://unleash:unleash@unleash-db:5432/unleash
+      DATABASE_SSL: "false"
+      INIT_ADMIN_API_TOKENS: "*:development.unleash-insecure-api-token"
+      INIT_CLIENT_API_TOKENS: "*:development.unleash-insecure-client-token"
+      INIT_FRONTEND_API_TOKENS: "*:development.unleash-insecure-frontend-token"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:4242/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  unleash_pg:

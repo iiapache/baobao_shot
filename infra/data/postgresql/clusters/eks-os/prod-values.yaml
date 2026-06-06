@@ -1,0 +1,20 @@
+# EKS 新加坡 — prod-os 命名空间 PostgreSQL 覆盖
+global:
+  postgresql:
+    auth:
+      existingSecret: baobao-postgresql
+
+commonLabels:
+  baobao.io/cluster: eks-os
+  baobao.io/region: os
+  baobao.io/environment: prod
+
+primary:
+  persistence:
+    storageClass: gp3
+    size: 100Gi
+
+readReplicas:
+  persistence:
+    storageClass: gp3
+    size: 100Gi

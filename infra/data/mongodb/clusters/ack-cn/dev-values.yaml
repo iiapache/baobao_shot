@@ -1,0 +1,11 @@
+# ACK 中国 — dev
+auth:
+  existingSecret: baobao-mongodb
+
+commonLabels:
+  baobao.io/cluster: ack-cn
+  baobao.io/region: cn
+  baobao.io/environment: dev
+
+persistence:
+  storageClass: alicloud-disk-ssd

@@ -1,0 +1,8 @@
+# Fastlane 配置
+# 正式 Apple Team ID / Bundle ID 在 T0.12 / T0.13 后填入
+
+# app_identifier("app.babycamera")       # 占位，上架前替换
+# apple_id("dev@example.com")            # Apple ID（可选）
+# team_id("XXXXXXXXXX")                  # Apple Developer Team ID
+
+# 中国区 / 海外区如需分包，使用 scheme 或 .env 区分

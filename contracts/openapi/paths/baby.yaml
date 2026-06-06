@@ -1,0 +1,163 @@
+# design-api.md §4.2 宝宝档案
+paths:
+  /v1/families/{familyId}/babies:
+    parameters:
+      - $ref: '../components/common.yaml#/components/parameters/FamilyId'
+    post:
+      tags: [baby]
+      summary: 创建宝宝档案
+      operationId: babyCreate
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, birthday]
+              properties:
+                name:
+                  type: string
+                birthday:
+                  type: string
+                  format: date
+                gender:
+                  type: string
+                  enum: [male, female, unknown]
+      responses:
+        '200':
+          description: 创建成功
+          content:
+            application/json:
+              schema:
+                $ref: '../components/common.yaml#/components/schemas/ApiResponse'
+    get:
+      tags: [baby]
+      summary: 获取家庭的宝宝列表
+      operationId: babyListByFamily
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 宝宝列表
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '../components/common.yaml#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          items:
+                            type: array
+                            items:
+                              $ref: '../components/common.yaml#/components/schemas/BabySummary'
+
+  /v1/babies/{babyId}:
+    parameters:
+      - $ref: '../components/common.yaml#/components/parameters/BabyId'
+    get:
+      tags: [baby]
+      summary: 宝宝详情
+      operationId: babyGet
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 宝宝详情
+          content:
+            application/json:
+              schema:
+                $ref: '../components/common.yaml#/components/schemas/ApiResponse'
+        '404':
+          $ref: '../components/common.yaml#/components/responses/NotFound'
+    patch:
+      tags: [baby]
+      summary: 修改宝宝档案
+      operationId: babyUpdate
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                birthday:
+                  type: string
+                  format: date
+                gender:
+                  type: string
+                  enum: [male, female, unknown]
+      responses:
+        '200':
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                $ref: '../components/common.yaml#/components/schemas/ApiResponse'
+    delete:
+      tags: [baby]
+      summary: 删除宝宝档案（软删）
+      operationId: babyDelete
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 删除成功
+          content:
+            application/json:
+              schema:
+                $ref: '../components/common.yaml#/components/schemas/ApiResponse'
+
+  /v1/babies/{babyId}/milestones:
+    parameters:
+      - $ref: '../components/common.yaml#/components/parameters/BabyId'
+    post:
+      tags: [baby]
+      summary: 添加自定义里程碑
+      operationId: babyAddMilestone
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [title, occurredAt]
+              properties:
+                title:
+                  type: string
+                occurredAt:
+                  type: string
+                  format: date
+      responses:
+        '200':
+          description: 添加成功
+          content:
+            application/json:
+              schema:
+                $ref: '../components/common.yaml#/components/schemas/ApiResponse'
+    get:
+      tags: [baby]
+      summary: 获取里程碑列表（含内置 + 自定义）
+      operationId: babyListMilestones
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '../components/common.yaml#/components/parameters/Cursor'
+        - $ref: '../components/common.yaml#/components/parameters/Limit'
+      responses:
+        '200':
+          description: 里程碑列表
+          content:
+            application/json:
+              schema:
+                $ref: '../components/common.yaml#/components/schemas/ApiResponse'

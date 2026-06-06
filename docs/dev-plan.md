@@ -103,6 +103,51 @@ flowchart LR
 
 ---
 
+## 2.4 任务执行状态（滚动更新）
+
+> 由编排 agent 在每批 3 并行任务完成后同步更新。状态：`pending` / `in-progress` / `blocked` / `done`
+
+| 批次 | 任务 | 状态 | 完成时间 | 备注 |
+| :---: | --- | :---: | --- | --- |
+| P0-1 | T0.1 | done | 2026-06-06 | monorepo/CODEOWNERS/CI 骨架 |
+| P0-1 | T0.3 | done | 2026-06-06 | K8s Helm/ArgoCD 模板 |
+| P0-1 | T0.9 | done | 2026-06-06 | 算法/深度合成备案跟踪 |
+| P0-1 | T0.10 | done | 2026-06-06 | ICP 备案跟踪 |
+| P0-1 | T0.12 | done | 2026-06-06 | Vault/第三方账号清单 |
+| P0-2 | T0.2 | done | 2026-06-06 | GitLab CI + ArgoCD + fastlane |
+| P0-2 | T0.4 | done | 2026-06-06 | PG/Mongo/Redis 双区模板 |
+| P0-2 | T0.5 | done | 2026-06-06 | Kafka/OSS/S3 topic+生命周期 |
+| P0-2 | T0.6 | done | 2026-06-06 | APISIX 网关 chart |
+| P0-2 | T0.13 | done | 2026-06-06 | iOS 脚手架（需 Xcode 验证 build） |
+| P0-3 | T0.7 | done | 2026-06-06 | Vault Helm/Injector/轮换 SOP |
+| P0-3 | T0.17 | done | 2026-06-06 | Go/Python 服务模板 + hello |
+| P0-3 | T0.8 | done | 2026-06-06 | Prometheus/Grafana/Loki/Tempo |
+| P0-3 | T0.11 | done | 2026-06-06 | 字体/贴纸/模板资源包 |
+| P0-3 | T0.14 | done | 2026-06-06 | DesignSystem + Catalog |
+| P0-4 | T0.15 | done | 2026-06-06 | Network 包 + Mock + 单测 |
+| P0-4 | T0.16 | done | 2026-06-06 | GRDB migration + Repository 骨架 |
+| P0-4 | T0.18 | done | 2026-06-06 | OpenAPI/protobuf + CI lint |
+| P0-4 | T0.19 | done | 2026-06-06 | config-svc + Feature Flag |
+| P0-4 | T0.20 | done | 2026-06-06 | QA mocks + 冒烟脚本 |
+| P0-4 | P0-SMOKE | done | 2026-06-06 | p0-smoke 35/35；M1 待 Docker/Xcode |
+| P1-1 | T1.1 | done | 2026-06-06 | Apple 登录 + users 表 |
+| P1-1 | T1.2 | done | 2026-06-06 | 手机号验证码 + 限流 |
+| P1-1 | T1.5 | done | 2026-06-06 | 家庭 CRUD + 上限 |
+| P1-1 | T1.10 | done | 2026-06-06 | child_consents + RequireChildConsent |
+| P1-1 | T1.12 | done | 2026-06-06 | APISIX forward-auth + 限流 |
+| P1-2 | T1.3 | done | 2026-06-06 | JWT/Refresh/Logout + Redis 黑名单 |
+| P1-2 | T1.6 | done | 2026-06-06 | RequireFamilyRole 中间件 |
+| P1-2 | T1.7 | done | 2026-06-06 | 邀请码生成/作废/加入 + HMAC QR |
+| P1-2 | T1.9 | done | 2026-06-06 | babies CRUD + avatar stub |
+| P1-3 | T1.4 | done | 2026-06-06 | 账号软删/撤销/导出入口 |
+| P1-3 | T1.8 | done | 2026-06-06 | 转让 + 失联接管 + scheduler |
+| P1-3 | T1.11 | done | 2026-06-06 | backup providers/status API 占位 |
+| P1-3 | T1.13 | done | 2026-06-06 | BabyCameraAccount + Keychain TokenStore |
+| P2-1 | T2.3 | done | 2026-06-06 | BabyCameraVideoKit |
+| P2-1 | T2.11 | done | 2026-06-06 | BabyCameraEditor 撤销/重做内核 |
+
+---
+
 ## 3. 阶段 P0：项目初始化与基础设施
 
 ### 3.1 子任务清单

@@ -1,0 +1,12 @@
+# ACK 中国 — staging
+auth:
+  existingSecret: baobao-mongodb
+
+commonLabels:
+  baobao.io/cluster: ack-cn
+  baobao.io/region: cn
+  baobao.io/environment: staging
+
+persistence:
+  storageClass: alicloud-disk-ssd
+  size: 50Gi

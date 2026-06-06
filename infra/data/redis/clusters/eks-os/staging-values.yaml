@@ -1,0 +1,13 @@
+# EKS 新加坡 — staging
+auth:
+  existingSecret: baobao-redis
+
+commonLabels:
+  baobao.io/cluster: eks-os
+  baobao.io/region: os
+  baobao.io/environment: staging
+
+master:
+  persistence:
+    storageClass: gp3
+    size: 10Gi

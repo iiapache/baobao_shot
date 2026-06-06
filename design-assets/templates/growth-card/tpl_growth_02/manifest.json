@@ -1,0 +1,87 @@
+{
+  "schemaVersion": "1.0.0",
+  "taskRef": "T0.11 / T2.14",
+  "id": "tpl_growth_02",
+  "name": "成长卡片 · 暖色渐变",
+  "category": "growth-card",
+  "categoryLabel": "成长卡片",
+  "description": "暖橙渐变背景，圆角照片框",
+  "preview": "templates/growth-card/tpl_growth_02/preview.jpg",
+  "thumbnail": "templates/growth-card/tpl_growth_02/thumb.jpg",
+  "canvas": {
+    "width": 1080,
+    "height": 1440,
+    "dpi": 72
+  },
+  "placeholders": [
+    {
+      "id": "photo_main",
+      "type": "photo",
+      "label": "主照片",
+      "rect": {
+        "x": 0.1,
+        "y": 0.15,
+        "width": 0.8,
+        "height": 0.55
+      },
+      "aspectRatio": "3:4"
+    },
+    {
+      "id": "baby_name",
+      "type": "text",
+      "label": "宝宝昵称",
+      "fontId": "font_baobao_rounded",
+      "defaultValue": "{{baby_name}}",
+      "rect": {
+        "x": 0.1,
+        "y": 0.75,
+        "width": 0.8,
+        "height": 0.08
+      },
+      "editable": true
+    },
+    {
+      "id": "day_count",
+      "type": "text",
+      "label": "成长天数",
+      "fontId": "font_baobao_bold",
+      "defaultValue": "第 {{day_count}} 天",
+      "rect": {
+        "x": 0.1,
+        "y": 0.68,
+        "width": 0.8,
+        "height": 0.08
+      },
+      "editable": false
+    },
+    {
+      "id": "date_label",
+      "type": "text",
+      "label": "日期",
+      "fontId": "font_baobao_serif",
+      "defaultValue": "{{capture_date}}",
+      "rect": {
+        "x": 0.1,
+        "y": 0.85,
+        "width": 0.8,
+        "height": 0.06
+      },
+      "editable": true
+    }
+  ],
+  "steps": [],
+  "resources": {
+    "background": "templates/growth-card/tpl_growth_02/background.png",
+    "overlay": "templates/growth-card/tpl_growth_02/overlay.png",
+    "fonts": [
+      "font_baobao_serif",
+      "font_baobao_rounded",
+      "font_baobao_bold"
+    ],
+    "stickers": []
+  },
+  "remoteConfigurable": true,
+  "configSvcKey": "editor.templates.tpl_growth_02",
+  "minAppVersion": "1.0.0",
+  "editorStepType": "TemplateStep"
+}

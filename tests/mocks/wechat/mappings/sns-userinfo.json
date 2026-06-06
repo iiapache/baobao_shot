@@ -1,0 +1,22 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPath": "/sns/userinfo"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "openid": "oMock_openid_smoke_001",
+      "nickname": "微信Mock用户",
+      "sex": 0,
+      "province": "广东",
+      "city": "深圳",
+      "country": "中国",
+      "headimgurl": "https://example.com/mock-avatar.png",
+      "unionid": "uMock_unionid_smoke_001"
+    }
+  }
+}

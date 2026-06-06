@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package baobao.auth.v1;
+
+option go_package = "github.com/baobao/gen/baobao/auth/v1;authv1";
+
+// AuthFamilyService — auth-family-svc 占位（REST 见 design-api §3、§4、§11）
+service AuthFamilyService {
+  rpc GetUser(GetUserRequest) returns (GetUserResponse);
+}
+
+message GetUserRequest {
+  string user_id = 1;
+}
+
+message GetUserResponse {
+  string user_id = 1;
+  string nickname = 2;
+}

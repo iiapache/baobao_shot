@@ -1,0 +1,38 @@
+# design-api.md §9 智能文案
+paths:
+  /v1/caption/generate:
+    post:
+      tags: [caption]
+      summary: 生成候选文案
+      operationId: captionGenerate
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [babyId, ageDays]
+              properties:
+                babyId:
+                  type: string
+                ageDays:
+                  type: integer
+                play:
+                  type: string
+                location:
+                  type: string
+      responses:
+        '200':
+          description: 候选文案
+          content:
+            application/json:
+              schema:
+                $ref: '../components/common.yaml#/components/schemas/ApiResponse'
+        '429':
+          description: 今日额度用尽
+          content:
+            application/json:
+              schema:
+                $ref: '../components/common.yaml#/components/schemas/ErrorResponse'

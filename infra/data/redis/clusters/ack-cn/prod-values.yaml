@@ -1,0 +1,18 @@
+# ACK 中国 — prod-cn
+auth:
+  existingSecret: baobao-redis
+
+commonLabels:
+  baobao.io/cluster: ack-cn
+  baobao.io/region: cn
+  baobao.io/environment: prod
+
+master:
+  persistence:
+    storageClass: alicloud-disk-ssd
+    size: 32Gi
+
+replica:
+  persistence:
+    storageClass: alicloud-disk-ssd
+    size: 32Gi

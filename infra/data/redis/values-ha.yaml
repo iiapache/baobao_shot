@@ -1,0 +1,22 @@
+# Redis 7 — prod 主从 + Sentinel
+# 适用命名空间: prod-cn / prod-os
+
+architecture: replication
+
+master:
+  persistence:
+    size: 32Gi
+  podAntiAffinityPreset: hard
+
+replica:
+  replicaCount: 2
+  persistence:
+    enabled: true
+    size: 32Gi
+  podAntiAffinityPreset: hard
+
+sentinel:
+  enabled: true
+  quorum: 2
+  downAfterMilliseconds: 5000
+  failoverTimeout: 10000

@@ -1,0 +1,62 @@
+# HashiCorp Vault — dev 单节点（仅开发 / 联调，禁止承载 prod 凭据）
+# helm upgrade --install vault hashicorp/vault -n vault-dev -f values-dev.yaml
+
+global:
+  enabled: true
+  tlsDisable: true  # dev 内网；staging/prod 必须启用 TLS
+
+injector:
+  enabled: true
+  replicas: 1
+  agentDefaults:
+    template: map
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+
+server:
+  dev:
+    enabled: true
+    devRootToken: "root"  # 仅 dev；部署后立即轮换或通过 OIDC 禁用 root
+
+  standalone:
+    enabled: false
+
+  ha:
+    enabled: false
+
+  resources:
+    requests:
+      cpu: 250m
+      memory: 256Mi
+    limits:
+      cpu: 1
+      memory: 512Mi
+
+  dataStorage:
+    enabled: true
+    size: 10Gi
+
+  auditStorage:
+    enabled: true
+    size: 5Gi
+
+  service:
+    type: ClusterIP
+    port: 8200
+
+  extraEnvironmentVars:
+    VAULT_LOG_LEVEL: info
+    VAULT_ADDR: "http://127.0.0.1:8200"
+
+ui:
+  enabled: true
+  serviceType: ClusterIP
+
+serverTelemetry:
+  serviceMonitor:
+    enabled: false  # dev 可选；staging 见 values-staging.yaml

@@ -1,0 +1,65 @@
+# ApplicationSet — staging 环境多集群 hello 部署
+# 使用前替换 spec.generators[].matrix.generators[].git.repoURL
+---
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: baobao-staging
+  namespace: argocd
+  labels:
+    app.kubernetes.io/part-of: baobao
+    baobao.io/environment: staging
+spec:
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+    - matrix:
+        generators:
+          # 集群维度
+          - list:
+              elements:
+                - cluster: ack-cn
+                  region: cn
+                - cluster: eks-os
+                  region: os
+          # 服务维度（后续扩展 auth-family-svc 等）
+          - list:
+              elements:
+                - service: hello
+                  chartPath: infra/k8s/charts/hello
+                  namespace: staging
+  template:
+    metadata:
+      name: "{{ .service }}-staging-{{ .cluster }}"
+      labels:
+        app.kubernetes.io/part-of: baobao
+        baobao.io/cluster: "{{ .cluster }}"
+        baobao.io/region: "{{ .region }}"
+        baobao.io/environment: staging
+        baobao.io/service: "{{ .service }}"
+      finalizers:
+        - resources-finalizer.argocd.argoproj.io
+    spec:
+      project: default
+      source:
+        repoURL: https://gitlab.example.com/baobao/baobao.git
+        targetRevision: main
+        path: "{{ .chartPath }}"
+        helm:
+          releaseName: "{{ .service }}"
+          valueFiles:
+            - "../../clusters/{{ .cluster }}/cluster-values.yaml"
+            - "../../clusters/{{ .cluster }}/staging-{{ .service }}-values.yaml"
+            # 蓝绿覆盖（启用 Rollouts 或双 Deployment 时取消注释）
+            # - "../../../argocd/values/blue-green-hello.yaml"
+      destination:
+        name: "{{ .cluster }}"
+        namespace: "{{ .namespace }}"
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=false
+          - ApplyOutOfSyncOnly=true
+      revisionHistoryLimit: 5

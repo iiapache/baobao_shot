@@ -1,0 +1,72 @@
+# Prometheus 额外 scrape 配置
+# 部署前创建 Secret:
+#   kubectl create secret generic prometheus-additional-scrape-configs \
+#     -n observability \
+#     --from-file=prometheus-additional-scrape-configs.yaml=infra/observability/prometheus/scrape-configs/additional-scrape-configs.yaml \
+#     --dry-run=client -o yaml | kubectl apply -f -
+#
+# 或在 deploy-dev.sh 中自动创建
+
+- job_name: baobao-hello
+  honor_labels: true
+  kubernetes_sd_configs:
+    - role: pod
+      namespaces:
+        names:
+          - dev
+          - staging
+  relabel_configs:
+    - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+      action: keep
+      regex: "true"
+    - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
+      action: replace
+      target_label: __metrics_path__
+      regex: (.+)
+    - source_labels: [__address__, __meta_kubernetes_pod_annotation_prometheus_io_port]
+      action: replace
+      regex: ([^:]+)(?::\d+)?;(\d+)
+      replacement: $1:$2
+      target_label: __address__
+    - source_labels: [__meta_kubernetes_pod_label_app_kubernetes_io_name]
+      action: keep
+      regex: hello
+    - source_labels: [__meta_kubernetes_namespace]
+      action: replace
+      target_label: namespace
+    - source_labels: [__meta_kubernetes_pod_name]
+      action: replace
+      target_label: pod
+    - target_label: cluster
+      replacement: dev
+
+- job_name: baobao-gateway-apisix
+  honor_labels: true
+  kubernetes_sd_configs:
+    - role: endpoints
+      namespaces:
+        names:
+          - gateway
+  relabel_configs:
+    - source_labels: [__meta_kubernetes_service_name]
+      action: keep
+      regex: apisix-gateway
+    - source_labels: [__meta_kubernetes_endpoint_port_name]
+      action: keep
+      regex: prometheus
+    - source_labels: [__meta_kubernetes_namespace]
+      action: replace
+      target_label: namespace
+    - source_labels: [__meta_kubernetes_service_name]
+      action: replace
+      target_label: service
+    - target_label: cluster
+      replacement: dev
+
+- job_name: otel-collector-spanmetrics
+  static_configs:
+    - targets:
+        - otel-collector.observability.svc:8889
+      labels:
+        component: otel-collector
+        metrics_type: spanmetrics

@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package baobao.feed.v1;
+
+option go_package = "github.com/baobao/gen/baobao/feed/v1;feedv1";
+
+// FeedService — feed-svc 占位（REST 见 design-api §7）
+service FeedService {
+  rpc GetPost(GetPostRequest) returns (GetPostResponse);
+}
+
+message GetPostRequest {
+  string post_id = 1;
+}
+
+message GetPostResponse {
+  string post_id = 1;
+  string status = 2;
+}

@@ -1,0 +1,44 @@
+# Secrets — 切勿提交
+.env
+.env.*
+*.pem
+*.p12
+*.mobileprovision
+credentials.json
+secrets/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+*.xcuserstate
+*.xcworkspace/xcuserdata/
+.vscode/settings.json
+
+# Build artifacts（后续各子项目补充）
+build/
+dist/
+*.o
+*.a
+
+# Go
+vendor/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# iOS（T0.13 后可能扩展）
+DerivedData/
+*.ipa
+*.dSYM.zip
+
+# Logs
+*.log
+
+# Contract codegen
+contracts/protobuf/gen/

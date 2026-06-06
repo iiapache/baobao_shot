@@ -1,0 +1,36 @@
+# ArgoCD Application 模板 — hello dev（EKS 新加坡，可选）
+# 双集群 dev 联调时使用
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: hello-dev-os
+  namespace: argocd
+  labels:
+    app.kubernetes.io/part-of: baobao
+    baobao.io/cluster: eks-os
+    baobao.io/environment: dev
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://gitlab.example.com/baobao/baobao.git
+    targetRevision: main
+    path: infra/k8s/charts/hello
+    helm:
+      releaseName: hello
+      valueFiles:
+        - ../../clusters/eks-os/cluster-values.yaml
+        - ../../clusters/eks-os/dev-hello-values.yaml
+  destination:
+    name: eks-os
+    namespace: dev
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=false
+      - ApplyOutOfSyncOnly=true
+  revisionHistoryLimit: 5

@@ -1,0 +1,1840 @@
+openapi: 3.0.3
+info:
+  title: 宝宝成长相机 REST API
+  version: 1.0.0
+  description: |
+    端 ↔ 后端 REST 契约，对齐 [design-api.md](../../docs/design-api.md)。
+    大版本 URI 前缀 `v1`；非破坏性变更仅增字段，破坏性变更升至 `v2`。
+  contact:
+    name: baobao API
+  license:
+    name: Proprietary
+servers:
+  - url: https://api-cn.babygrowth.app
+    description: 中国区域
+  - url: https://api-os.babygrowth.app
+    description: 海外区域
+security:
+  - bearerAuth: []
+tags:
+  - name: auth
+    description: 鉴权（design-api §3）
+  - name: account
+    description: 账号（design-api §3）
+  - name: family
+    description: 家庭（design-api §4.1）
+  - name: baby
+    description: 宝宝档案（design-api §4.2）
+  - name: upload
+    description: 媒体上传（design-api §5）
+  - name: ai
+    description: AI 任务（design-api §6）
+  - name: feed
+    description: 家庭圈（design-api §7）
+  - name: credits
+    description: 积分（design-api §8.1）
+  - name: subscriptions
+    description: 订阅（design-api §8.2）
+  - name: caption
+    description: 智能文案（design-api §9）
+  - name: notifications
+    description: 通知（design-api §10）
+  - name: backup
+    description: 备份凭据（design-api §11）
+  - name: config
+    description: 灰度与运营配置（config-svc）
+paths:
+  /v1/auth/apple:
+    post:
+      tags:
+        - auth
+      summary: Apple ID 登录 / 注册
+      operationId: authAppleLogin
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/HeaderXRegion'
+        - $ref: '#/components/parameters/HeaderXAppVersion'
+        - $ref: '#/components/parameters/HeaderXDeviceId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - identityToken
+                - authorizationCode
+                - region
+              properties:
+                identityToken:
+                  type: string
+                authorizationCode:
+                  type: string
+                nickname:
+                  type: string
+                region:
+                  type: string
+                  enum:
+                    - cn
+                    - os
+      responses:
+        '200':
+          description: 登录成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/AuthTokens'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /v1/auth/phone/code:
+    post:
+      tags:
+        - auth
+      summary: 发送短信验证码（仅中国区）
+      operationId: authPhoneSendCode
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - phone
+              properties:
+                phone:
+                  type: string
+      responses:
+        '200':
+          description: 发送成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '429':
+          description: 限流
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v1/auth/phone/login:
+    post:
+      tags:
+        - auth
+      summary: 手机号 + 验证码登录 / 注册
+      operationId: authPhoneLogin
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - phone
+                - code
+              properties:
+                phone:
+                  type: string
+                code:
+                  type: string
+      responses:
+        '200':
+          description: 登录成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/AuthTokens'
+  /v1/auth/refresh:
+    post:
+      tags:
+        - auth
+      summary: 刷新 Access Token（Refresh Rotation）
+      operationId: authRefresh
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - refreshToken
+              properties:
+                refreshToken:
+                  type: string
+      responses:
+        '200':
+          description: 刷新成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /v1/account/logout:
+    post:
+      tags:
+        - account
+      summary: 主动登出（撤销当前会话）
+      operationId: accountLogout
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 登出成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+  /v1/account/me:
+    get:
+      tags:
+        - account
+      summary: 获取当前用户基本信息
+      operationId: accountGetMe
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 用户信息
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/UserProfile'
+    patch:
+      tags:
+        - account
+      summary: 更新昵称 / 头像
+      operationId: accountUpdateMe
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nickname:
+                  type: string
+                avatarUrl:
+                  type: string
+                  nullable: true
+      responses:
+        '200':
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+  /v1/account/consents/child-data:
+    post:
+      tags:
+        - account
+      summary: 提交监护人同意
+      operationId: accountSubmitChildConsent
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - version
+                - accepted
+              properties:
+                version:
+                  type: string
+                accepted:
+                  type: boolean
+      responses:
+        '200':
+          description: 提交成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '422':
+          description: 业务校验未通过
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v1/account:
+    delete:
+      tags:
+        - account
+      summary: 注销账号（异步处理 + 软删 + 7 天可撤销）
+      operationId: accountDelete
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 注销已受理
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /v1/families:
+    post:
+      tags:
+        - family
+      summary: 创建家庭
+      operationId: familyCreate
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+      responses:
+        '200':
+          description: 创建成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '409':
+          description: 家庭数量达上限
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    get:
+      tags:
+        - family
+      summary: 获取我加入的家庭列表
+      operationId: familyListMine
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 家庭列表
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          items:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/FamilySummary'
+  /v1/families/{familyId}:
+    parameters:
+      - $ref: '#/components/parameters/FamilyId'
+    get:
+      tags:
+        - family
+      summary: 家庭详情（含成员、宝宝）
+      operationId: familyGet
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 家庭详情
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      tags:
+        - family
+      summary: 修改家庭名称
+      operationId: familyUpdate
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+      responses:
+        '200':
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+    delete:
+      tags:
+        - family
+      summary: 解散家庭（管理员）
+      operationId: familyDelete
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 解散成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /v1/families/{familyId}/invitations:
+    parameters:
+      - $ref: '#/components/parameters/FamilyId'
+    post:
+      tags:
+        - family
+      summary: 生成邀请码
+      operationId: familyCreateInvitation
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 邀请码
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+  /v1/families/{familyId}/invitations/{code}:
+    parameters:
+      - $ref: '#/components/parameters/FamilyId'
+      - $ref: '#/components/parameters/InvitationCode'
+    delete:
+      tags:
+        - family
+      summary: 立即作废邀请码
+      operationId: familyRevokeInvitation
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 作废成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+  /v1/invitations/{code}/join:
+    parameters:
+      - $ref: '#/components/parameters/InvitationCode'
+    post:
+      tags:
+        - family
+      summary: 通过邀请码加入家庭
+      operationId: familyJoinByInvitation
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - relation
+              properties:
+                relation:
+                  type: string
+                nickname:
+                  type: string
+      responses:
+        '200':
+          description: 加入成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '409':
+          description: 邀请码已用尽或成员达上限
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v1/families/{familyId}/transfer:
+    parameters:
+      - $ref: '#/components/parameters/FamilyId'
+    post:
+      tags:
+        - family
+      summary: 主动转让管理员
+      operationId: familyTransferAdmin
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - targetUserId
+              properties:
+                targetUserId:
+                  type: string
+      responses:
+        '200':
+          description: 转让成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+  /v1/families/{familyId}/takeover:
+    parameters:
+      - $ref: '#/components/parameters/FamilyId'
+    post:
+      tags:
+        - family
+      summary: 发起 / 投票失联接管
+      operationId: familyTakeover
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 接管流程状态
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+  /v1/families/{familyId}/members:
+    parameters:
+      - $ref: '#/components/parameters/FamilyId'
+    get:
+      tags:
+        - family
+      summary: 成员列表
+      operationId: familyListMembers
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 成员列表
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+  /v1/families/{familyId}/members/{userId}:
+    parameters:
+      - $ref: '#/components/parameters/FamilyId'
+      - $ref: '#/components/parameters/UserId'
+    patch:
+      tags:
+        - family
+      summary: 修改成员角色 / 备注
+      operationId: familyUpdateMember
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                role:
+                  type: string
+                  enum:
+                    - admin
+                    - family
+                    - guest
+                nickname:
+                  type: string
+      responses:
+        '200':
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+    delete:
+      tags:
+        - family
+      summary: 移除成员
+      operationId: familyRemoveMember
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 移除成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+  /v1/families/{familyId}/babies:
+    parameters:
+      - $ref: '#/components/parameters/FamilyId'
+    post:
+      tags:
+        - baby
+      summary: 创建宝宝档案
+      operationId: babyCreate
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - birthday
+              properties:
+                name:
+                  type: string
+                birthday:
+                  type: string
+                  format: date
+                gender:
+                  type: string
+                  enum:
+                    - male
+                    - female
+                    - unknown
+      responses:
+        '200':
+          description: 创建成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+    get:
+      tags:
+        - baby
+      summary: 获取家庭的宝宝列表
+      operationId: babyListByFamily
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 宝宝列表
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          items:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/BabySummary'
+  /v1/babies/{babyId}:
+    parameters:
+      - $ref: '#/components/parameters/BabyId'
+    get:
+      tags:
+        - baby
+      summary: 宝宝详情
+      operationId: babyGet
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 宝宝详情
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      tags:
+        - baby
+      summary: 修改宝宝档案
+      operationId: babyUpdate
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                birthday:
+                  type: string
+                  format: date
+                gender:
+                  type: string
+                  enum:
+                    - male
+                    - female
+                    - unknown
+      responses:
+        '200':
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+    delete:
+      tags:
+        - baby
+      summary: 删除宝宝档案（软删）
+      operationId: babyDelete
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 删除成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+  /v1/babies/{babyId}/milestones:
+    parameters:
+      - $ref: '#/components/parameters/BabyId'
+    post:
+      tags:
+        - baby
+      summary: 添加自定义里程碑
+      operationId: babyAddMilestone
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - title
+                - occurredAt
+              properties:
+                title:
+                  type: string
+                occurredAt:
+                  type: string
+                  format: date
+      responses:
+        '200':
+          description: 添加成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+    get:
+      tags:
+        - baby
+      summary: 获取里程碑列表（含内置 + 自定义）
+      operationId: babyListMilestones
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Cursor'
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: 里程碑列表
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+  /v1/uploads/init:
+    post:
+      tags:
+        - upload
+      summary: 申请 OSS 直传凭据
+      operationId: uploadInit
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - purpose
+                - items
+              properties:
+                purpose:
+                  type: string
+                  enum:
+                    - ai-input
+                    - post-item
+                familyId:
+                  type: string
+                items:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      clientRef:
+                        type: string
+                      kind:
+                        type: string
+                      mime:
+                        type: string
+                      size:
+                        type: integer
+                      sha256:
+                        type: string
+      responses:
+        '200':
+          description: 直传凭据
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+  /v1/uploads/complete:
+    post:
+      tags:
+        - upload
+      summary: 完成上传回调
+      operationId: uploadComplete
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 上传完成
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+  /v1/ai/plays:
+    get:
+      tags:
+        - ai
+      summary: 玩法目录
+      operationId: aiListPlays
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 玩法列表
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+  /v1/ai/tasks:
+    post:
+      tags:
+        - ai
+      summary: 提交 AI 任务
+      operationId: aiCreateTask
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - play
+                - inputObjectKey
+                - familyId
+              properties:
+                play:
+                  type: string
+                inputObjectKey:
+                  type: string
+                familyId:
+                  type: string
+                params:
+                  type: object
+                  additionalProperties: true
+      responses:
+        '200':
+          description: 任务已创建
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '422':
+          description: 业务校验未通过
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    get:
+      tags:
+        - ai
+      summary: 用户 AI 任务历史（分页）
+      operationId: aiListTasks
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Cursor'
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: 任务列表
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+  /v1/ai/tasks/{taskId}:
+    parameters:
+      - name: taskId
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      tags:
+        - ai
+      summary: 查询任务
+      operationId: aiGetTask
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 任务详情
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+  /v1/ai/tasks/{taskId}/cancel:
+    parameters:
+      - name: taskId
+        in: path
+        required: true
+        schema:
+          type: string
+    post:
+      tags:
+        - ai
+      summary: 取消任务
+      operationId: aiCancelTask
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 已取消
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+  /v1/ai/tasks/{taskId}/appeal:
+    parameters:
+      - name: taskId
+        in: path
+        required: true
+        schema:
+          type: string
+    post:
+      tags:
+        - ai
+      summary: 申诉（仅 rejected）
+      operationId: aiAppealTask
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 申诉已提交
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+  /v1/posts:
+    post:
+      tags:
+        - feed
+      summary: 发布作品
+      operationId: postCreate
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 发布成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+  /v1/posts/{postId}:
+    parameters:
+      - name: postId
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      tags:
+        - feed
+      summary: 作品详情
+      operationId: postGet
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 作品详情
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+    delete:
+      tags:
+        - feed
+      summary: 撤回发布
+      operationId: postDelete
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 撤回成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+  /v1/feeds/family:
+    get:
+      tags:
+        - feed
+      summary: 家庭 Feed
+      operationId: feedListFamily
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: familyId
+          in: query
+          required: true
+          schema:
+            type: string
+        - $ref: '#/components/parameters/Cursor'
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: Feed 列表
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+  /v1/posts/{postId}/likes:
+    parameters:
+      - name: postId
+        in: path
+        required: true
+        schema:
+          type: string
+    post:
+      tags:
+        - feed
+      summary: 点赞
+      operationId: postLike
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 点赞成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+    delete:
+      tags:
+        - feed
+      summary: 取消点赞
+      operationId: postUnlike
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 取消成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+  /v1/posts/{postId}/comments:
+    parameters:
+      - name: postId
+        in: path
+        required: true
+        schema:
+          type: string
+    post:
+      tags:
+        - feed
+      summary: 评论
+      operationId: postCreateComment
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 评论成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+    get:
+      tags:
+        - feed
+      summary: 评论分页
+      operationId: postListComments
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Cursor'
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: 评论列表
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+  /v1/posts/{postId}/comments/{commentId}:
+    parameters:
+      - name: postId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: commentId
+        in: path
+        required: true
+        schema:
+          type: string
+    delete:
+      tags:
+        - feed
+      summary: 删评论
+      operationId: postDeleteComment
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 删除成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+  /v1/credits/balance:
+    get:
+      tags:
+        - credits
+      summary: 当前余额
+      operationId: creditsGetBalance
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 余额
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+  /v1/credits/transactions:
+    get:
+      tags:
+        - credits
+      summary: 账本流水（分页）
+      operationId: creditsListTransactions
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Cursor'
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: 流水列表
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+  /v1/credits/sign-in:
+    post:
+      tags:
+        - credits
+      summary: 每日签到
+      operationId: creditsSignIn
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 签到成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+  /v1/credits/ad-reward:
+    post:
+      tags:
+        - credits
+      summary: 激励广告回调
+      operationId: creditsAdReward
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 奖励已发放
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+  /v1/credits/iap-verify:
+    post:
+      tags:
+        - credits
+      summary: IAP 充值校验
+      operationId: creditsIapVerify
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 校验成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+  /v1/credits/rates:
+    get:
+      tags:
+        - credits
+      summary: 各玩法当前积分单价
+      operationId: creditsGetRates
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 单价列表
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+  /v1/subscriptions/me:
+    get:
+      tags:
+        - subscriptions
+      summary: 当前订阅状态与权益
+      operationId: subscriptionsGetMe
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 订阅状态
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+  /v1/subscriptions/iap-verify:
+    post:
+      tags:
+        - subscriptions
+      summary: 订阅 IAP 校验
+      operationId: subscriptionsIapVerify
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 校验成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+  /v1/subscriptions/products:
+    get:
+      tags:
+        - subscriptions
+      summary: SKU 列表
+      operationId: subscriptionsListProducts
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: SKU 列表
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+  /v1/caption/generate:
+    post:
+      tags:
+        - caption
+      summary: 生成候选文案
+      operationId: captionGenerate
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - babyId
+                - ageDays
+              properties:
+                babyId:
+                  type: string
+                ageDays:
+                  type: integer
+                play:
+                  type: string
+                location:
+                  type: string
+      responses:
+        '200':
+          description: 候选文案
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '429':
+          description: 今日额度用尽
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v1/notifications/devices:
+    post:
+      tags:
+        - notifications
+      summary: 注册 / 更新 APNs Token
+      operationId: notificationsRegisterDevice
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 注册成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+  /v1/notifications/devices/{deviceId}:
+    parameters:
+      - name: deviceId
+        in: path
+        required: true
+        schema:
+          type: string
+    delete:
+      tags:
+        - notifications
+      summary: 注销设备
+      operationId: notificationsUnregisterDevice
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 注销成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+  /v1/notifications:
+    get:
+      tags:
+        - notifications
+      summary: 消息中心分页
+      operationId: notificationsList
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Cursor'
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: 消息列表
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+  /v1/notifications/mark-read:
+    post:
+      tags:
+        - notifications
+      summary: 标记为已读
+      operationId: notificationsMarkRead
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 标记成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+  /v1/notifications/subscriptions:
+    get:
+      tags:
+        - notifications
+      summary: 类目订阅状态
+      operationId: notificationsGetSubscriptions
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 订阅状态
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+    patch:
+      tags:
+        - notifications
+      summary: 修改类目订阅
+      operationId: notificationsUpdateSubscriptions
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+  /v1/backup/providers:
+    post:
+      tags:
+        - backup
+      summary: 绑定备份目标
+      operationId: backupBindProvider
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 绑定成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+    get:
+      tags:
+        - backup
+      summary: 当前已绑定列表
+      operationId: backupListProviders
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 绑定列表
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+  /v1/backup/providers/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    delete:
+      tags:
+        - backup
+      summary: 解绑
+      operationId: backupUnbindProvider
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 解绑成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+  /v1/backup/status:
+    get:
+      tags:
+        - backup
+      summary: 总体备份状态
+      operationId: backupGetStatus
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 备份状态
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+    post:
+      tags:
+        - backup
+      summary: 端侧上报最近一次备份结果
+      operationId: backupReportStatus
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 上报成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+  /v1/config/features:
+    get:
+      tags:
+        - config
+      summary: 获取 Feature Flags（按 region / userIdHash 分流）
+      operationId: configGetFeatures
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/HeaderXRegion'
+        - $ref: '#/components/parameters/HeaderXAppVersion'
+        - $ref: '#/components/parameters/HeaderXDeviceId'
+        - name: X-User-Id-Hash
+          in: header
+          required: false
+          description: 客户端预计算 userId 分桶（0–99）；未传时服务端根据 JWT sub 计算
+          schema:
+            type: integer
+            minimum: 0
+            maximum: 99
+        - name: Authorization
+          in: header
+          required: false
+          description: 可选 Bearer JWT，用于 userIdHash 分桶
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Feature flags 列表
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/FeatureFlagsPayload'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+  /v1/config/plays:
+    get:
+      tags:
+        - config
+      summary: 玩法目录（config-svc 占位，与 ai-dispatch 目录可并存）
+      operationId: configListPlays
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/HeaderXRegion'
+        - $ref: '#/components/parameters/HeaderXAppVersion'
+        - $ref: '#/components/parameters/HeaderXDeviceId'
+      responses:
+        '200':
+          description: 玩法目录
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/PlaysCatalogPayload'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    ApiResponse:
+      type: object
+      required:
+        - code
+        - requestId
+      properties:
+        code:
+          type: string
+          example: OK
+        message:
+          type: string
+          example: ok
+        requestId:
+          type: string
+          example: req_01HZX
+        data:
+          type: object
+          additionalProperties: true
+    ErrorResponse:
+      type: object
+      required:
+        - code
+        - requestId
+      properties:
+        code:
+          type: string
+          example: COMMON_BAD_PARAM
+        message:
+          type: string
+        requestId:
+          type: string
+    UserProfile:
+      type: object
+      properties:
+        nickname:
+          type: string
+        avatarUrl:
+          type: string
+          nullable: true
+        region:
+          type: string
+          enum:
+            - cn
+            - os
+        consents:
+          type: object
+          properties:
+            childData:
+              type: boolean
+    AuthTokens:
+      type: object
+      required:
+        - userId
+        - accessToken
+        - accessTokenExpiresIn
+        - refreshToken
+        - refreshTokenExpiresIn
+        - profile
+      properties:
+        userId:
+          type: string
+          example: usr_01HZ
+        isNewUser:
+          type: boolean
+        accessToken:
+          type: string
+        accessTokenExpiresIn:
+          type: integer
+          format: int32
+        refreshToken:
+          type: string
+        refreshTokenExpiresIn:
+          type: integer
+          format: int32
+        profile:
+          $ref: '#/components/schemas/UserProfile'
+    FamilySummary:
+      type: object
+      properties:
+        familyId:
+          type: string
+          example: fam_01HZ
+        name:
+          type: string
+        role:
+          type: string
+          enum:
+            - admin
+            - family
+            - guest
+    BabySummary:
+      type: object
+      properties:
+        babyId:
+          type: string
+          example: bb_01HZ
+        name:
+          type: string
+        birthday:
+          type: string
+          format: date
+        gender:
+          type: string
+          enum:
+            - male
+            - female
+            - unknown
+    FeatureEvalContext:
+      type: object
+      required:
+        - region
+        - userIdHash
+      properties:
+        region:
+          type: string
+          enum:
+            - cn
+            - os
+        appVersion:
+          type: string
+        userIdHash:
+          type: integer
+          minimum: 0
+          maximum: 99
+    FeatureFlagResult:
+      type: object
+      required:
+        - enabled
+      properties:
+        enabled:
+          type: boolean
+        variant:
+          type: string
+          nullable: true
+    FeatureFlagsPayload:
+      type: object
+      required:
+        - version
+        - ttlSeconds
+        - context
+        - features
+      properties:
+        version:
+          type: string
+          example: '20250606001'
+        ttlSeconds:
+          type: integer
+          example: 300
+        context:
+          $ref: '#/components/schemas/FeatureEvalContext'
+        features:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/FeatureFlagResult'
+    PlayCatalogItem:
+      type: object
+      required:
+        - id
+        - name
+        - enabled
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        regions:
+          type: array
+          items:
+            type: string
+            enum:
+              - cn
+              - os
+        enabled:
+          type: boolean
+    PlaysCatalogPayload:
+      type: object
+      required:
+        - version
+        - plays
+        - source
+      properties:
+        version:
+          type: string
+        source:
+          type: string
+          example: config-svc
+        plays:
+          type: array
+          items:
+            $ref: '#/components/schemas/PlayCatalogItem'
+  parameters:
+    HeaderXRegion:
+      name: X-Region
+      in: header
+      required: true
+      schema:
+        type: string
+        enum:
+          - cn
+          - os
+    HeaderXAppVersion:
+      name: X-App-Version
+      in: header
+      required: true
+      schema:
+        type: string
+    HeaderXDeviceId:
+      name: X-Device-Id
+      in: header
+      required: true
+      schema:
+        type: string
+    FamilyId:
+      name: familyId
+      in: path
+      required: true
+      schema:
+        type: string
+    InvitationCode:
+      name: code
+      in: path
+      required: true
+      schema:
+        type: string
+    UserId:
+      name: userId
+      in: path
+      required: true
+      schema:
+        type: string
+    BabyId:
+      name: babyId
+      in: path
+      required: true
+      schema:
+        type: string
+    Cursor:
+      name: cursor
+      in: query
+      schema:
+        type: string
+    Limit:
+      name: limit
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 50
+        default: 20
+  responses:
+    BadRequest:
+      description: 参数错误
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Unauthorized:
+      description: 鉴权失效
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Forbidden:
+      description: 权限不足
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    NotFound:
+      description: 资源不存在
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'

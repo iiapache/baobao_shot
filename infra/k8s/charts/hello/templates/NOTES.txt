@@ -1,0 +1,17 @@
+Baobao hello 服务已部署。
+
+Release: {{ .Release.Name }}
+Namespace: {{ .Release.Namespace }}
+
+{{- if .Values.ingress.enabled }}
+
+通过 Ingress 访问（需本地 /etc/hosts 或 DNS 解析）：
+{{- range .Values.ingress.hosts }}
+  http{{ if $.Values.ingress.tls }}s{{ end }}://{{ .host }}{{ (index .paths 0).path }}
+{{- end }}
+{{- else }}
+
+集群内访问：
+  kubectl port-forward -n {{ .Release.Namespace }} svc/{{ include "baobao.fullname" . }} {{ .Values.service.port }}:{{ .Values.service.port }}
+  curl http://127.0.0.1:{{ .Values.service.port }}/
+{{- end }}
