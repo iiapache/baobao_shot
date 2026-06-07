@@ -1,0 +1,39 @@
+{
+  "priority": 5,
+  "request": {
+    "method": "GET",
+    "urlPathPattern": "/v1/families/.+/members",
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .+"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "code": "OK",
+      "message": "ok",
+      "requestId": "req_mock_family_members",
+      "data": {
+        "items": [
+          {
+            "userId": "usr_e2e_admin",
+            "role": "admin",
+            "nickname": "E2E管理员",
+            "joinedAt": "2026-06-06T09:00:00Z"
+          },
+          {
+            "userId": "usr_e2e_member",
+            "role": "family",
+            "nickname": "外婆",
+            "joinedAt": "2026-06-06T10:00:00Z"
+          }
+        ]
+      }
+    }
+  }
+}

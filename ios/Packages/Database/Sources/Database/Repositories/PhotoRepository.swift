@@ -45,6 +45,8 @@ public struct PhotoRecord: Sendable, Equatable {
 public protocol PhotoRepository: Sendable {
     func fetch(id: String) async throws -> PhotoRecord?
     func fetchByBaby(babyId: String, limit: Int) async throws -> [PhotoRecord]
+    func fetchPageByBaby(babyId: String, before takenAt: Int64?, limit: Int) async throws -> [PhotoRecord]
+    func countByBaby(babyId: String) async throws -> Int
     func save(_ photo: PhotoRecord) async throws
     func delete(id: String) async throws
 }
@@ -103,12 +105,31 @@ public struct GRDBPhotoRepository: PhotoRepository {
     }
 
     public func fetchByBaby(babyId: String, limit: Int) async throws -> [PhotoRecord] {
+        try await fetchPageByBaby(babyId: babyId, before: nil, limit: limit)
+    }
+
+    public func fetchPageByBaby(
+        babyId: String,
+        before takenAt: Int64?,
+        limit: Int
+    ) async throws -> [PhotoRecord] {
         try await dbWriter.read { db in
-            try PhotoRecord
+            var request = PhotoRecord
                 .filter(sql: "babyIds LIKE ?", arguments: ["%\(babyId)%"])
                 .order(PhotoRecord.Columns.takenAt.desc)
                 .limit(limit)
-                .fetchAll(db)
+            if let takenAt {
+                request = request.filter(PhotoRecord.Columns.takenAt < takenAt)
+            }
+            return try request.fetchAll(db)
+        }
+    }
+
+    public func countByBaby(babyId: String) async throws -> Int {
+        try await dbWriter.read { db in
+            try PhotoRecord
+                .filter(sql: "babyIds LIKE ?", arguments: ["%\(babyId)%"])
+                .fetchCount(db)
         }
     }
 

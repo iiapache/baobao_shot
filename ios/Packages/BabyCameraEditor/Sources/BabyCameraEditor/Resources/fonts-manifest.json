@@ -1,0 +1,152 @@
+{
+  "schemaVersion": "1.0.0",
+  "taskRef": "T0.11 / T2.13",
+  "description": "编辑器 TextStep 可用字体清单，与 iOS Resources/Fonts 及 ODR editor-fonts 对齐",
+  "odrTag": "editor-fonts",
+  "minAppVersion": "1.0.0",
+  "fonts": [
+    {
+      "id": "font_baobao_rounded",
+      "name": "宝宝圆体",
+      "family": "BaobaoRounded",
+      "postScriptName": "BaobaoRounded-Regular",
+      "file": "baobao-rounded/BaobaoRounded-Regular.ttf",
+      "licenseFile": "LICENSES/fonts/font_baobao_rounded.pdf",
+      "vendor": "汉仪字库",
+      "licenseType": "商用授权",
+      "commercial": true,
+      "usage": [
+        "editor_text",
+        "template"
+      ],
+      "styles": [
+        "regular",
+        "bold"
+      ],
+      "languageSupport": [
+        "zh-Hans",
+        "en"
+      ],
+      "description": "标题与里程碑数字，圆润亲和",
+      "odrTag": "editor-fonts"
+    },
+    {
+      "id": "font_baobao_serif",
+      "name": "宝宝宋体",
+      "family": "BaobaoSerif",
+      "postScriptName": "BaobaoSerif-Regular",
+      "file": "baobao-serif/BaobaoSerif-Regular.ttf",
+      "licenseFile": "LICENSES/fonts/font_baobao_serif.pdf",
+      "vendor": "方正字库",
+      "licenseType": "商用授权",
+      "commercial": true,
+      "usage": [
+        "editor_text",
+        "template"
+      ],
+      "styles": [
+        "regular"
+      ],
+      "languageSupport": [
+        "zh-Hans"
+      ],
+      "description": "正文与日期说明，清晰易读",
+      "odrTag": "editor-fonts"
+    },
+    {
+      "id": "font_baobao_handwriting",
+      "name": "宝宝手写体",
+      "family": "BaobaoHandwriting",
+      "postScriptName": "BaobaoHandwriting-Regular",
+      "file": "baobao-handwriting/BaobaoHandwriting-Regular.ttf",
+      "licenseFile": "LICENSES/fonts/font_baobao_handwriting.pdf",
+      "vendor": "造字工房",
+      "licenseType": "商用授权",
+      "commercial": true,
+      "usage": [
+        "editor_text",
+        "template"
+      ],
+      "styles": [
+        "regular"
+      ],
+      "languageSupport": [
+        "zh-Hans"
+      ],
+      "description": "祝福语与手写风格文案",
+      "odrTag": "editor-fonts"
+    },
+    {
+      "id": "font_baobao_cute",
+      "name": "宝宝可爱体",
+      "family": "BaobaoCute",
+      "postScriptName": "BaobaoCute-Regular",
+      "file": "baobao-cute/BaobaoCute-Regular.ttf",
+      "licenseFile": "LICENSES/fonts/font_baobao_cute.pdf",
+      "vendor": "字魂网",
+      "licenseType": "商用授权",
+      "commercial": true,
+      "usage": [
+        "editor_text",
+        "sticker_overlay"
+      ],
+      "styles": [
+        "regular"
+      ],
+      "languageSupport": [
+        "zh-Hans",
+        "en"
+      ],
+      "description": "贴纸叠加文字、可爱风格标签",
+      "odrTag": "editor-fonts"
+    },
+    {
+      "id": "font_baobao_bold",
+      "name": "宝宝粗黑体",
+      "family": "BaobaoBold",
+      "postScriptName": "BaobaoBold-Heavy",
+      "file": "baobao-bold/BaobaoBold-Heavy.ttf",
+      "licenseFile": "LICENSES/fonts/font_baobao_bold.pdf",
+      "vendor": "思源黑体（Adobe/Google 开源 + 商用扩展）",
+      "licenseType": "SIL OFL 1.1 + 商用扩展",
+      "commercial": true,
+      "usage": [
+        "editor_text",
+        "template",
+        "milestone"
+      ],
+      "styles": [
+        "heavy"
+      ],
+      "languageSupport": [
+        "zh-Hans",
+        "en"
+      ],
+      "description": "百天/周岁大标题、天数数字",
+      "odrTag": "editor-fonts"
+    },
+    {
+      "id": "font_baobao_elegant",
+      "name": "宝宝雅宋",
+      "family": "BaobaoElegant",
+      "postScriptName": "BaobaoElegant-Regular",
+      "file": "baobao-elegant/BaobaoElegant-Regular.ttf",
+      "licenseFile": "LICENSES/fonts/font_baobao_elegant.pdf",
+      "vendor": "华康字体",
+      "licenseType": "商用授权",
+      "commercial": true,
+      "usage": [
+        "template"
+      ],
+      "styles": [
+        "regular",
+        "italic"
+      ],
+      "languageSupport": [
+        "zh-Hans"
+      ],
+      "description": "周岁卡、抓周等仪式感模板",
+      "odrTag": "editor-fonts"
+    }
+  ]
+}

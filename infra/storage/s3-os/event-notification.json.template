@@ -1,0 +1,27 @@
+{
+  "Comment": "S3 event notification — baby-camera-os — T3.2 delete/lifecycle reconciliation",
+  "QueueConfigurations": [
+    {
+      "Id": "storage-deletes-to-sqs",
+      "QueueArn": "${SQS_STORAGE_DELETES_ARN}",
+      "Events": [
+        "s3:ObjectRemoved:Delete",
+        "s3:ObjectRemoved:DeleteMarkerCreated",
+        "s3:LifecycleExpiration:Delete",
+        "s3:LifecycleExpiration:DeleteMarkerCreated"
+      ],
+      "Filter": {
+        "Key": {
+          "FilterRules": [
+            {
+              "Name": "prefix",
+              "Value": ""
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "LambdaFunctionConfigurations": [],
+  "TopicConfigurations": []
+}

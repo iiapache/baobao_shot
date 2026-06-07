@@ -1,0 +1,1 @@
+../../../scripts/verify-lifecycle.sh

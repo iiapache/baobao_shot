@@ -1,0 +1,28 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPath": "/v1/subscriptions/products"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "code": "OK",
+      "requestId": "req_mock_sub_products",
+      "data": {
+        "region": "cn",
+        "products": [
+          {
+            "productId": "com.baobao.sub.monthly",
+            "title": "月度会员",
+            "priceCny": 18,
+            "period": "month",
+            "trialDays": 7
+          }
+        ]
+      }
+    }
+  }
+}

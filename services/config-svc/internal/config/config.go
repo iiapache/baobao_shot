@@ -14,6 +14,7 @@ type Config struct {
 	GRPCPort     int
 	OTelEndpoint string
 	Environment  string
+	AdminToken   string // T7.14 kill-switch; empty disables /v1/admin/*
 	Storage      StorageConfig
 }
 
@@ -47,6 +48,7 @@ func Load() (*Config, error) {
 		GRPCPort:     grpcPort,
 		OTelEndpoint: getEnv("OTEL_EXPORTER_OTLP_ENDPOINT", ""),
 		Environment:  getEnv("ENVIRONMENT", "dev"),
+		AdminToken:   getEnv("CONFIG_ADMIN_TOKEN", ""),
 		Storage: StorageConfig{
 			Backend:  backend,
 			RedisURL: getEnv("REDIS_URL", ""),

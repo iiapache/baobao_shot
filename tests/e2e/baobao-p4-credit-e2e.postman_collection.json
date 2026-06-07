@@ -1,0 +1,283 @@
+{
+  "info": {
+    "name": "Baobao P4 Credit/Sub/Ad E2E — credit-sub-ad-svc",
+    "description": "T4.17：IAP 充值 · AI hold/commit/release · 签到/激励/邀请 · 订阅权益 · grace/refund · 负余额边界。对齐 contracts/openapi §8。",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:18080" },
+    { "key": "region", "value": "cn" },
+    { "key": "appVersion", "value": "1.0.0-staging" },
+    { "key": "deviceId", "value": "qa-device-iphone12-001" },
+    { "key": "adminPhone", "value": "13800138001" },
+    { "key": "adminCode", "value": "123456" },
+    { "key": "accessToken", "value": "" },
+    { "key": "familyId", "value": "fam_e2e_001" },
+    { "key": "inputObjectKey", "value": "ai-tmp/usr_e2e_admin/e2e-input.heic" },
+    { "key": "iapTxCredits", "value": "2000000123456789" },
+    { "key": "iapProductCredits", "value": "com.baobao.credits.100" },
+    { "key": "iapTxSub", "value": "2000000987654321" },
+    { "key": "iapProductSub", "value": "com.baobao.sub.monthly" },
+    { "key": "taskHappyId", "value": "" },
+    { "key": "taskFailedId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "P4 Credit E2E",
+      "item": [
+        {
+          "name": "0 Health",
+          "request": { "method": "GET", "url": "{{baseUrl}}/health" },
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('HTTP 200', () => pm.response.to.have.status(200));"] } }]
+        },
+        {
+          "name": "1 authPhoneLogin",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-Region", "value": "{{region}}" },
+              { "key": "X-App-Version", "value": "{{appVersion}}" },
+              { "key": "X-Device-Id", "value": "{{deviceId}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"phone\": \"{{adminPhone}}\",\n  \"code\": \"{{adminCode}}\"\n}" },
+            "url": "{{baseUrl}}/v1/auth/phone/login"
+          },
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+            "pm.collectionVariables.set('accessToken', pm.response.json().data.accessToken);"
+          ] } }]
+        },
+        {
+          "name": "2 creditsGetBalance",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" },
+              { "key": "X-Region", "value": "{{region}}" }
+            ],
+            "url": "{{baseUrl}}/v1/credits/balance"
+          },
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+            "pm.test('has balance', () => pm.expect(pm.response.json().data.balance).to.be.a('number'));"
+          ] } }]
+        },
+        {
+          "name": "3 creditsGetRates",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" },
+              { "key": "X-Region", "value": "{{region}}" }
+            ],
+            "url": "{{baseUrl}}/v1/credits/rates"
+          },
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+            "pm.test('rechargePacks', () => pm.expect(pm.response.json().data.rechargePacks).to.be.an('array'));"
+          ] } }]
+        },
+        {
+          "name": "4 creditsIapVerify",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"transactionId\": \"{{iapTxCredits}}\",\n  \"signedTransaction\": \"mock:{{iapTxCredits}}:{{iapProductCredits}}\",\n  \"productId\": \"{{iapProductCredits}}\"\n}"
+            },
+            "url": "{{baseUrl}}/v1/credits/iap-verify"
+          },
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+            "pm.test('grantedCredits', () => pm.expect(pm.response.json().data.grantedCredits).to.eql(100));"
+          ] } }]
+        },
+        {
+          "name": "4b creditsIapVerify duplicate",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"transactionId\": \"{{iapTxCredits}}\",\n  \"signedTransaction\": \"mock:{{iapTxCredits}}:{{iapProductCredits}}\",\n  \"productId\": \"{{iapProductCredits}}\"\n}"
+            },
+            "url": "{{baseUrl}}/v1/credits/iap-verify"
+          },
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+            "pm.test('duplicate', () => pm.expect(pm.response.json().data.duplicate).to.eql(true));"
+          ] } }]
+        },
+        {
+          "name": "5 aiCreateTask happy (hold)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"play\": \"ghibli_kid\",\n  \"inputObjectKey\": \"{{inputObjectKey}}\",\n  \"familyId\": \"{{familyId}}\",\n  \"params\": {\"aspectRatio\": \"1:1\"}\n}"
+            },
+            "url": "{{baseUrl}}/v1/ai/tasks"
+          },
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+            "const j = pm.response.json();",
+            "pm.collectionVariables.set('taskHappyId', j.data.taskId);",
+            "pm.test('credit_held', () => pm.expect(j.data.state).to.eql('credit_held'));"
+          ] } }]
+        },
+        {
+          "name": "5b aiGetTask happy succeeded (commit)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": "{{baseUrl}}/v1/ai/tasks/{{taskHappyId}}"
+          },
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+            "const s = pm.response.json().data.state;",
+            "pm.test('running or succeeded', () => pm.expect(['running','succeeded']).to.include(s));"
+          ] } }]
+        },
+        {
+          "name": "6 aiCreateTask model_failed (release)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" },
+              { "key": "X-E2E-Scenario", "value": "model_failed" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"play\": \"ghibli_kid\",\n  \"inputObjectKey\": \"{{inputObjectKey}}\",\n  \"familyId\": \"{{familyId}}\",\n  \"params\": {\"aspectRatio\": \"1:1\"}\n}"
+            },
+            "url": "{{baseUrl}}/v1/ai/tasks"
+          },
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+            "pm.collectionVariables.set('taskFailedId', pm.response.json().data.taskId);"
+          ] } }]
+        },
+        {
+          "name": "6b aiGetTask model_failed",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": "{{baseUrl}}/v1/ai/tasks/{{taskFailedId}}"
+          },
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+            "const j = pm.response.json().data;",
+            "pm.test('failed or running', () => pm.expect(['running','failed']).to.include(j.state));"
+          ] } }]
+        },
+        {
+          "name": "7 creditsSignIn",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": "{{baseUrl}}/v1/credits/sign-in"
+          },
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+            "pm.test('streak', () => pm.expect(pm.response.json().data.streak).to.be.at.least(1));"
+          ] } }]
+        },
+        {
+          "name": "7b creditsSignIn duplicate",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": "{{baseUrl}}/v1/credits/sign-in"
+          },
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('HTTP 409', () => pm.response.to.have.status(409));",
+            "pm.test('CREDIT_SIGN_IN_DONE', () => pm.expect(pm.response.json().code).to.eql('CREDIT_SIGN_IN_DONE'));"
+          ] } }]
+        },
+        {
+          "name": "8 creditsAdReward client",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" },
+              { "key": "X-Nonce", "value": "nonce-postman-p4" },
+              { "key": "X-Timestamp", "value": "1717675200000" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"network\": \"pangle\",\n  \"placementId\": \"slot_postman\",\n  \"transId\": \"postman-ad-client-001\",\n  \"idfv\": \"IDFV-POSTMAN\"\n}"
+            },
+            "url": "{{baseUrl}}/v1/credits/ad-reward"
+          },
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('HTTP 200', () => pm.response.to.have.status(200));"
+          ] } }]
+        },
+        {
+          "name": "9 subscriptionsIapVerify",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"transactionId\": \"{{iapTxSub}}\",\n  \"signedTransaction\": \"mock:{{iapTxSub}}:{{iapProductSub}}:orig_postman\",\n  \"productId\": \"{{iapProductSub}}\"\n}"
+            },
+            "url": "{{baseUrl}}/v1/subscriptions/iap-verify"
+          },
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+            "pm.test('active', () => pm.expect(pm.response.json().data.state).to.eql('active'));",
+            "pm.test('removeAds', () => pm.expect(pm.response.json().data.entitlements.removeAds).to.eql(true));"
+          ] } }]
+        },
+        {
+          "name": "10 subscriptionsGetMe",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": "{{baseUrl}}/v1/subscriptions/me"
+          },
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+            "pm.test('active or grace', () => { const s = pm.response.json().data.state; pm.expect(['active','grace','none']).to.include(s); });"
+          ] } }]
+        },
+        {
+          "name": "11 subscriptionsGetMe grace scenario",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" },
+              { "key": "X-E2E-Scenario", "value": "sub_grace" }
+            ],
+            "url": "{{baseUrl}}/v1/subscriptions/me"
+          },
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+            "pm.test('grace state', () => pm.expect(pm.response.json().data.state).to.eql('grace'));",
+            "pm.test('removeAds during grace', () => pm.expect(pm.response.json().data.entitlements.removeAds).to.eql(true));"
+          ] } }]
+        }
+      ]
+    }
+  ]
+}

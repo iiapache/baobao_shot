@@ -1,0 +1,145 @@
+{
+  "schemaVersion": "1.0.0",
+  "taskRef": "T0.11 / T2.14",
+  "description": "编辑器 TemplateStep 模板总 manifest，远端 config-svc 可下发增量更新",
+  "minAppVersion": "1.0.0",
+  "categories": [
+    {
+      "id": "growth-card",
+      "name": "成长卡片",
+      "sort": 1
+    },
+    {
+      "id": "hundred-day",
+      "name": "百天卡",
+      "sort": 2
+    },
+    {
+      "id": "first-birthday",
+      "name": "周岁卡",
+      "sort": 3
+    }
+  ],
+  "templates": [
+    {
+      "id": "tpl_growth_01",
+      "name": "成长卡片 · 简约白",
+      "category": "growth-card",
+      "categoryLabel": "成长卡片",
+      "manifestPath": "templates/growth-card/tpl_growth_01/manifest.json",
+      "preview": "templates/growth-card/tpl_growth_01/preview.jpg",
+      "remoteConfigurable": true,
+      "configSvcKey": "editor.templates.tpl_growth_01"
+    },
+    {
+      "id": "tpl_growth_02",
+      "name": "成长卡片 · 暖色渐变",
+      "category": "growth-card",
+      "categoryLabel": "成长卡片",
+      "manifestPath": "templates/growth-card/tpl_growth_02/manifest.json",
+      "preview": "templates/growth-card/tpl_growth_02/preview.jpg",
+      "remoteConfigurable": true,
+      "configSvcKey": "editor.templates.tpl_growth_02"
+    },
+    {
+      "id": "tpl_growth_03",
+      "name": "成长卡片 · 胶片边框",
+      "category": "growth-card",
+      "categoryLabel": "成长卡片",
+      "manifestPath": "templates/growth-card/tpl_growth_03/manifest.json",
+      "preview": "templates/growth-card/tpl_growth_03/preview.jpg",
+      "remoteConfigurable": true,
+      "configSvcKey": "editor.templates.tpl_growth_03"
+    },
+    {
+      "id": "tpl_growth_04",
+      "name": "成长卡片 · 手账风",
+      "category": "growth-card",
+      "categoryLabel": "成长卡片",
+      "manifestPath": "templates/growth-card/tpl_growth_04/manifest.json",
+      "preview": "templates/growth-card/tpl_growth_04/preview.jpg",
+      "remoteConfigurable": true,
+      "configSvcKey": "editor.templates.tpl_growth_04"
+    },
+    {
+      "id": "tpl_hundred_01",
+      "name": "百天卡 · 经典红",
+      "category": "hundred-day",
+      "categoryLabel": "百天卡",
+      "manifestPath": "templates/hundred-day/tpl_hundred_01/manifest.json",
+      "preview": "templates/hundred-day/tpl_hundred_01/preview.jpg",
+      "remoteConfigurable": true,
+      "configSvcKey": "editor.templates.tpl_hundred_01"
+    },
+    {
+      "id": "tpl_hundred_02",
+      "name": "百天卡 · 粉色梦幻",
+      "category": "hundred-day",
+      "categoryLabel": "百天卡",
+      "manifestPath": "templates/hundred-day/tpl_hundred_02/manifest.json",
+      "preview": "templates/hundred-day/tpl_hundred_02/preview.jpg",
+      "remoteConfigurable": true,
+      "configSvcKey": "editor.templates.tpl_hundred_02"
+    },
+    {
+      "id": "tpl_hundred_03",
+      "name": "百天卡 · 中国风",
+      "category": "hundred-day",
+      "categoryLabel": "百天卡",
+      "manifestPath": "templates/hundred-day/tpl_hundred_03/manifest.json",
+      "preview": "templates/hundred-day/tpl_hundred_03/preview.jpg",
+      "remoteConfigurable": true,
+      "configSvcKey": "editor.templates.tpl_hundred_03"
+    },
+    {
+      "id": "tpl_hundred_04",
+      "name": "百天卡 · 简约现代",
+      "category": "hundred-day",
+      "categoryLabel": "百天卡",
+      "manifestPath": "templates/hundred-day/tpl_hundred_04/manifest.json",
+      "preview": "templates/hundred-day/tpl_hundred_04/preview.jpg",
+      "remoteConfigurable": true,
+      "configSvcKey": "editor.templates.tpl_hundred_04"
+    },
+    {
+      "id": "tpl_birthday_01",
+      "name": "周岁卡 · 抓周",
+      "category": "first-birthday",
+      "categoryLabel": "周岁卡",
+      "manifestPath": "templates/first-birthday/tpl_birthday_01/manifest.json",
+      "preview": "templates/first-birthday/tpl_birthday_01/preview.jpg",
+      "remoteConfigurable": true,
+      "configSvcKey": "editor.templates.tpl_birthday_01"
+    },
+    {
+      "id": "tpl_birthday_02",
+      "name": "周岁卡 · 派对",
+      "category": "first-birthday",
+      "categoryLabel": "周岁卡",
+      "manifestPath": "templates/first-birthday/tpl_birthday_02/manifest.json",
+      "preview": "templates/first-birthday/tpl_birthday_02/preview.jpg",
+      "remoteConfigurable": true,
+      "configSvcKey": "editor.templates.tpl_birthday_02"
+    },
+    {
+      "id": "tpl_birthday_03",
+      "name": "周岁卡 · 时光轴",
+      "category": "first-birthday",
+      "categoryLabel": "周岁卡",
+      "manifestPath": "templates/first-birthday/tpl_birthday_03/manifest.json",
+      "preview": "templates/first-birthday/tpl_birthday_03/preview.jpg",
+      "remoteConfigurable": true,
+      "configSvcKey": "editor.templates.tpl_birthday_03"
+    },
+    {
+      "id": "tpl_birthday_04",
+      "name": "周岁卡 · 全家福",
+      "category": "first-birthday",
+      "categoryLabel": "周岁卡",
+      "manifestPath": "templates/first-birthday/tpl_birthday_04/manifest.json",
+      "preview": "templates/first-birthday/tpl_birthday_04/preview.jpg",
+      "remoteConfigurable": true,
+      "configSvcKey": "editor.templates.tpl_birthday_04"
+    }
+  ]
+}

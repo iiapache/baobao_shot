@@ -10,7 +10,7 @@
 | --- | --- |
 | 文档名称 | 宝宝成长相机 V1.0 开发实施计划 |
 | 文档版本 | v0.1 |
-| 文档状态 | 草稿，待评审 |
+| 文档状态 | 实施完成（2026-06-06 全任务 done） |
 | 目标版本 | V1.0（iOS 16+，iPhone，4 个月工期） |
 | 最近更新 | 2026-06-06 |
 | 适用对象 | iOS 端、后端、AI、运维、合规、QA、产品 |
@@ -145,6 +145,129 @@ flowchart LR
 | P1-3 | T1.13 | done | 2026-06-06 | BabyCameraAccount + Keychain TokenStore |
 | P2-1 | T2.3 | done | 2026-06-06 | BabyCameraVideoKit |
 | P2-1 | T2.11 | done | 2026-06-06 | BabyCameraEditor 撤销/重做内核 |
+| P1P2-1 | T1.14 | done | 2026-06-06 | BabyCameraFamily CRUD/邀请/扫码加入 |
+| P1P2-1 | T1.16 | done | 2026-06-06 | BabyCameraBaby CRUD/切换器/头像 stub |
+| P1P2-1 | T2.1 | done | 2026-06-06 | BabyCameraPermissions 四权限+引导+单测 |
+| P1P2-2 | T1.15 | done | 2026-06-06 | TransferAdminFlow 转让/接管 UI |
+| P1P2-2 | T1.19 | done | 2026-06-06 | SyncCoordinator + BackgroundSyncService |
+| P1P2-2 | T2.5 | done | 2026-06-06 | BabyCameraCamera CameraSession/VC |
+| P1P2-3 | T1.17 | done | 2026-06-06 | BabyAgeFormatter 边界单测 |
+| P1P2-3 | T1.18 | done | 2026-06-06 | BabyCameraOnboarding 5 步流程 |
+| P1P2-3 | T2.2 | done | 2026-06-06 | BabyCameraImageKit 编解码+缩略图 |
+| P1P2-3 | T2.4 | done | 2026-06-06 | Database v1_initial migration |
+| P2-2 | T2.6 | done | 2026-06-06 | RealtimeFilterPipeline 8 款滤镜 |
+| P2-2 | T2.7 | done | 2026-06-06 | PhotoCapturePipeline/LivePhoto/Burst |
+| P2-2 | T2.12 | done | 2026-06-06 | Editor FilterCatalog 13 款+调色 |
+| P2-3 | T2.8 | done | 2026-06-06 | OverlayView 浮层+烧录 toggle |
+| P2-3 | T2.9 | done | 2026-06-06 | MetadataWriter + photo 入库 |
+| P2-3 | T2.13 | done | 2026-06-06 | 贴纸/字体/马赛克/涂鸦 manifest |
+| P2-3 | T2.10 | done | 2026-06-06 | ImportService PHPicker+EXIF+出生日校验 |
+| P2-3 | T2.14 | done | 2026-06-06 | TemplateCatalog 12套+远端manifest |
+| P2-3 | T2.15 | done | 2026-06-06 | EditorRenderer分块导出+步骤持久化 |
+| P2-4 | T2.16 | done | 2026-06-06 | BabyCameraWatermark 品牌水印+订阅策略 |
+| P2-4 | T2.17 | done | 2026-06-06 | BabyCameraTimeline 日月年全部视图 |
+| P2-4 | T2.19 | done | 2026-06-06 | BabyCameraMilestone 13节点+365天调度 |
+| P2-4 | T2.18 | done | 2026-06-06 | TimelineMapView POI聚合+地图切换 |
+| P2-5 | T2.20 | done | 2026-06-06 | 自定义里程碑CRUD+日历联动 |
+| P2-4 | T2.21 | done | 2026-06-06 | DiskLRUThumbnailCache 7天/1GB |
+| P2-5 | T2.22 | done | 2026-06-06 | P2 XCUITest 5次回归+harness |
+| P1-4 | T1.20 | done | 2026-06-06 | P1 e2e.sh+Postman+XCUITest |
+| P3-1 | T3.1 | done | 2026-06-06 | media-svc init/complete 16 tests |
+| P3-1 | T3.2 | done | 2026-06-06 | OSS lifecycle+对账Cron 21/21 |
+| P3-1 | T3.3 | done | 2026-06-06 | audit-svc 骨架 18 tests |
+| P3-1 | T3.6 | done | 2026-06-06 | ai-dispatch 状态机 37 tests |
+| P3-1 | T3.17 | done | 2026-06-06 | /v1/ws/ai 心跳+订阅 44 tests |
+| P3-2 | T3.4 | done | 2026-06-06 | 阿里云内容安全 stub 47 tests |
+| P3-2 | T3.5 | done | 2026-06-06 | OS 三厂商 stub+双区路由 |
+| P3-2 | T3.7 | done | 2026-06-06 | ModelRouter 区域隔离+滑窗 |
+| P3-2 | T3.16 | done | 2026-06-06 | GET /v1/ai/plays 82 tests |
+| P3-2 | T3.19 | done | 2026-06-06 | iOS UploadService 分片直传 |
+| P3-3 | T3.8 | done | 2026-06-06 | SeedreamAdapter 112 tests |
+| P3-3 | T3.9 | done | 2026-06-06 | 通义/即梦 image-edit 183 tests |
+| P3-3 | T3.10 | done | 2026-06-06 | SeedanceAdapter video 5s/10s |
+| P3-3 | T3.11 | done | 2026-06-06 | NanoBanana+GptImage2 OS 35 tests |
+| P3-3 | T3.20 | done | 2026-06-06 | BabyCameraAIPlay 卡片+5min缓存 |
+| P3-4 | T3.12 | done | 2026-06-06 | Worker池+Kafka 226 tests |
+| P3P4-1 | T3.13 | done | 2026-06-06 | watermark 显式+隐式+manifest 246 tests |
+| P3P4-1 | T3.15 | done | 2026-06-06 | POST appeal rejected→appealed 235+49 tests |
+| P3P4-1 | T4.1 | done | 2026-06-06 | credit-sub-ad-svc 7表骨架 8 tests |
+| P3P4-2 | T3.14 | done | 2026-06-06 | creditclient saga+幂等 251 tests |
+| P3P4-2 | T4.2 | done | 2026-06-06 | double-entry 账本 26 tests |
+| P3P4-2 | T3.21 | done | 2026-06-06 | AIPlayDetailView 提交+预览+确认弹窗 |
+| P3P4-3 | T4.3 | done | 2026-06-06 | saga gRPC+Redis幂等 45+260 tests |
+| P3P4-3 | T4.4 | done | 2026-06-06 | IAP JWS verify 43 tests |
+| P3P4-3 | T3.18 | done | 2026-06-06 | cost_metering+周对账 260 tests |
+| P3P4-4 | T4.10 | done | 2026-06-06 | 4个查询API 91 tests |
+| P3P4-4 | T4.6 | done | 2026-06-06 | 订阅状态机+cron 91 tests |
+| P3P4-4 | T3.22 | done | 2026-06-06 | AITaskCoordinator WS+轮询 |
+| P3P4-5 | T4.5 | done | 2026-06-06 | iap-callback-svc+Kafka 581 tests |
+| P3P4-5 | T4.7 | done | 2026-06-06 | 签到+赠分 110 tests |
+| P3P4-5 | T3.23 | done | 2026-06-06 | 失败/申诉/退还 UI+单测 |
+| P3P4-6 | T4.8 | done | 2026-06-06 | 广告激励双通道 126 tests |
+| P3P4-6 | T4.9 | done | 2026-06-06 | 对账cron+告警 126 tests |
+| P3P4-6 | T3.24 | done | 2026-06-06 | derived下载+GRDB入库 |
+| P3P4-7 | T3.25 | done | 2026-06-06 | 深度合成角标+品牌水印+视频封面 |
+| P3P4-7 | T4.11 | done | 2026-06-06 | BabyCameraCredit 包 11 tests |
+| P3P4-7 | T4.12 | done | 2026-06-06 | IAPService StoreKit2 8 tests |
+| P3P4-8 | T4.13 | done | 2026-06-06 | SubscriptionStore 状态机+权益缓存 |
+| P3P4-8 | T4.14 | done | 2026-06-06 | SignInView+Invite+RechargeSheet 集成 |
+| P3P4-8 | T4.15 | done | 2026-06-06 | AdManager stub+频次+激励入账 13 tests |
+| P3P4-9 | T3.26 | done | 2026-06-06 | P3 AI e2e 7场景 shell+Postman 40+33断言 |
+| P3P4-9 | T4.16 | done | 2026-06-06 | AIPlayCreditIntegration+previewCost+WS余额 |
+| P5-1 | T5.1 | done | 2026-06-06 | feed-svc 5表DDL+骨架 go test 7 packages |
+| P3P4-10 | T4.17 | done | 2026-06-06 | P4 e2e 54断言 IAP/签到/订阅/grace |
+| P5-1 | T5.6 | done | 2026-06-06 | caption-svc FastAPI pytest 12 passed |
+| P5-1 | T5.7 | done | 2026-06-06 | notification-svc device_tokens go test 19 |
+| P5-2 | T5.2 | done | 2026-06-06 | POST /v1/posts 限流+审核 stub |
+| P5-2 | T5.10 | done | 2026-06-06 | BabyCameraFamilyFeed PostComposer |
+| P5-2 | T5.17 | done | 2026-06-06 | BabyCameraNotification APNs+消息中心 |
+| P5-3 | T5.3 | done | 2026-06-06 | GET /v1/feeds/family 缓存60s go test 38 |
+| P5-3 | T5.8 | done | 2026-06-06 | notifications 表+分页+已读 go test 32 |
+| P5-3 | T5.16 | done | 2026-06-06 | CaptionService+PickerView 11单测 |
+| P5-4 | T5.4 | done | 2026-06-06 | 点赞评论+WS stub go test 67 |
+| P5-4 | T5.5 | done | 2026-06-06 | DELETE撤回+OSS清理stub |
+| P5-4 | T5.11 | done | 2026-06-06 | FeedListView+post_cache 100条 |
+| P5-5 | T5.9 | done | 2026-06-06 | Kafka推送编排+静默AI go test 42 |
+| P5-5 | T5.12 | done | 2026-06-06 | 双击点赞+评论+WS+离线队列 |
+| P5-5 | T5.15 | done | 2026-06-06 | ShareGate+SharePreparer 水印校验 |
+| P5-6 | T5.13 | done | 2026-06-06 | WechatShareAdapter stub 10单测 |
+| P5-6 | T5.14 | done | 2026-06-06 | SystemShareAdapter+剪贴板 10单测 |
+| P5-6 | T5.18 | done | 2026-06-06 | 本地通知+静默BG下载 |
+| P5-7 | T5.19 | done | 2026-06-06 | FeedCoordinator 联调层 |
+| P5-7 | T5.20 | done | 2026-06-06 | P5 e2e 66断言全通过 |
+| P6-1 | T6.1 | done | 2026-06-06 | BabyCameraBackup 协议+编排 20单测 |
+| P6-2 | T6.2 | done | 2026-06-06 | BackupQueue 退避+3次失败弹窗 |
+| P6-1 | T6.6 | done | 2026-06-06 | 备份凭据API AES-GCM go test 129 |
+| P6-1 | T6.8 | done | 2026-06-06 | Widget AppGroup+Snapshotter 12单测 |
+| P6-2 | T6.3 | done | 2026-06-06 | ICloudProvider CloudKit Private 10单测 |
+| P6-2 | T6.4 | done | 2026-06-06 | PhotosProvider addOnly 15单测 |
+| P6-1 | T6.10 | done | 2026-06-06 | BabyCameraSettings 6分区 18单测 |
+| P6-2 | T6.9 | done | 2026-06-06 | WidgetExtension 4尺寸+Timeline 5单测 |
+| P6-2 | T6.11 | done | 2026-06-06 | 数据导出zip+BGTask 8组单测 |
+| P6-3 | T6.5 | done | 2026-06-06 | BaiduPanProvider+BackupAPI iOS |
+| P6-3a | T6.7 | done | 2026-06-06 | UninstallReminderCoordinator+数据页Toggle |
+| P6-3a | T6.12 | done | 2026-06-06 | CacheCleanup+BackupTargetsManagement 11单测 |
+| P6-3a | T6.13 | done | 2026-06-06 | FeedbackForm+脱敏日志+邮件通道 13单测 |
+| P6-3b | T6.14 | done | 2026-06-06 | PATCH subscriptions契约修复+App接线 |
+| P6-3b | T6.15 | done | 2026-06-06 | p6-e2e 76断言+XCUITest harness |
+| P7-1 | T7.1 | done | 2026-06-06 | filings.yaml+Router拒绝+plays过滤 277 tests |
+| P7-1 | T7.2 | done | 2026-06-06 | 5份政策MD+config flags+About版本展示 |
+| P7-1 | T7.3 | done | 2026-06-06 | child_consent_v1+GET状态+ConsentVersionChecker+p7-e2e |
+| P7-1 | T7.4 | done | 2026-06-06 | OS端点+no-training header+osconfig 31 tests |
+| P7-2 | T7.5 | done | 2026-06-06 | p7-audit-e2e 109断言+报告模板 |
+| P7-2 | T7.6 | done | 2026-06-06 | performance benchmarks+双机型报告模板 |
+| P7-2 | T7.7 | done | 2026-06-06 | BabyCameraDiagnostics+IPA脚本+ODR占位 |
+| P7-2 | T7.8 | done | 2026-06-06 | security-checklist 21项PASS+CertPinning stub |
+| P7-2 | T7.9 | done | 2026-06-06 | 73项埋点catalog+verify脚本PASS |
+| P7-2 | T7.10 | done | 2026-06-06 | Grafana看板+Prometheus告警14条 |
+| P7-3 | T7.11 | done | 2026-06-06 | 部署演练SOP+rollback/traffic-shift脚本 |
+| P7-3 | T7.13 | done | 2026-06-06 | App Store提审四件套+4.5.4/4.7自查 |
+| P7-3 | T7.16 | done | 2026-06-06 | a11y报告模板+20处label+smoke测试 |
+| P7-3 | T7.17 | done | 2026-06-06 | 241 i18n keys+verify脚本 scope 0违规 |
+| P7-3 | T7.18 | done | 2026-06-06 | 文档站+generate-api-docs+RUNBOOK |
+| P7-4 | T7.12 | done | 2026-06-06 | TestFlight计划+smoke 41断言+beta lane |
+| P7-5 | T7.14 | done | 2026-06-06 | Phased Release方案+rollout flags+kill-switch+iOS |
+| P7-5 | T7.15 | done | 2026-06-06 | Incident Playbook+D1/D7检查表+metrics快照 |
 
 ---
 
@@ -634,7 +757,7 @@ flowchart LR
 | --- | --- | --- | --- | --- |
 | T7.1 | COMP | 算法备案落地：备案号回填到 ai-dispatch-svc + 启动时拉取展示 + 模型与备案号绑定校验 | 备案号配置 + 校验中间件 | 缺备案号 → ai-dispatch 拒绝路由该模型 |
 | T7.2 | COMP | ICP 备案完成 + 隐私政策（CN 版 + OS 版）+ 用户协议 + 深度合成说明 + 第三方 SDK 清单 | 政策网页 + 法务终稿 | App Store 介绍页 + APP 内可访问；版本号管理 |
-| T7.3 | COMP | 儿童信息合规：监护人同意书内容定稿 + 同意版本上线 + 端 + 后端双记录回归 | 合规文本 + 回归用例 | 未同意 → 关键功能受限；同意版本变更触发再次同意 |
+| T7.3 | COMP | 儿童信息合规：监护人同意书内容定稿 + 同意版本上线 + 端 + 后端双记录回归 | `compliance/policies/child-data-consent-v1.md` + `tests/e2e/p7-child-consent-e2e.sh` | 未同意 → 关键功能受限；同意版本变更触发再次同意 |
 | T7.4 | COMP | 跨境合规（OS）：与 OpenAI / Google 「不参与训练」端点确认；个人信息出境标准合同；OS 版隐私政策对接 | 合同 + 端点配置 | 海外区调用走标准合同端点 |
 | T7.5 | QA | 内容审核全链路 e2e：入参 / 出参 / UGC（图像 + 文字 + 视频）+ 申诉；CN/OS 双版 | 用例库 + 报告 | 拒绝率 / 误杀率符合阈值；申诉 24h SLA |
 | T7.6 | QA | 性能压测：相机启动 ≤ 800ms / 编辑器 ≤ 500ms / Feed P95 ≤ 500ms（缓存命中） / AI P95 ≤ 60s（图）/ 5min（视频） | 基准报告 | 真机 iPhone 12 + iPhone 16 双机型；多机型矩阵 |

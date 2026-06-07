@@ -1,0 +1,49 @@
+{
+  "priority": 1,
+  "request": {
+    "method": "GET",
+    "urlPath": "/v1/ai/plays",
+    "headers": {
+      "Authorization": {
+        "contains": "Bearer"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "code": "OK",
+      "message": "ok",
+      "requestId": "req_mock_ai_plays",
+      "data": {
+        "version": "20250606001",
+        "region": "cn",
+        "ttlSeconds": 300,
+        "plays": [
+          {
+            "id": "ghibli_kid",
+            "name": "宫崎骏风",
+            "description": "风格化图像，720p 输出",
+            "kind": "image",
+            "creditCost": 8,
+            "available": true
+          },
+          {
+            "id": "video_walk",
+            "name": "图生视频",
+            "description": "宝宝学步等场景短视频",
+            "kind": "video",
+            "available": true,
+            "durationTiers": [
+              { "durationSeconds": 5, "creditCost": 60 },
+              { "durationSeconds": 10, "creditCost": 120 }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

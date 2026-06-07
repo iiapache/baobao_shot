@@ -24,8 +24,10 @@ public struct LoginView: View {
             .padding(DSSpacing.lg)
         }
         .background(DSColors.background)
-        .alert("登录失败", isPresented: errorBinding) {
-            Button("知道了", role: .cancel) {}
+        .accessibilityIdentifier("loginView")
+        .accessibilityLabel(L10n.string("login.title"))
+        .alert(L10n.string("login.failed_title"), isPresented: errorBinding) {
+            Button(L10n.string("common.ok"), role: .cancel) {}
         } message: {
             Text(viewModel.errorMessage ?? "")
         }
@@ -36,20 +38,22 @@ public struct LoginView: View {
             Image(systemName: "heart.circle.fill")
                 .font(.system(size: 56))
                 .foregroundStyle(DSColors.primary)
-            Text("宝宝成长相机")
+            Text(L10n.localizedKey("app.name"))
                 .font(DSTypography.title)
                 .foregroundStyle(DSColors.textPrimary)
-            Text("记录宝宝每一个珍贵瞬间")
+            Text(L10n.localizedKey("app.tagline"))
                 .font(DSTypography.subheadline)
                 .foregroundStyle(DSColors.textSecondary)
         }
         .frame(maxWidth: .infinity)
         .padding(.top, DSSpacing.xl)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(L10n.string("app.name_with_tagline"))
     }
 
     private var appleSignInSection: some View {
         DSButton(
-            "通过 Apple 登录",
+            L10n.string("login.apple_sign_in"),
             style: .primary,
             systemImage: "apple.logo",
             isLoading: viewModel.isLoading
@@ -60,12 +64,14 @@ public struct LoginView: View {
                 }
             }
         }
+        .accessibilityIdentifier("loginAppleButton")
+        .accessibilityHint(L10n.string("login.apple_sign_in.hint"))
     }
 
     private var divider: some View {
         HStack {
             Rectangle().fill(DSColors.separator).frame(height: 1)
-            Text("或")
+            Text(L10n.localizedKey("common.or"))
                 .font(DSTypography.caption)
                 .foregroundStyle(DSColors.textSecondary)
             Rectangle().fill(DSColors.separator).frame(height: 1)
@@ -74,23 +80,31 @@ public struct LoginView: View {
 
     private var phoneLoginSection: some View {
         VStack(spacing: DSSpacing.md) {
-            TextField("手机号", text: $viewModel.phone)
+            TextField(L10n.string("login.phone"), text: $viewModel.phone)
                 .keyboardType(.phonePad)
                 .textContentType(.telephoneNumber)
                 .padding(DSSpacing.md)
                 .background(DSColors.surface)
                 .clipShape(RoundedRectangle(cornerRadius: DSSpacing.cardCornerRadius))
+                .accessibilityIdentifier("loginPhoneField")
+                .accessibilityLabel(L10n.string("login.phone"))
+                .accessibilityHint(L10n.string("login.phone.hint"))
 
             HStack(spacing: DSSpacing.sm) {
-                TextField("验证码", text: $viewModel.verificationCode)
+                TextField(L10n.string("login.verification_code"), text: $viewModel.verificationCode)
                     .keyboardType(.numberPad)
                     .textContentType(.oneTimeCode)
                     .padding(DSSpacing.md)
                     .background(DSColors.surface)
                     .clipShape(RoundedRectangle(cornerRadius: DSSpacing.cardCornerRadius))
+                    .accessibilityIdentifier("loginCodeField")
+                    .accessibilityLabel(L10n.string("login.verification_code"))
+                    .accessibilityHint(L10n.string("login.verification_code.hint"))
 
                 DSButton(
-                    viewModel.codeCooldownSeconds > 0 ? "\(viewModel.codeCooldownSeconds)s" : "获取验证码",
+                    viewModel.codeCooldownSeconds > 0
+                        ? "\(viewModel.codeCooldownSeconds)s"
+                        : L10n.string("login.send_code"),
                     style: .secondary,
                     size: .small,
                     isLoading: viewModel.isSendingCode,
@@ -99,10 +113,12 @@ public struct LoginView: View {
                     Task { await viewModel.sendVerificationCode() }
                 }
                 .frame(width: 120)
+                .accessibilityIdentifier("loginSendCodeButton")
+                .accessibilityHint(L10n.string("login.send_code.hint"))
             }
 
             DSButton(
-                "手机号登录",
+                L10n.string("login.phone_submit"),
                 style: .primary,
                 isLoading: viewModel.isLoading,
                 isDisabled: !viewModel.canSubmitPhoneLogin
@@ -113,6 +129,8 @@ public struct LoginView: View {
                     }
                 }
             }
+            .accessibilityIdentifier("loginPhoneSubmitButton")
+            .accessibilityHint(L10n.string("login.phone_submit.hint"))
         }
     }
 

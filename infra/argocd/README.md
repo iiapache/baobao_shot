@@ -9,8 +9,14 @@ infra/argocd/
 ├── README.md
 ├── applicationsets/
 │   └── baobao-staging.yaml      # 多服务 staging ApplicationSet
+├── rollout/                     # T7.11 蓝绿 + Canary values + Rollout CRD
+│   ├── rollout-hello.yaml
+│   ├── values-blue-green.yaml
+│   ├── values-canary-5.yaml
+│   ├── values-canary-25.yaml
+│   └── values-canary-100.yaml
 └── values/
-    └── blue-green-hello.yaml    # hello 蓝绿 Helm values 覆盖
+    └── blue-green-hello.yaml    # hello 蓝绿 Helm values 覆盖（T0.2 占位）
 ```
 
 ## 与 k8s/argocd 的关系
@@ -82,10 +88,21 @@ ApplicationSet 会为 `clusters/ack-cn`、`clusters/eks-os` 各生成 staging he
 
 详见 [infra/ci/README.md](../ci/README.md)。
 
+## T7.11 演练脚本
+
+| 脚本 | 用途 |
+| --- | --- |
+| `scripts/ops/traffic-shift.sh` | Canary 权重切换（5 / 25 / 100） |
+| `scripts/ops/rollback-service.sh` | 单服务一键回滚（SLA ≤ 5min） |
+
+完整演练步骤见 [docs/ops/DEPLOYMENT_DRILL_SOP.md](../../docs/ops/DEPLOYMENT_DRILL_SOP.md)。
+
 ## 验收自检
 
 | 项 | 检查 | 预期 |
 | --- | --- | --- |
 | ApplicationSet | `kubectl apply --dry-run=client -f applicationsets/` | YAML 合法 |
 | 蓝绿 values | `infra/argocd/values/blue-green-hello.yaml` | 注释与字段占位完整 |
+| Canary values | `infra/argocd/rollout/values-canary-{5,25,100}.yaml` | 权重 5/25/100 |
+| 演练脚本 | `bash -n scripts/ops/{traffic-shift,rollback-service}.sh` | 语法通过 |
 | 与 CI 集成 | deploy-staging job 引用本目录 | job 脚本 test -f 通过 |

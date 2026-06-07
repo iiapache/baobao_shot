@@ -60,6 +60,10 @@ curl -s -H 'X-Region: cn' -H 'X-App-Version: 1.5.0' \
   http://localhost:8009/v1/config/features | jq .
 ```
 
+## T7.14 渐进发布灰度
+
+App Store Phased Release（7 天）与 `rollout.ai_plays_percent` / `rollout.pricing_variant` 联动，紧急下架见 [PHASED_RELEASE_PLAN.md](../../docs/ops/PHASED_RELEASE_PLAN.md) 与 [remote-kill-switch.sh](../../scripts/ops/remote-kill-switch.sh)。服务端流量灰度见 T7.11 [traffic-shift.sh](../../scripts/ops/traffic-shift.sh)。
+
 ## 验收自检
 
 - [ ] `GET /v1/config/features` 缺 `X-Region` 返回 400

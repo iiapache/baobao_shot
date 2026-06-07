@@ -1,0 +1,55 @@
+{
+  "version": "20250606001",
+  "plays": [
+    {
+      "playId": "ghibli_kid",
+      "kind": "image",
+      "creditCost": 8
+    },
+    {
+      "playId": "gpt_portrait",
+      "kind": "image",
+      "creditCost": 15
+    },
+    {
+      "playId": "seedream_style",
+      "kind": "image",
+      "creditCost": 8
+    },
+    {
+      "playId": "photo_restore",
+      "kind": "image",
+      "creditCost": 10
+    },
+    {
+      "playId": "video_walk",
+      "kind": "video",
+      "durationTiers": [
+        { "durationSeconds": 5, "creditCost": 60 },
+        { "durationSeconds": 10, "creditCost": 120 }
+      ]
+    },
+    {
+      "playId": "year_review_regen",
+      "kind": "video",
+      "durationTiers": [
+        { "durationSeconds": 30, "creditCost": 50 }
+      ]
+    },
+    {
+      "playId": "smart_caption",
+      "kind": "text",
+      "creditCost": 0
+    }
+  ],
+  "rechargePacks": [
+    { "productId": "credit_pack_60", "credits": 60, "priceCny": 6 },
+    { "productId": "credit_pack_330", "credits": 330, "priceCny": 30 },
+    { "productId": "credit_pack_800", "credits": 800, "priceCny": 68 },
+    { "productId": "credit_pack_2500", "credits": 2500, "priceCny": 198 },
+    { "productId": "com.baobao.credits.60", "credits": 60, "priceCny": 6 },
+    { "productId": "com.baobao.credits.330", "credits": 330, "priceCny": 30 },
+    { "productId": "com.baobao.credits.800", "credits": 800, "priceCny": 68 },
+    { "productId": "com.baobao.credits.2500", "credits": 2500, "priceCny": 198 }
+  ]
+}

@@ -58,4 +58,9 @@ final class TokenStoreTests: XCTestCase {
         XCTAssertEqual(store.accessToken(), "new-access")
         XCTAssertEqual(store.refreshToken(), "new-refresh")
     }
+
+    func testKeychainUsesAfterFirstUnlockThisDeviceOnly() {
+        let expected = kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly as String
+        XCTAssertEqual(KeychainTokenStore.defaultAccessibility as String, expected)
+    }
 }

@@ -1,0 +1,125 @@
+{
+  "schemaVersion": "1.0.0",
+  "taskRef": "T2.19",
+  "description": "内置里程碑节点目录，基于宝宝出生日触发本地通知并关联模板",
+  "minAppVersion": "1.0.0",
+  "milestones": [
+    {
+      "id": "ms_sanzhao",
+      "name": "三朝",
+      "trigger": { "type": "dayOffset", "day": 3 },
+      "notificationTitle": "三朝到了",
+      "notificationBody": "宝宝出生第 3 天，记录下这个特别时刻吧",
+      "templateId": "tpl_growth_01",
+      "sort": 1
+    },
+    {
+      "id": "ms_seven_days",
+      "name": "七天",
+      "trigger": { "type": "dayOffset", "day": 7 },
+      "notificationTitle": "宝宝满一周啦",
+      "notificationBody": "出生第 7 天，来一张成长卡片留念",
+      "templateId": "tpl_growth_02",
+      "sort": 2
+    },
+    {
+      "id": "ms_full_moon",
+      "name": "满月",
+      "trigger": { "type": "dayOffset", "day": 30 },
+      "notificationTitle": "满月快乐",
+      "notificationBody": "宝宝满月啦，用模板记录这一刻",
+      "templateId": "tpl_growth_03",
+      "sort": 3
+    },
+    {
+      "id": "ms_six_weeks",
+      "name": "六周",
+      "trigger": { "type": "dayOffset", "day": 42 },
+      "notificationTitle": "宝宝六周啦",
+      "notificationBody": "六周成长变化，拍一张纪念照",
+      "templateId": "tpl_growth_04",
+      "sort": 4
+    },
+    {
+      "id": "ms_two_months",
+      "name": "两个月",
+      "trigger": { "type": "dayOffset", "day": 60 },
+      "notificationTitle": "两个月纪念",
+      "notificationBody": "宝宝两个月了，记录今天的模样",
+      "templateId": "tpl_growth_01",
+      "sort": 5
+    },
+    {
+      "id": "ms_hundred_days",
+      "name": "百天",
+      "trigger": { "type": "dayOffset", "day": 100 },
+      "notificationTitle": "百天快乐",
+      "notificationBody": "百天写真套餐已备好，立即拍照",
+      "templateId": "tpl_hundred_01",
+      "sort": 6
+    },
+    {
+      "id": "ms_six_months",
+      "name": "六个月",
+      "trigger": { "type": "dayOffset", "day": 180 },
+      "notificationTitle": "宝宝半岁啦",
+      "notificationBody": "六个月成长里程碑，别忘了记录",
+      "templateId": "tpl_hundred_02",
+      "sort": 7
+    },
+    {
+      "id": "ms_two_hundred_days",
+      "name": "两百天",
+      "trigger": { "type": "dayOffset", "day": 200 },
+      "notificationTitle": "两百天纪念",
+      "notificationBody": "出生第 200 天，来一张成长卡片",
+      "templateId": "tpl_hundred_03",
+      "sort": 8
+    },
+    {
+      "id": "ms_three_hundred_days",
+      "name": "三百天",
+      "trigger": { "type": "dayOffset", "day": 300 },
+      "notificationTitle": "三百天啦",
+      "notificationBody": "距离周岁还有 65 天，记录今日成长",
+      "templateId": "tpl_hundred_04",
+      "sort": 9
+    },
+    {
+      "id": "ms_first_birthday",
+      "name": "周岁",
+      "trigger": { "type": "dayOffset", "day": 365 },
+      "notificationTitle": "周岁快乐",
+      "notificationBody": "宝宝一岁啦，年度回顾与周岁模板已就绪",
+      "templateId": "tpl_birthday_01",
+      "sort": 10
+    },
+    {
+      "id": "ms_zhuazhou",
+      "name": "抓周",
+      "trigger": { "type": "dayOffset", "day": 365 },
+      "notificationTitle": "抓周纪念",
+      "notificationBody": "周岁抓周，用专属模板记录",
+      "templateId": "tpl_birthday_02",
+      "sort": 11
+    },
+    {
+      "id": "ms_children_day",
+      "name": "六一儿童节",
+      "trigger": { "type": "annual", "month": 6, "day": 1 },
+      "notificationTitle": "六一儿童节快乐",
+      "notificationBody": "节日快乐，用模板记录宝宝的笑容",
+      "templateId": "tpl_birthday_03",
+      "sort": 12
+    },
+    {
+      "id": "ms_birthday",
+      "name": "生日",
+      "trigger": { "type": "birthdayAnnual" },
+      "notificationTitle": "生日快乐",
+      "notificationBody": "宝宝生日到了，年度回顾与祝福模板等你",
+      "templateId": "tpl_birthday_04",
+      "sort": 13
+    }
+  ]
+}

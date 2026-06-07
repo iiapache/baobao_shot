@@ -1,4 +1,5 @@
 import BabyCameraNetwork
+import DesignSystem
 import Foundation
 
 @MainActor
@@ -32,6 +33,6 @@ public final class DeleteAccountViewModel: ObservableObject {
         if let apiError = error as? APIError {
             return apiError.message
         }
-        return "注销失败，请稍后重试"
+        return L10n.string("account.delete.error.generic")
     }
 }

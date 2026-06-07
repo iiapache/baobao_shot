@@ -1,0 +1,224 @@
+{
+  "info": {
+    "name": "Baobao P1 E2E — auth-family-svc",
+    "description": "登录 → 创建家庭 → 邀请家人 → 创建宝宝 → 注销。对齐 contracts/openapi auth-family-svc happy path。",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:18080" },
+    { "key": "region", "value": "cn" },
+    { "key": "appVersion", "value": "1.0.0-staging" },
+    { "key": "deviceId", "value": "qa-device-iphone12-001" },
+    { "key": "adminPhone", "value": "13800138001" },
+    { "key": "adminCode", "value": "123456" },
+    { "key": "memberPhone", "value": "13800138002" },
+    { "key": "memberCode", "value": "123456" },
+    { "key": "adminToken", "value": "" },
+    { "key": "memberToken", "value": "" },
+    { "key": "familyId", "value": "" },
+    { "key": "inviteCode", "value": "" },
+    { "key": "babyId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "P1 E2E",
+      "item": [
+        {
+          "name": "0 Health",
+          "request": { "method": "GET", "url": "{{baseUrl}}/health" },
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('HTTP 200', () => pm.response.to.have.status(200));"] } }]
+        },
+        {
+          "name": "1 authPhoneSendCode (admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-Region", "value": "{{region}}" },
+              { "key": "X-App-Version", "value": "{{appVersion}}" },
+              { "key": "X-Device-Id", "value": "{{deviceId}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"phone\": \"{{adminPhone}}\"\n}" },
+            "url": "{{baseUrl}}/v1/auth/phone/code"
+          },
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+            "pm.test('code OK', () => pm.expect(pm.response.json().code).to.eql('OK'));"
+          ] } }]
+        },
+        {
+          "name": "2 authPhoneLogin (admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-Region", "value": "{{region}}" },
+              { "key": "X-App-Version", "value": "{{appVersion}}" },
+              { "key": "X-Device-Id", "value": "{{deviceId}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"phone\": \"{{adminPhone}}\",\n  \"code\": \"{{adminCode}}\"\n}" },
+            "url": "{{baseUrl}}/v1/auth/phone/login"
+          },
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+            "const j = pm.response.json();",
+            "pm.test('adminToken', () => pm.expect(j.data.accessToken).to.be.a('string'));",
+            "pm.collectionVariables.set('adminToken', j.data.accessToken);"
+          ] } }]
+        },
+        {
+          "name": "3 familyCreate",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" },
+              { "key": "X-Region", "value": "{{region}}" },
+              { "key": "X-App-Version", "value": "{{appVersion}}" },
+              { "key": "X-Device-Id", "value": "{{deviceId}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"E2E测试家庭\"\n}" },
+            "url": "{{baseUrl}}/v1/families"
+          },
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+            "const j = pm.response.json();",
+            "pm.test('familyId', () => pm.expect(j.data.familyId).to.be.a('string'));",
+            "pm.collectionVariables.set('familyId', j.data.familyId);"
+          ] } }]
+        },
+        {
+          "name": "4 familyCreateInvitation",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" },
+              { "key": "X-Region", "value": "{{region}}" },
+              { "key": "X-App-Version", "value": "{{appVersion}}" },
+              { "key": "X-Device-Id", "value": "{{deviceId}}" }
+            ],
+            "url": "{{baseUrl}}/v1/families/{{familyId}}/invitations"
+          },
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+            "const j = pm.response.json();",
+            "pm.test('invite code', () => pm.expect(j.data.code).to.match(/^\\d{6}$/));",
+            "pm.collectionVariables.set('inviteCode', j.data.code);"
+          ] } }]
+        },
+        {
+          "name": "5 authPhoneSendCode (member)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-Region", "value": "{{region}}" },
+              { "key": "X-App-Version", "value": "{{appVersion}}" },
+              { "key": "X-Device-Id", "value": "{{deviceId}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"phone\": \"{{memberPhone}}\"\n}" },
+            "url": "{{baseUrl}}/v1/auth/phone/code"
+          },
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('HTTP 200', () => pm.response.to.have.status(200));"] } }]
+        },
+        {
+          "name": "6 authPhoneLogin (member)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-Region", "value": "{{region}}" },
+              { "key": "X-App-Version", "value": "{{appVersion}}" },
+              { "key": "X-Device-Id", "value": "{{deviceId}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"phone\": \"{{memberPhone}}\",\n  \"code\": \"{{memberCode}}\"\n}" },
+            "url": "{{baseUrl}}/v1/auth/phone/login"
+          },
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+            "const j = pm.response.json();",
+            "pm.collectionVariables.set('memberToken', j.data.accessToken);"
+          ] } }]
+        },
+        {
+          "name": "7 familyJoinByInvitation",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{memberToken}}" },
+              { "key": "X-Region", "value": "{{region}}" },
+              { "key": "X-App-Version", "value": "{{appVersion}}" },
+              { "key": "X-Device-Id", "value": "{{deviceId}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"relation\": \"grandma\",\n  \"nickname\": \"外婆\"\n}" },
+            "url": "{{baseUrl}}/v1/invitations/{{inviteCode}}/join"
+          },
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+            "const j = pm.response.json();",
+            "pm.test('joined family', () => pm.expect(j.data.familyId).to.eql(pm.collectionVariables.get('familyId')));",
+            "pm.test('role family', () => pm.expect(j.data.role).to.eql('family'));"
+          ] } }]
+        },
+        {
+          "name": "8 familyListMembers",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" },
+              { "key": "X-Region", "value": "{{region}}" },
+              { "key": "X-App-Version", "value": "{{appVersion}}" },
+              { "key": "X-Device-Id", "value": "{{deviceId}}" }
+            ],
+            "url": "{{baseUrl}}/v1/families/{{familyId}}/members"
+          },
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+            "const items = pm.response.json().data.items;",
+            "pm.test('>=2 members', () => pm.expect(items.length).to.be.at.least(2));"
+          ] } }]
+        },
+        {
+          "name": "9 babyCreate",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" },
+              { "key": "X-Region", "value": "{{region}}" },
+              { "key": "X-App-Version", "value": "{{appVersion}}" },
+              { "key": "X-Device-Id", "value": "{{deviceId}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"小测\",\n  \"birthday\": \"2024-06-01\",\n  \"gender\": \"unknown\"\n}" },
+            "url": "{{baseUrl}}/v1/families/{{familyId}}/babies"
+          },
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+            "const j = pm.response.json();",
+            "pm.test('babyId', () => pm.expect(j.data.babyId).to.be.a('string'));",
+            "pm.collectionVariables.set('babyId', j.data.babyId);"
+          ] } }]
+        },
+        {
+          "name": "10 accountDelete",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" },
+              { "key": "X-Region", "value": "{{region}}" },
+              { "key": "X-App-Version", "value": "{{appVersion}}" },
+              { "key": "X-Device-Id", "value": "{{deviceId}}" }
+            ],
+            "url": "{{baseUrl}}/v1/account"
+          },
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+            "const j = pm.response.json();",
+            "pm.test('scheduledAt', () => pm.expect(j.data.scheduledAt).to.be.a('string'));"
+          ] } }]
+        }
+      ]
+    }
+  ]
+}

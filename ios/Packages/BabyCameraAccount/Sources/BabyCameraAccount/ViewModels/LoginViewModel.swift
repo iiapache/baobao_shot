@@ -1,4 +1,6 @@
+import BabyCameraDiagnostics
 import BabyCameraNetwork
+import DesignSystem
 import Foundation
 
 @MainActor
@@ -37,13 +39,17 @@ public final class LoginViewModel: ObservableObject {
         errorMessage = nil
         defer { isLoading = false }
 
+        AnalyticsFeatureTracks.trackLoginAttempt(method: "apple")
         do {
             let credential = try await appleSignIn.signIn()
-            return try await authService.loginWithApple(credential)
+            let session = try await authService.loginWithApple(credential)
+            AnalyticsFeatureTracks.trackLoginSuccess(method: "apple", isNewUser: session.profile?.nickname == nil)
+            return session
         } catch let error as AppleSignInError where error == .cancelled {
             return nil
         } catch {
             errorMessage = mapError(error)
+            AnalyticsFeatureTracks.trackLoginFailure(method: "apple", errorCode: String(describing: type(of: error)))
             return nil
         }
     }
@@ -68,10 +74,14 @@ public final class LoginViewModel: ObservableObject {
         errorMessage = nil
         defer { isLoading = false }
 
+        AnalyticsFeatureTracks.trackLoginAttempt(method: "phone")
         do {
-            return try await authService.loginWithPhone(phone: phone, code: verificationCode)
+            let session = try await authService.loginWithPhone(phone: phone, code: verificationCode)
+            AnalyticsFeatureTracks.trackLoginSuccess(method: "phone", isNewUser: session.profile?.nickname == nil)
+            return session
         } catch {
             errorMessage = mapError(error)
+            AnalyticsFeatureTracks.trackLoginFailure(method: "phone", errorCode: String(describing: type(of: error)))
             return nil
         }
     }
@@ -95,11 +105,11 @@ public final class LoginViewModel: ObservableObject {
         if let authError = error as? AuthServiceError {
             switch authError {
             case .notAuthenticated:
-                return "请先登录"
+                return L10n.string("login.error.please_sign_in")
             case .sessionRestoreFailed:
-                return "会话恢复失败，请重新登录"
+                return L10n.string("login.error.session_restore_failed")
             }
         }
-        return "操作失败，请稍后重试"
+        return L10n.string("login.error.generic")
     }
 }

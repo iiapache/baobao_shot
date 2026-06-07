@@ -1,0 +1,13 @@
+# ACK-CN 集群 values 片段
+reconcile:
+  region: cn
+  source: mns
+  dryRun: true
+
+lifecycle:
+  ossBucket: baby-camera-cn
+
+serviceAccount:
+  annotations:
+    # 替换为 ACK RAM OIDC 角色，允许 oss:GetBucketLifecycle / MNS Subscribe
+    eks.amazonaws.com/role-arn: "${OSS_RECONCILE_ROLE_ARN}"

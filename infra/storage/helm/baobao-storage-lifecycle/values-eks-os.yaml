@@ -1,0 +1,13 @@
+# EKS-OS 集群 values 片段
+reconcile:
+  region: os
+  source: sqs
+  dryRun: true
+
+lifecycle:
+  s3Bucket: baby-camera-os
+  awsRegion: ap-southeast-1
+
+serviceAccount:
+  annotations:
+    eks.amazonaws.com/role-arn: "${S3_RECONCILE_ROLE_ARN}"

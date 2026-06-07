@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/baobao/auth-family-svc/internal/crypto/seal"
 	"github.com/baobao/auth-family-svc/internal/model"
 	"github.com/baobao/auth-family-svc/internal/store"
 	"github.com/google/uuid"
@@ -34,9 +35,17 @@ type Service struct {
 	now   func() time.Time
 }
 
-// NewService creates a backup credential service.
+// NewService creates a backup credential service with plaintext token storage.
 func NewService(s store.BackupStore) *Service {
 	return &Service{store: s, now: func() time.Time { return time.Now().UTC() }}
+}
+
+// NewEncryptedService creates a backup credential service with AES-256-GCM token encryption at rest.
+func NewEncryptedService(s store.BackupStore, sealer *seal.Sealer) *Service {
+	return &Service{
+		store: store.NewEncryptingBackupStore(s, sealer),
+		now:   func() time.Time { return time.Now().UTC() },
+	}
 }
 
 // BindProvider upserts OAuth token metadata for a backup destination.
@@ -65,12 +74,19 @@ func (s *Service) BindProvider(ctx context.Context, userID string, in BindInput)
 	if err != nil {
 		return nil, err
 	}
-	return provider, nil
+	return redactProviderSecrets(provider), nil
 }
 
 // ListProviders returns active provider bindings without token secrets.
 func (s *Service) ListProviders(ctx context.Context, userID string) ([]model.BackupProvider, error) {
-	return s.store.ListBackupProviders(ctx, userID)
+	items, err := s.store.ListBackupProviders(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+	for i := range items {
+		items[i] = *redactProviderSecrets(&items[i])
+	}
+	return items, nil
 }
 
 // UnbindProvider removes a provider binding owned by the user.
@@ -123,4 +139,14 @@ func cloneMetadata(src map[string]string) map[string]string {
 		dst[k] = v
 	}
 	return dst
+}
+
+func redactProviderSecrets(provider *model.BackupProvider) *model.BackupProvider {
+	if provider == nil {
+		return nil
+	}
+	out := *provider
+	out.AccessToken = ""
+	out.RefreshToken = nil
+	return &out
 }

@@ -1,0 +1,29 @@
+{
+  "priority": 5,
+  "request": {
+    "method": "POST",
+    "urlPath": "/v1/families",
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .+"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "code": "OK",
+      "message": "ok",
+      "requestId": "req_mock_family_create",
+      "data": {
+        "familyId": "fam_e2e_001",
+        "name": "{{jsonPath request.body '$.name'}}",
+        "role": "admin"
+      }
+    },
+    "transformers": ["response-template"]
+  }
+}

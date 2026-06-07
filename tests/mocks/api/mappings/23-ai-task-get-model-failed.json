@@ -1,0 +1,30 @@
+{
+  "priority": 10,
+  "request": {
+    "method": "GET",
+    "urlPath": "/v1/ai/tasks/tsk_e2e_model_failed",
+    "headers": {
+      "Authorization": {
+        "contains": "Bearer"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "code": "OK",
+      "message": "ok",
+      "requestId": "req_mock_ai_get_model_failed",
+      "data": {
+        "taskId": "tsk_e2e_model_failed",
+        "state": "failed",
+        "failureReason": "模型服务暂时不可用，已自动退还积分",
+        "costCredits": 8,
+        "balanceAfter": 100
+      }
+    }
+  }
+}

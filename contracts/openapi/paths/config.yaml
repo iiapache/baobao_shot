@@ -39,6 +39,80 @@ paths:
         '400':
           $ref: '../components/common.yaml#/components/responses/BadRequest'
 
+  /v1/admin/features/{key}:
+    patch:
+      tags: [config]
+      summary: 紧急更新 feature flag（T7.14 kill-switch）
+      operationId: configAdminPatchFeature
+      parameters:
+        - name: key
+          in: path
+          required: true
+          schema:
+            type: string
+            example: ai.play.ghibli_kid
+        - name: X-Admin-Token
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                defaultEnabled:
+                  type: boolean
+                rolloutPercent:
+                  type: integer
+                  minimum: 0
+                  maximum: 100
+                variant:
+                  type: string
+      responses:
+        '200':
+          $ref: '../components/common.yaml#/components/responses/Ok'
+        '401':
+          $ref: '../components/common.yaml#/components/responses/Unauthorized'
+        '404':
+          $ref: '../components/common.yaml#/components/responses/NotFound'
+
+  /v1/admin/plays/{id}:
+    patch:
+      tags: [config]
+      summary: 紧急更新玩法目录项（T7.14 kill-switch）
+      operationId: configAdminPatchPlay
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            example: play_storybook
+        - name: X-Admin-Token
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                enabled:
+                  type: boolean
+      responses:
+        '200':
+          $ref: '../components/common.yaml#/components/responses/Ok'
+        '401':
+          $ref: '../components/common.yaml#/components/responses/Unauthorized'
+        '404':
+          $ref: '../components/common.yaml#/components/responses/NotFound'
+
   /v1/config/plays:
     get:
       tags: [config]
@@ -104,6 +178,11 @@ components:
         variant:
           type: string
           nullable: true
+        rolloutPercent:
+          type: integer
+          minimum: 0
+          maximum: 100
+          description: 配置的目标放量（rollout.* keys，T7.14）
 
     PlaysCatalogPayload:
       type: object

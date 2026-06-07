@@ -1,0 +1,39 @@
+{
+  "priority": 1,
+  "request": {
+    "method": "POST",
+    "urlPath": "/v1/auth/phone/login",
+    "bodyPatterns": [
+      {
+        "matchesJsonPath": "$[?(@.phone == '13800138002')]"
+      }
+    ]
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "code": "OK",
+      "message": "ok",
+      "requestId": "req_mock_phone_login_member",
+      "data": {
+        "userId": "usr_e2e_member",
+        "isNewUser": true,
+        "accessToken": "mock_access_token_member",
+        "accessTokenExpiresIn": 3600,
+        "refreshToken": "mock_refresh_token_member",
+        "refreshTokenExpiresIn": 2592000,
+        "profile": {
+          "nickname": "E2E家庭成员",
+          "avatarUrl": null,
+          "region": "cn",
+          "consents": {
+            "childData": false
+          }
+        }
+      }
+    }
+  }
+}

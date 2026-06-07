@@ -40,5 +40,13 @@ DerivedData/
 # Logs
 *.log
 
+# Performance reports (T7.6)
+tests/performance/reports/*
+!tests/performance/reports/.gitkeep
+
 # Contract codegen
 contracts/protobuf/gen/
+
+# Generated API docs (T7.18 — run scripts/generate-api-docs.sh)
+docs/site/api/*
+!docs/site/api/.gitkeep

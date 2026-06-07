@@ -1,0 +1,82 @@
+{
+  "version": "20250606001",
+  "ttlSeconds": 300,
+  "plays": [
+    {
+      "id": "ghibli_kid",
+      "name": "宫崎骏风",
+      "description": "风格化图像，720p 输出",
+      "kind": "image",
+      "regions": ["cn", "os"],
+      "creditCost": 8,
+      "enabled": true,
+      "featureFlagKey": "ai.play.ghibli_kid"
+    },
+    {
+      "id": "gpt_portrait",
+      "name": "高质量写真",
+      "description": "1024px 输出",
+      "kind": "image",
+      "regions": ["os"],
+      "creditCost": 15,
+      "enabled": true,
+      "featureFlagKey": "ai.play.gpt_portrait"
+    },
+    {
+      "id": "seedream_style",
+      "name": "Seedream 风格化",
+      "description": "国内风格化图像",
+      "kind": "image",
+      "regions": ["cn"],
+      "creditCost": 8,
+      "enabled": true,
+      "featureFlagKey": "ai.play.seedream_style"
+    },
+    {
+      "id": "photo_restore",
+      "name": "老照片修复",
+      "description": "修复与上色",
+      "kind": "image",
+      "regions": ["cn", "os"],
+      "creditCost": 10,
+      "enabled": true,
+      "featureFlagKey": "ai.play.photo_restore"
+    },
+    {
+      "id": "video_walk",
+      "name": "图生视频",
+      "description": "宝宝学步等场景短视频",
+      "kind": "video",
+      "regions": ["cn", "os"],
+      "enabled": true,
+      "featureFlagKey": "ai.play.video_walk",
+      "durationTiers": [
+        { "durationSeconds": 5, "creditCost": 60 },
+        { "durationSeconds": 10, "creditCost": 120 }
+      ]
+    },
+    {
+      "id": "year_review_regen",
+      "name": "年度回顾重生成",
+      "description": "年度回顾视频重新生成",
+      "kind": "video",
+      "regions": ["cn", "os"],
+      "creditCost": 50,
+      "enabled": true,
+      "featureFlagKey": "ai.play.year_review_regen",
+      "durationTiers": [
+        { "durationSeconds": 30, "creditCost": 50 }
+      ]
+    },
+    {
+      "id": "smart_caption",
+      "name": "智能文案",
+      "description": "免费文案生成",
+      "kind": "text",
+      "regions": ["cn", "os"],
+      "creditCost": 0,
+      "enabled": true,
+      "featureFlagKey": "ai.play.smart_caption"
+    }
+  ]
+}

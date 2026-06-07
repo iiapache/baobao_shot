@@ -1,0 +1,33 @@
+{
+  "priority": 10,
+  "request": {
+    "method": "POST",
+    "urlPath": "/v1/ai/tasks",
+    "headers": {
+      "Authorization": {
+        "contains": "Bearer"
+      },
+      "X-E2E-Scenario": {
+        "equalTo": "background"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "code": "OK",
+      "message": "ok",
+      "requestId": "req_mock_ai_create_background",
+      "data": {
+        "taskId": "tsk_e2e_background",
+        "state": "running",
+        "costCredits": 8,
+        "balanceAfter": 92,
+        "estimatedSeconds": 18
+      }
+    }
+  }
+}

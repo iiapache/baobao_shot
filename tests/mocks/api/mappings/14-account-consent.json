@@ -1,0 +1,27 @@
+{
+  "priority": 5,
+  "request": {
+    "method": "POST",
+    "urlPath": "/v1/account/consents/child-data",
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .+"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "code": "OK",
+      "message": "ok",
+      "requestId": "req_mock_consent",
+      "data": {
+        "version": "child_consent_v1",
+        "agreedAt": "2026-06-06T10:00:00Z"
+      }
+    }
+  }
+}

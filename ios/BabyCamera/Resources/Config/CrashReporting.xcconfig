@@ -1,0 +1,5 @@
+// T7.7 崩溃监控默认配置（可提交）。密钥通过 CrashReporting.Secrets.xcconfig 或 CI 变量覆盖。
+SENTRY_DSN =
+BUGLY_APP_ID =
+APP_ENVIRONMENT = dev
+CRASH_REPORTING_ENABLED = NO

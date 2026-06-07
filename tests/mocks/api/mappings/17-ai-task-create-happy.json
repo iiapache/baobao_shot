@@ -1,0 +1,36 @@
+{
+  "priority": 5,
+  "request": {
+    "method": "POST",
+    "urlPath": "/v1/ai/tasks",
+    "headers": {
+      "Authorization": {
+        "contains": "Bearer"
+      }
+    },
+    "bodyPatterns": [
+      {
+        "matchesJsonPath": "$.play",
+        "equalTo": "ghibli_kid"
+      }
+    ]
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "code": "OK",
+      "message": "ok",
+      "requestId": "req_mock_ai_create_happy",
+      "data": {
+        "taskId": "tsk_e2e_img_happy",
+        "state": "credit_held",
+        "costCredits": 8,
+        "balanceAfter": 92,
+        "estimatedSeconds": 18
+      }
+    }
+  }
+}

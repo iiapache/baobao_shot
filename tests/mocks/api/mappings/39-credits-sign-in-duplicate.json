@@ -1,0 +1,20 @@
+{
+  "priority": 10,
+  "scenarioName": "p4_sign_in",
+  "requiredScenarioState": "signed",
+  "request": {
+    "method": "POST",
+    "urlPath": "/v1/credits/sign-in"
+  },
+  "response": {
+    "status": 409,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "code": "CREDIT_SIGN_IN_DONE",
+      "message": "already signed in today",
+      "requestId": "req_mock_sign_in_dup"
+    }
+  }
+}

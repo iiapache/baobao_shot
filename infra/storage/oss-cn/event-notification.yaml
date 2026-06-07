@@ -1,0 +1,33 @@
+# 阿里云 OSS 桶事件通知 — baby-camera-cn
+# T3.2：监听对象删除 / 生命周期过期，供 feed-svc / media-svc 对账
+# 部署：替换 ${PLACEHOLDER} 后通过 ossutil / 控制台 / Terraform 应用
+#
+# 参考：https://help.aliyun.com/document_detail/122029.html
+
+bucket: ${OSS_BUCKET_NAME}
+region: ${OSS_REGION} # 例：oss-cn-hangzhou
+
+events:
+  - ObjectRemoved:DeleteObject
+  - ObjectRemoved:DeleteObjects
+  - LifecycleExpiration:LifecycleExpiration
+
+filter:
+  key:
+    prefix: "" # 全桶；可按需拆为 ai-tmp/、ai-out/、family/ 三条规则
+
+destinations:
+  # 主路径：MNS Topic → FC / feed-svc 消费者（生产由 infra 注入 ARN）
+  - type: mns
+    roleArn: ${OSS_EVENT_ROLE_ARN}
+    mnsTopic: ${MNS_TOPIC_STORAGE_DELETES}
+    # 消息体含 bucket、objectKey、eventName、eventTime
+
+  # 可选：Function Compute 直连（dev/staging 轻量对账 stub）
+  # - type: fc
+  #   roleArn: ${OSS_EVENT_ROLE_ARN}
+  #   functionArn: ${FC_RECONCILE_FUNCTION_ARN}
+
+# 对账消费者约定（Kafka 中转时在 FC 内转发）：
+# topic: storage.deletes（可选，与 feed.events 分离）
+# payload 字段：region, bucket, objectKey, eventName, eventTime, requestId

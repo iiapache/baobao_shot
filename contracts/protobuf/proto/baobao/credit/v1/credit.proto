@@ -4,9 +4,13 @@ package baobao.credit.v1;
 
 option go_package = "github.com/baobao/gen/baobao/credit/v1;creditv1";
 
-// CreditSubAdService — credit-sub-ad-svc 占位（REST 见 design-api §8）
+// CreditSubAdService — credit-sub-ad-svc（REST 见 design-api §8；saga 见 design-backend §6）
 service CreditSubAdService {
   rpc GetBalance(GetBalanceRequest) returns (GetBalanceResponse);
+  // Saga: hold → commit | release (T4.3)
+  rpc Hold(HoldRequest) returns (HoldResponse);
+  rpc Commit(CommitRequest) returns (CommitResponse);
+  rpc Release(ReleaseRequest) returns (ReleaseResponse);
 }
 
 message GetBalanceRequest {
@@ -15,4 +19,39 @@ message GetBalanceRequest {
 
 message GetBalanceResponse {
   int32 balance = 1;
+}
+
+message HoldRequest {
+  string user_id = 1;
+  string ai_task_id = 2;
+  int32 amount = 3;
+  string ref_kind = 4;
+  string ref_id = 5;
+}
+
+message HoldResponse {
+  string hold_id = 1;
+  bool duplicate = 2;
+}
+
+message CommitRequest {
+  string hold_id = 1;
+  string ai_task_id = 2;
+  string ref_kind = 3;
+  string ref_id = 4;
+}
+
+message CommitResponse {
+  bool duplicate = 1;
+}
+
+message ReleaseRequest {
+  string hold_id = 1;
+  string ai_task_id = 2;
+  string ref_kind = 3;
+  string ref_id = 4;
+}
+
+message ReleaseResponse {
+  bool duplicate = 1;
 }

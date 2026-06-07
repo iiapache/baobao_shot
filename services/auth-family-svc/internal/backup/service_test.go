@@ -5,14 +5,25 @@ import (
 	"testing"
 	"time"
 
+	"github.com/baobao/auth-family-svc/internal/crypto/seal"
 	"github.com/baobao/auth-family-svc/internal/model"
 	"github.com/baobao/auth-family-svc/internal/store"
 )
 
+func newEncryptedTestService(t *testing.T, mem *store.MemoryStore) *Service {
+	t.Helper()
+	sealer, err := seal.New(seal.DeriveKeyFromSecret("test-backup-key"))
+	if err != nil {
+		t.Fatalf("new sealer: %v", err)
+	}
+	svc := NewEncryptedService(mem, sealer)
+	svc.now = func() time.Time { return time.Date(2026, 6, 6, 10, 0, 0, 0, time.UTC) }
+	return svc
+}
+
 func TestBindListUnbindProvider(t *testing.T) {
 	mem := store.NewMemoryStore()
-	svc := NewService(mem)
-	svc.now = func() time.Time { return time.Date(2026, 6, 6, 10, 0, 0, 0, time.UTC) }
+	svc := newEncryptedTestService(t, mem)
 	ctx := context.Background()
 	userID := "usr_backup_bind"
 
@@ -31,8 +42,8 @@ func TestBindListUnbindProvider(t *testing.T) {
 	if err != nil {
 		t.Fatalf("bind: %v", err)
 	}
-	if provider.AccessToken != "access-token" {
-		t.Fatalf("token not persisted internally")
+	if provider.AccessToken != "" || provider.RefreshToken != nil {
+		t.Fatalf("bind response must not expose tokens: %+v", provider)
 	}
 
 	items, err := svc.ListProviders(ctx, userID)
@@ -41,6 +52,9 @@ func TestBindListUnbindProvider(t *testing.T) {
 	}
 	if len(items) != 1 || items[0].Kind != model.BackupProviderKindBaiduPan {
 		t.Fatalf("unexpected list: %+v", items)
+	}
+	if items[0].AccessToken != "" || items[0].RefreshToken != nil {
+		t.Fatal("list must not expose tokens")
 	}
 
 	updatedToken := "access-token-v2"
@@ -59,8 +73,14 @@ func TestBindListUnbindProvider(t *testing.T) {
 		t.Fatalf("upsert should keep one provider, got %d", len(items))
 	}
 	stored, err := mem.ListBackupProviders(ctx, userID)
-	if err != nil || stored[0].AccessToken != updatedToken {
-		t.Fatalf("token not updated: %+v err=%v", stored, err)
+	if err != nil || len(stored) != 1 {
+		t.Fatalf("raw list: %+v err=%v", stored, err)
+	}
+	if stored[0].AccessToken == updatedToken {
+		t.Fatal("access token stored in plaintext")
+	}
+	if !seal.IsSealed(stored[0].AccessToken) {
+		t.Fatalf("access token not sealed: %q", stored[0].AccessToken)
 	}
 
 	if err := svc.UnbindProvider(ctx, userID, provider.ID); err != nil {

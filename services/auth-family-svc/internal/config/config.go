@@ -1,10 +1,13 @@
 package config
 
 import (
+	"encoding/base64"
 	"fmt"
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/baobao/auth-family-svc/internal/crypto/seal"
 )
 
 // Config holds service runtime configuration from environment variables.
@@ -24,6 +27,7 @@ type Config struct {
 	AppScheme           string
 	AvatarStoragePath   string
 	AvatarCDNBase       string
+	BackupTokenEncKey   string
 }
 
 // Load reads configuration from environment with sensible defaults.
@@ -61,7 +65,32 @@ func Load() (*Config, error) {
 		AppScheme:           getEnv("APP_SCHEME", "baobao://invite"),
 		AvatarStoragePath:   getEnv("AVATAR_STORAGE_PATH", "./data/avatar"),
 		AvatarCDNBase:       getEnv("AVATAR_CDN_BASE", ""),
+		BackupTokenEncKey:   getEnv("BACKUP_TOKEN_ENC_KEY", ""),
 	}, nil
+}
+
+// BackupTokenSealer returns the AES sealer for backup OAuth tokens at rest.
+// When BACKUP_TOKEN_ENC_KEY is unset, derives a dev key from JWT_SIGNING_SECRET.
+func (c *Config) BackupTokenSealer() (*seal.Sealer, error) {
+	key, err := c.backupTokenEncKeyBytes()
+	if err != nil {
+		return nil, err
+	}
+	return seal.New(key)
+}
+
+func (c *Config) backupTokenEncKeyBytes() ([]byte, error) {
+	if c.BackupTokenEncKey != "" {
+		key, err := base64.StdEncoding.DecodeString(c.BackupTokenEncKey)
+		if err != nil {
+			return nil, fmt.Errorf("BACKUP_TOKEN_ENC_KEY: invalid base64: %w", err)
+		}
+		if len(key) != 32 {
+			return nil, fmt.Errorf("BACKUP_TOKEN_ENC_KEY: must decode to 32 bytes, got %d", len(key))
+		}
+		return key, nil
+	}
+	return seal.DeriveKeyFromSecret(c.JWTSigningSecret), nil
 }
 
 func getEnv(key, fallback string) string {

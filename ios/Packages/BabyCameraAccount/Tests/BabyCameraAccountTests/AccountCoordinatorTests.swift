@@ -61,6 +61,30 @@ final class AccountCoordinatorTests: XCTestCase {
         XCTAssertEqual(coordinator.phase, .onboarding(session))
     }
 
+    func testCompleteOnboardingTransitionsToAuthenticated() {
+        let coordinator = makeCoordinator()
+        let session = AuthSession(
+            userId: "usr_new",
+            isNewUser: true,
+            profile: UserProfile(
+                nickname: "豆豆妈",
+                avatarUrl: nil,
+                region: "cn",
+                consents: UserConsents(childData: true)
+            )
+        )
+        coordinator.handleAuthenticated(session)
+
+        let completed = AuthSession(userId: session.userId, isNewUser: false, profile: session.profile)
+        coordinator.completeOnboarding(completed)
+
+        guard case let .authenticated(restored) = coordinator.phase else {
+            return XCTFail("expected authenticated phase")
+        }
+        XCTAssertEqual(restored.userId, "usr_new")
+        XCTAssertFalse(restored.isNewUser)
+    }
+
     func testHandleLogoutReturnsToLogin() async throws {
         MockURLProtocol.register { request in
             if request.url?.path == "/v1/account/logout" {

@@ -25,6 +25,7 @@ V1 中国区接入的国内模型须**逐模型独立申报**（PRD §4.5.1）�
 ```
 compliance/algorithm-filing/
 ├── README.md                    # 本文件：流程说明与衔接
+├── filings.yaml                 # CN 模型备案号绑定（T7.1 回填）
 ├── MODEL_FILING_TRACKER.md      # 备案受理回执跟踪表（主台账）
 ├── WEEKLY_STATUS_TEMPLATE.md    # 周状态汇报模板
 └── DEEP_SYNTHESIS_CHECKLIST.md  # 深度合成标识与备案材料清单
@@ -100,22 +101,28 @@ flowchart LR
 | 启动时拉取展示 | iOS Settings → 关于 | 远端配置 `algorithm_filing_numbers` |
 | manifest 写入 | `deepSynth.manifest` | 生成任务落库时附带备案号 |
 
-### 5.2 备案号回填 SOP（T7.1 执行时启用）
+### 5.2 备案号回填 SOP（T7.1 已落地）
 
 1. COMP 在 `MODEL_FILING_TRACKER.md` 更新状态为「**已通过**」，填写正式备案号。
-2. BE 将备案号写入 `ai-dispatch-svc` 配置（按 `adapter_id` 映射）：
+2. BE 将备案号写入 [`filings.yaml`](./filings.yaml)（按 `Adapter` 名映射），或通过环境变量 / config-svc 覆盖：
 
    ```yaml
-   # 示例结构（T7.1 落地时完善）
    algorithm_filing:
-     seedream:
-       gen_ai_filing_no: ""      # 生成式 AI 备案号
-       deep_synth_filing_no: ""  # 深度合成备案号
-       effective_from: "2026-XX-XX"
+     SeedreamAdapter:
+       gen_ai_filing_no: "正式生成式 AI 备案号"
+       deep_synth_filing_no: "正式深度合成备案号"
    ```
 
-3. QA 回归：CN 区未备案模型不可被路由；Settings 关于页展示与配置一致。
-4. COMP 确认 PRD §6.1 要求的用户协议 / 隐私政策 / App Store 介绍页已明示备案号。
+   | 来源 | 键 / 路径 | 说明 |
+   | --- | --- | --- |
+   | YAML | `ALGORITHM_FILING_PATH` 或仓库 `compliance/algorithm-filing/filings.yaml` | 默认启动加载 |
+   | 环境变量 | `FILING_SEEDREAM_GEN_AI` / `FILING_SEEDREAM_DEEP_SYNTH` 等 | 覆盖单模型 |
+   | config-svc | `compliance.algorithm_filing_bindings`（JSON variant） | 启动拉取，可热更新 |
+   | iOS 展示 | `compliance.algorithm_filing_summary` | Settings → 关于页摘要 |
+
+3. 重启 `ai-dispatch-svc`，确认启动日志输出脱敏备案绑定表（仅后 4 位可见）。
+4. QA 回归：CN 区缺备案号 → `AI_MODEL_FILING_REQUIRED` 拒绝路由；`GET /v1/ai/plays` CN 列表过滤未备案玩法；Settings 关于页与 config-svc 一致。
+5. COMP 确认 PRD §6.1 要求的用户协议 / 隐私政策 / App Store 介绍页已明示备案号。
 
 ### 5.3 灰度降级预案
 

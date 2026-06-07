@@ -1,0 +1,16 @@
+# CN 模型算法备案号绑定（T7.1）
+# COMP 获批后回填正式号；DEV 环境使用占位符。
+# 环境变量可覆盖：FILING_<ADAPTER>_GEN_AI / FILING_<ADAPTER>_DEEP_SYNTH
+algorithm_filing:
+  SeedreamAdapter:
+    gen_ai_filing_no: "GAI-DEV-1"
+    deep_synth_filing_no: "DS-DEV-1"
+  TongyiWanxiangAdapter:
+    gen_ai_filing_no: "GAI-DEV-2"
+    deep_synth_filing_no: "DS-DEV-2"
+  JimengAdapter:
+    gen_ai_filing_no: "GAI-DEV-3"
+    deep_synth_filing_no: "DS-DEV-3"
+  SeedanceAdapter:
+    gen_ai_filing_no: "GAI-DEV-4"
+    deep_synth_filing_no: "DS-DEV-4"

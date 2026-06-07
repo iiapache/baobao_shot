@@ -1,0 +1,705 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": { "type": "grafana", "uid": "-- Grafana --" },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [
+    {
+      "icon": "doc",
+      "tags": [],
+      "title": "Metrics Catalog",
+      "tooltip": "docs/ops/METRICS_CATALOG.md",
+      "type": "link",
+      "url": "https://github.com/baobao/baobao/blob/main/docs/ops/METRICS_CATALOG.md"
+    }
+  ],
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+      "id": 1,
+      "title": "API 概览（RPS / P95 / 5xx）",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": { "color": { "mode": "palette-classic" }, "unit": "reqps" },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 1 },
+      "id": 2,
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom" },
+        "tooltip": { "mode": "multi" }
+      },
+      "targets": [
+        {
+          "expr": "sum(rate(traces_spanmetrics_calls_total{service_name=~\"$service\", region=~\"$region\"}[5m])) by (service_name)",
+          "legendFormat": "{{service_name}} (OTEL)",
+          "refId": "A"
+        },
+        {
+          "expr": "sum(rate(babycamera_http_requests_total{service=~\"$service\", region=~\"$region\"}[5m])) by (service)",
+          "legendFormat": "{{service}} (/metrics)",
+          "refId": "B"
+        },
+        {
+          "expr": "sum(rate(apisix_http_status{service=~\".*gateway.*\"}[5m])) by (service)",
+          "legendFormat": "{{service}} (Gateway)",
+          "refId": "C"
+        }
+      ],
+      "title": "API RPS",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": { "color": { "mode": "palette-classic" }, "unit": "s" },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 1 },
+      "id": 3,
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom" },
+        "tooltip": { "mode": "multi" }
+      },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(traces_spanmetrics_duration_milliseconds_bucket{service_name=~\"$service\", region=~\"$region\"}[5m])) by (le, service_name)) / 1000",
+          "legendFormat": "P95 {{service_name}} (OTEL)",
+          "refId": "A"
+        },
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(babycamera_http_request_duration_seconds_bucket{service=~\"$service\", region=~\"$region\"}[5m])) by (le, service))",
+          "legendFormat": "P95 {{service}} (/metrics)",
+          "refId": "B"
+        }
+      ],
+      "title": "API P95 延迟",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": { "color": { "mode": "palette-classic" }, "unit": "reqps" },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 1 },
+      "id": 4,
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom" },
+        "tooltip": { "mode": "multi" }
+      },
+      "targets": [
+        {
+          "expr": "sum(rate(traces_spanmetrics_calls_total{service_name=~\"$service\", http_status_code=~\"5..\", region=~\"$region\"}[5m])) by (service_name, http_status_code)",
+          "legendFormat": "{{service_name}} {{http_status_code}}",
+          "refId": "A"
+        },
+        {
+          "expr": "sum(rate(babycamera_http_requests_total{service=~\"$service\", status_code=~\"5..\", region=~\"$region\"}[5m])) by (service, status_code)",
+          "legendFormat": "{{service}} {{status_code}}",
+          "refId": "B"
+        },
+        {
+          "expr": "sum(rate(apisix_http_status{code=~\"5..\"}[5m])) by (code, route)",
+          "legendFormat": "gateway {{route}} {{code}}",
+          "refId": "C"
+        }
+      ],
+      "title": "5xx 错误率 (RPS)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": { "color": { "mode": "palette-classic" }, "unit": "percentunit" },
+        "overrides": []
+      },
+      "gridPos": { "h": 6, "w": 12, "x": 0, "y": 9 },
+      "id": 5,
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom" },
+        "tooltip": { "mode": "multi" }
+      },
+      "targets": [
+        {
+          "expr": "sum(rate(traces_spanmetrics_calls_total{service_name=~\"$service\", http_status_code=~\"5..\", region=~\"$region\"}[5m])) by (service_name) / sum(rate(traces_spanmetrics_calls_total{service_name=~\"$service\", region=~\"$region\"}[5m])) by (service_name)",
+          "legendFormat": "{{service_name}} 5xx ratio",
+          "refId": "A"
+        }
+      ],
+      "title": "单服务 5xx 占比",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 0.01 },
+              { "color": "red", "value": 0.05 }
+            ]
+          },
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 6, "w": 12, "x": 12, "y": 9 },
+      "id": 6,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "reduceOptions": { "calcs": ["lastNotNull"] }
+      },
+      "targets": [
+        {
+          "expr": "sum(rate(traces_spanmetrics_calls_total{service_name=~\"$service\", http_status_code=~\"5..\"}[5m])) / sum(rate(traces_spanmetrics_calls_total{service_name=~\"$service\"}[5m]))",
+          "legendFormat": "全局 5xx",
+          "refId": "A"
+        }
+      ],
+      "title": "全局 5xx 占比（告警阈值 1%）",
+      "type": "stat"
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 15 },
+      "id": 10,
+      "title": "AI 任务（成功率 / P95）",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "max": 1,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "yellow", "value": 0.95 },
+              { "color": "green", "value": 0.99 }
+            ]
+          },
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 7, "w": 6, "x": 0, "y": 16 },
+      "id": 11,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "reduceOptions": { "calcs": ["lastNotNull"] }
+      },
+      "targets": [
+        {
+          "expr": "sum(rate(babycamera_ai_task_total{status=\"success\", region=~\"$region\"}[10m])) / sum(rate(babycamera_ai_task_total{status=~\"success|failed|rejected|timeout\", region=~\"$region\"}[10m]))",
+          "legendFormat": "成功率",
+          "refId": "A"
+        }
+      ],
+      "title": "AI 任务成功率（10m，阈值 95%）",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": { "color": { "mode": "palette-classic" }, "unit": "percentunit" },
+        "overrides": []
+      },
+      "gridPos": { "h": 7, "w": 10, "x": 6, "y": 16 },
+      "id": 12,
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom" },
+        "tooltip": { "mode": "multi" }
+      },
+      "targets": [
+        {
+          "expr": "sum(rate(babycamera_ai_task_total{status=\"success\", region=~\"$region\"}[10m])) by (capability) / sum(rate(babycamera_ai_task_total{status=~\"success|failed|rejected|timeout\", region=~\"$region\"}[10m])) by (capability)",
+          "legendFormat": "{{capability}}",
+          "refId": "A"
+        }
+      ],
+      "title": "AI 成功率按能力",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": { "color": { "mode": "palette-classic" }, "unit": "s" },
+        "overrides": []
+      },
+      "gridPos": { "h": 7, "w": 8, "x": 16, "y": 16 },
+      "id": 13,
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom" },
+        "tooltip": { "mode": "multi" }
+      },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(babycamera_ai_task_duration_seconds_bucket{region=~\"$region\"}[5m])) by (le, capability))",
+          "legendFormat": "P95 {{capability}}",
+          "refId": "A"
+        },
+        {
+          "expr": "histogram_quantile(0.50, sum(rate(babycamera_ai_task_duration_seconds_bucket{region=~\"$region\"}[5m])) by (le, capability))",
+          "legendFormat": "P50 {{capability}}",
+          "refId": "B"
+        }
+      ],
+      "title": "AI 任务 P50 / P95（图 ≤60s / 视频 ≤300s）",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": { "color": { "mode": "palette-classic" }, "unit": "ops" },
+        "overrides": []
+      },
+      "gridPos": { "h": 6, "w": 24, "x": 0, "y": 23 },
+      "id": 14,
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom" },
+        "tooltip": { "mode": "multi" }
+      },
+      "targets": [
+        {
+          "expr": "sum(rate(babycamera_ai_task_total{region=~\"$region\"}[5m])) by (status, capability)",
+          "legendFormat": "{{capability}} {{status}}",
+          "refId": "A"
+        }
+      ],
+      "title": "AI 任务吞吐（按状态）",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 29 },
+      "id": 20,
+      "title": "IAP / 广告 / 积分对账",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "max": 1,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "yellow", "value": 0.995 },
+              { "color": "green", "value": 0.999 }
+            ]
+          },
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 7, "w": 8, "x": 0, "y": 30 },
+      "id": 21,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "reduceOptions": { "calcs": ["lastNotNull"] }
+      },
+      "targets": [
+        {
+          "expr": "sum(rate(babycamera_iap_verify_total{result=\"success\", region=~\"$region\"}[5m])) / sum(rate(babycamera_iap_verify_total{result=~\"success|failed\", region=~\"$region\"}[5m]))",
+          "legendFormat": "IAP 成功率",
+          "refId": "A"
+        }
+      ],
+      "title": "IAP 校验成功率（阈值 99.5%）",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": { "color": { "mode": "palette-classic" }, "unit": "ops" },
+        "overrides": []
+      },
+      "gridPos": { "h": 7, "w": 8, "x": 8, "y": 30 },
+      "id": 22,
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom" },
+        "tooltip": { "mode": "multi" }
+      },
+      "targets": [
+        {
+          "expr": "sum(rate(babycamera_iap_verify_total{region=~\"$region\"}[5m])) by (kind, result)",
+          "legendFormat": "{{kind}} {{result}}",
+          "refId": "A"
+        }
+      ],
+      "title": "IAP 校验吞吐",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": { "color": { "mode": "palette-classic" }, "unit": "ops" },
+        "overrides": []
+      },
+      "gridPos": { "h": 7, "w": 8, "x": 16, "y": 30 },
+      "id": 23,
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom" },
+        "tooltip": { "mode": "multi" }
+      },
+      "targets": [
+        {
+          "expr": "sum(rate(babycamera_ad_reward_total{region=~\"$region\"}[5m])) by (network, result)",
+          "legendFormat": "{{network}} {{result}}",
+          "refId": "A"
+        }
+      ],
+      "title": "广告激励回调",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "red", "value": 1 }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 6, "w": 12, "x": 0, "y": 37 },
+      "id": 24,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "reduceOptions": { "calcs": ["lastNotNull"] }
+      },
+      "targets": [
+        {
+          "expr": "sum(increase(babycamera_credit_reconciliation_discrepancy_total[24h])) by (domain)",
+          "legendFormat": "{{domain}}",
+          "refId": "A"
+        }
+      ],
+      "title": "积分对账差异（24h，任意 >0 即告警）",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": { "color": { "mode": "palette-classic" }, "unit": "dateTimeFromNow" },
+        "overrides": []
+      },
+      "gridPos": { "h": 6, "w": 12, "x": 12, "y": 37 },
+      "id": 25,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "reduceOptions": { "calcs": ["lastNotNull"] }
+      },
+      "targets": [
+        {
+          "expr": "max(babycamera_credit_reconciliation_last_run_timestamp_seconds) * 1000",
+          "legendFormat": "上次对账",
+          "refId": "A"
+        }
+      ],
+      "title": "积分对账上次运行时间",
+      "type": "stat"
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 43 },
+      "id": 30,
+      "title": "Feed",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": { "color": { "mode": "palette-classic" }, "unit": "reqps" },
+        "overrides": []
+      },
+      "gridPos": { "h": 7, "w": 8, "x": 0, "y": 44 },
+      "id": 31,
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom" },
+        "tooltip": { "mode": "multi" }
+      },
+      "targets": [
+        {
+          "expr": "sum(rate(traces_spanmetrics_calls_total{service_name=\"feed-svc\", region=~\"$region\"}[5m]))",
+          "legendFormat": "feed-svc RPS",
+          "refId": "A"
+        },
+        {
+          "expr": "sum(rate(babycamera_http_requests_total{service=\"feed-svc\", route=~\"/v1/feeds.*\", region=~\"$region\"}[5m]))",
+          "legendFormat": "feed list RPS",
+          "refId": "B"
+        }
+      ],
+      "title": "Feed RPS",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 0.5 },
+              { "color": "red", "value": 0.8 }
+            ]
+          },
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 7, "w": 8, "x": 8, "y": 44 },
+      "id": 32,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "reduceOptions": { "calcs": ["lastNotNull"] }
+      },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(babycamera_feed_request_duration_seconds_bucket{region=~\"$region\"}[5m])) by (le))",
+          "legendFormat": "P95 (/metrics)",
+          "refId": "A"
+        },
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(traces_spanmetrics_duration_milliseconds_bucket{service_name=\"feed-svc\", region=~\"$region\"}[5m])) by (le)) / 1000",
+          "legendFormat": "P95 (OTEL)",
+          "refId": "B"
+        }
+      ],
+      "title": "Feed 拉取 P95（阈值 800ms）",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": { "color": { "mode": "palette-classic" }, "unit": "s" },
+        "overrides": []
+      },
+      "gridPos": { "h": 7, "w": 8, "x": 16, "y": 44 },
+      "id": 33,
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom" },
+        "tooltip": { "mode": "multi" }
+      },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(babycamera_feed_request_duration_seconds_bucket{cache_hit=\"true\", region=~\"$region\"}[5m])) by (le))",
+          "legendFormat": "P95 缓存命中",
+          "refId": "A"
+        },
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(babycamera_feed_request_duration_seconds_bucket{cache_hit=\"false\", region=~\"$region\"}[5m])) by (le))",
+          "legendFormat": "P95 缓存未命中",
+          "refId": "B"
+        }
+      ],
+      "title": "Feed P95（缓存命中 vs 未命中）",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 51 },
+      "id": 40,
+      "title": "APNs 推送",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "max": 1,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "yellow", "value": 0.99 },
+              { "color": "green", "value": 0.995 }
+            ]
+          },
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 7, "w": 6, "x": 0, "y": 52 },
+      "id": 41,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "reduceOptions": { "calcs": ["lastNotNull"] }
+      },
+      "targets": [
+        {
+          "expr": "sum(rate(babycamera_apns_push_total{result=\"success\", region=~\"$region\"}[10m])) / sum(rate(babycamera_apns_push_total{result=~\"success|failed|unregistered\", region=~\"$region\"}[10m]))",
+          "legendFormat": "成功率",
+          "refId": "A"
+        }
+      ],
+      "title": "APNs 成功率（10m，阈值 99%）",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": { "color": { "mode": "palette-classic" }, "unit": "ops" },
+        "overrides": []
+      },
+      "gridPos": { "h": 7, "w": 10, "x": 6, "y": 52 },
+      "id": 42,
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom" },
+        "tooltip": { "mode": "multi" }
+      },
+      "targets": [
+        {
+          "expr": "sum(rate(babycamera_apns_push_total{region=~\"$region\"}[5m])) by (category, result)",
+          "legendFormat": "{{category}} {{result}}",
+          "refId": "A"
+        }
+      ],
+      "title": "APNs 推送吞吐",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": { "color": { "mode": "palette-classic" }, "unit": "ops" },
+        "overrides": []
+      },
+      "gridPos": { "h": 7, "w": 8, "x": 16, "y": 52 },
+      "id": 43,
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom" },
+        "tooltip": { "mode": "multi" }
+      },
+      "targets": [
+        {
+          "expr": "sum(rate(babycamera_apns_push_total{result=~\"failed|unregistered\", region=~\"$region\"}[5m])) by (category, result)",
+          "legendFormat": "{{category}} {{result}}",
+          "refId": "A"
+        }
+      ],
+      "title": "APNs 失败 / Token 失效",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 59 },
+      "id": 50,
+      "title": "采集健康",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "green", "value": 1 }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 6, "w": 24, "x": 0, "y": 60 },
+      "id": 51,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "reduceOptions": { "calcs": ["lastNotNull"] }
+      },
+      "targets": [
+        {
+          "expr": "up{job=~\"baobao-.*|otel-collector-spanmetrics\"}",
+          "legendFormat": "{{job}} {{instance}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Prometheus Scrape 目标 UP",
+      "type": "stat"
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 39,
+  "tags": ["babycamera", "v1", "t7.10", "overview"],
+  "templating": {
+    "list": [
+      {
+        "current": { "selected": true, "text": "All", "value": "$__all" },
+        "datasource": { "type": "prometheus", "uid": "prometheus" },
+        "definition": "label_values(traces_spanmetrics_calls_total, service_name)",
+        "includeAll": true,
+        "label": "Service",
+        "multi": true,
+        "name": "service",
+        "query": "label_values(traces_spanmetrics_calls_total, service_name)",
+        "refresh": 2,
+        "type": "query"
+      },
+      {
+        "current": { "selected": true, "text": "All", "value": "$__all" },
+        "datasource": { "type": "prometheus", "uid": "prometheus" },
+        "definition": "label_values(traces_spanmetrics_calls_total, region)",
+        "includeAll": true,
+        "label": "Region",
+        "multi": true,
+        "name": "region",
+        "query": "label_values(traces_spanmetrics_calls_total, region)",
+        "refresh": 2,
+        "type": "query"
+      }
+    ]
+  },
+  "time": { "from": "now-6h", "to": "now" },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "BabyCamera v1 Overview",
+  "uid": "babycamera-v1-overview",
+  "version": 1
+}

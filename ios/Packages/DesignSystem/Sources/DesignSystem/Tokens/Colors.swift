@@ -11,6 +11,7 @@ import UIKit
 /// - **UI 组件与图形**：与相邻背景 ≥ **3:1**
 ///
 /// 下方注释标注已验证的 AA 合规组合（浅色 / 深色各测一次）。
+/// 完整清单见 `DSColors+Accessibility.verifiedPairs`。
 public enum DSColors {
     // MARK: - Brand
 

@@ -1,0 +1,28 @@
+{
+  "priority": 1,
+  "request": {
+    "method": "GET",
+    "urlPath": "/v1/subscriptions/me"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "code": "OK",
+      "requestId": "req_mock_sub_me_none",
+      "data": {
+        "active": false,
+        "state": "none",
+        "cacheTtlSeconds": 600,
+        "entitlements": {
+          "removeAds": false,
+          "brandWatermarkRemovable": false,
+          "allFilters": false,
+          "annualReviewRegen": false
+        }
+      }
+    }
+  }
+}

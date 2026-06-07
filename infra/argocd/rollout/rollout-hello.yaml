@@ -1,0 +1,126 @@
+# Argo Rollouts — hello 服务蓝绿 + Canary 策略示例（T7.11）
+# 前置：集群已安装 argo-rollouts controller
+# 用法：kubectl apply -f infra/argocd/rollout/rollout-hello.yaml -n staging
+#
+# 蓝绿：preview Service 验证后手动 promote
+# Canary：5% → 25% → 100%，配合 scripts/ops/traffic-shift.sh
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: hello
+  labels:
+    app.kubernetes.io/name: hello
+    app.kubernetes.io/part-of: baobao
+    baobao.io/deployment-strategy: blue-green-canary
+spec:
+  replicas: 2
+  revisionHistoryLimit: 5
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: hello
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: hello
+        app.kubernetes.io/part-of: baobao
+    spec:
+      containers:
+        - name: hello
+          image: registry.example.com/baobao/hello:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+              name: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 3
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
+  strategy:
+    blueGreen:
+      activeService: hello-active
+      previewService: hello-preview
+      autoPromotionEnabled: false
+      scaleDownDelaySeconds: 30
+      prePromotionAnalysis:
+        templates:
+          - templateName: hello-success-rate
+        args:
+          - name: service-name
+            value: hello-preview
+      # Canary 步进（与 blueGreen 二选一；演练时通过 Helm values 切换 strategy）
+    # canary:
+    #   canaryService: hello-canary
+    #   stableService: hello-stable
+    #   trafficRouting:
+    #     apisix:
+    #       routeName: hello-api
+    #       namespace: gateway
+    #   steps:
+    #     - setWeight: 5
+    #     - pause: { duration: 5m }
+    #     - setWeight: 25
+    #     - pause: { duration: 10m }
+    #     - setWeight: 100
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hello-active
+  labels:
+    app.kubernetes.io/name: hello
+spec:
+  selector:
+    app.kubernetes.io/name: hello
+  ports:
+    - port: 80
+      targetPort: http
+      name: http
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hello-preview
+  labels:
+    app.kubernetes.io/name: hello
+spec:
+  selector:
+    app.kubernetes.io/name: hello
+  ports:
+    - port: 80
+      targetPort: http
+      name: http
+---
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata:
+  name: hello-success-rate
+spec:
+  metrics:
+    - name: success-rate
+      interval: 1m
+      count: 3
+      successCondition: result[0] >= 0.99
+      failureLimit: 1
+      provider:
+        prometheus:
+          address: http://prometheus.monitoring.svc:9090
+          query: |
+            sum(rate(http_requests_total{service="hello-preview",status=~"2.."}[2m]))
+            /
+            sum(rate(http_requests_total{service="hello-preview"}[2m]))

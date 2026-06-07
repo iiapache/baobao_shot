@@ -85,3 +85,25 @@ func (s *PostgresStore) HasChildConsent(ctx context.Context, userID, version str
 	}
 	return true, nil
 }
+
+func (s *PostgresStore) GetLatestChildConsent(ctx context.Context, userID string) (*model.ChildConsent, error) {
+	const q = `
+SELECT user_id, version, agreed_at, ip, device_id
+FROM child_consents
+WHERE user_id = $1
+ORDER BY agreed_at DESC
+LIMIT 1`
+
+	var record model.ChildConsent
+	err := s.db.QueryRowContext(ctx, q, userID).Scan(
+		&record.UserID, &record.Version, &record.AgreedAt, &record.IP, &record.DeviceID,
+	)
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, ErrNotFound
+	}
+	if err != nil {
+		return nil, fmt.Errorf("query latest child consent: %w", err)
+	}
+	record.AgreedAt = record.AgreedAt.UTC()
+	return &record, nil
+}

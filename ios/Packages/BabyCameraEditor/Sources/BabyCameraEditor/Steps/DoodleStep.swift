@@ -29,36 +29,55 @@ public struct DoodleStep: EditStep {
     public func apply(to image: CIImage) -> CIImage {
         guard points.count >= 2 else { return image }
 
-        // 内核占位：用线段端点间的小圆点近似涂鸦，T2.13 替换为矢量渲染。
         var output = image
         let extent = image.extent
+        let color = ColorHex.ciColor(from: strokeColorHex)
+        let radius = max(strokeWidth / 2, 0.5)
 
         for index in 1..<points.count {
-            let previous = points[index - 1]
-            let current = points[index]
-            let center = CGPoint(
-                x: extent.minX + extent.width * current.x,
-                y: extent.minY + extent.height * current.y
+            let start = points[index - 1]
+            let end = points[index]
+            let startPoint = CGPoint(
+                x: extent.minX + extent.width * start.x,
+                y: extent.minY + extent.height * start.y
             )
-            let radius = strokeWidth / 2
-            let dotRect = CGRect(
-                x: center.x - radius,
-                y: center.y - radius,
-                width: radius * 2,
-                height: radius * 2
+            let endPoint = CGPoint(
+                x: extent.minX + extent.width * end.x,
+                y: extent.minY + extent.height * end.y
             )
 
-            guard let dot = CIFilter(
-                name: "CIConstantColorGenerator",
-                parameters: [kCIInputColorKey: CIColor(red: 1, green: 0, blue: 0, alpha: 1)]
-            )?.outputImage?.cropped(to: dotRect) else {
-                continue
-            }
-
-            _ = previous
-            output = dot.composited(over: output)
+            let segment = strokeSegment(
+                from: startPoint,
+                to: endPoint,
+                radius: radius,
+                color: color
+            )
+            output = segment.composited(over: output)
         }
 
         return output
+    }
+
+    private func strokeSegment(from start: CGPoint, to end: CGPoint, radius: Double, color: CIColor) -> CIImage {
+        let dx = end.x - start.x
+        let dy = end.y - start.y
+        let length = max(hypot(dx, dy), radius * 2)
+        let angle = atan2(dy, dx)
+        let center = CGPoint(x: (start.x + end.x) / 2, y: (start.y + end.y) / 2)
+        let rect = CGRect(
+            x: center.x - length / 2,
+            y: center.y - radius,
+            width: length,
+            height: radius * 2
+        )
+
+        guard let capsule = CIFilter(
+            name: "CIConstantColorGenerator",
+            parameters: [kCIInputColorKey: color]
+        )?.outputImage?.cropped(to: rect) else {
+            return CIImage.empty()
+        }
+
+        return capsule.transformed(by: CGAffineTransform(rotationAngle: angle))
     }
 }

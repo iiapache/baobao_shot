@@ -127,7 +127,8 @@ HTTP 状态码与 `code` 配合使用：
 | POST | `/v1/account/logout` | 主动登出（撤销当前会话） |
 | GET | `/v1/account/me` | 获取当前用户基本信息 |
 | PATCH | `/v1/account/me` | 更新昵称 / 头像 |
-| POST | `/v1/account/consents/child-data` | 提交监护人同意 |
+| GET | `/v1/account/consents/child-data` | 查询同意状态（含 `currentVersion` / `requiresConsent`） |
+| POST | `/v1/account/consents/child-data` | 提交监护人同意（版本号 `child_consent_v1`） |
 | DELETE | `/v1/account` | 注销账号（异步处理 + 软删 + 7 天可撤销） |
 
 ### 3.2 请求 / 响应示例：`POST /v1/auth/apple`

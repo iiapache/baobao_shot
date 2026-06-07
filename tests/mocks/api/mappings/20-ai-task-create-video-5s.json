@@ -1,0 +1,40 @@
+{
+  "priority": 8,
+  "request": {
+    "method": "POST",
+    "urlPath": "/v1/ai/tasks",
+    "headers": {
+      "Authorization": {
+        "contains": "Bearer"
+      }
+    },
+    "bodyPatterns": [
+      {
+        "matchesJsonPath": "$.play",
+        "equalTo": "video_walk"
+      },
+      {
+        "matchesJsonPath": "$.params.duration",
+        "equalToJson": "5"
+      }
+    ]
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "code": "OK",
+      "message": "ok",
+      "requestId": "req_mock_ai_create_vid5",
+      "data": {
+        "taskId": "tsk_e2e_vid_5s",
+        "state": "credit_held",
+        "costCredits": 60,
+        "balanceAfter": 40,
+        "estimatedSeconds": 120
+      }
+    }
+  }
+}

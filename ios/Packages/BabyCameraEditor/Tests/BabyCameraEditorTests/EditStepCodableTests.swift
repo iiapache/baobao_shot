@@ -8,8 +8,8 @@ final class EditStepCodableTests: XCTestCase {
             .adjust(AdjustStep(parameters: AdjustParameters(brightness: 0.05, contrast: 1.1))),
             .crop(CropStep(rect: NormalizedRect(x: 0, y: 0, width: 0.5, height: 0.5))),
             .rotate(RotateStep(degrees: 90)),
-            .sticker(StickerStep(resourceID: "sticker_001", centerX: 0.5, centerY: 0.5)),
-            .text(TextStep(text: "宝宝百天", fontName: "PingFangSC-Regular")),
+            .sticker(StickerStep(resourceID: "sticker_cute_star", centerX: 0.5, centerY: 0.5)),
+            .text(TextStep(text: "宝宝百天", fontName: "BaobaoRounded-Regular", fontID: "font_baobao_rounded")),
             .mosaic(MosaicStep(region: NormalizedRect(x: 0.2, y: 0.2, width: 0.3, height: 0.3))),
             .doodle(DoodleStep(points: [DoodlePoint(x: 0.1, y: 0.1), DoodlePoint(x: 0.2, y: 0.2)])),
             .template(TemplateStep(

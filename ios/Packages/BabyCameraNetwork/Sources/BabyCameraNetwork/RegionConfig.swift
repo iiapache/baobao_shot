@@ -13,6 +13,15 @@ public enum AppRegion: String, Sendable, Codable {
         }
     }
 
+    public var webSocketBaseURL: URL {
+        switch self {
+        case .cn:
+            return URL(string: "wss://ws-cn.babygrowth.app")!
+        case .os:
+            return URL(string: "wss://ws-os.babygrowth.app")!
+        }
+    }
+
     public var headerValue: String { rawValue }
 }
 

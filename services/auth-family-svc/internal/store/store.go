@@ -72,6 +72,7 @@ type RecordChildConsentInput struct {
 type ConsentStore interface {
 	RecordChildConsent(ctx context.Context, in RecordChildConsentInput) (*model.ChildConsent, error)
 	HasChildConsent(ctx context.Context, userID, version string) (bool, error)
+	GetLatestChildConsent(ctx context.Context, userID string) (*model.ChildConsent, error)
 }
 
 // CreateFamilyInput holds fields for creating a family.

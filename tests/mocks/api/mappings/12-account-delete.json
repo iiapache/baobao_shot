@@ -1,0 +1,28 @@
+{
+  "priority": 5,
+  "request": {
+    "method": "DELETE",
+    "urlPath": "/v1/account",
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .+"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "code": "OK",
+      "message": "ok",
+      "requestId": "req_mock_account_delete",
+      "data": {
+        "requestedAt": "2026-06-06T10:00:00Z",
+        "scheduledAt": "2026-06-13T10:00:00Z",
+        "revokeBefore": "2026-06-13T10:00:00Z"
+      }
+    }
+  }
+}

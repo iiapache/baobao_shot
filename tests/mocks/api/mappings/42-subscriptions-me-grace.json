@@ -1,0 +1,38 @@
+{
+  "priority": 20,
+  "request": {
+    "method": "GET",
+    "urlPath": "/v1/subscriptions/me",
+    "headers": {
+      "X-E2E-Scenario": {
+        "equalTo": "sub_grace"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "code": "OK",
+      "requestId": "req_mock_sub_me_grace",
+      "data": {
+        "active": true,
+        "state": "grace",
+        "sku": "com.baobao.sub.monthly",
+        "periodStart": "2026-05-06T00:00:00Z",
+        "periodEnd": "2026-06-06T00:00:00Z",
+        "autoRenew": true,
+        "cacheTtlSeconds": 600,
+        "subscriptionId": "sub_e2e_grace",
+        "entitlements": {
+          "removeAds": true,
+          "brandWatermarkRemovable": true,
+          "allFilters": true,
+          "annualReviewRegen": true
+        }
+      }
+    }
+  }
+}

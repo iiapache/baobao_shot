@@ -65,6 +65,73 @@ final class ThumbnailGeneratorTests: XCTestCase {
 
         XCTAssertEqual(max(thumbnail.width, thumbnail.height), 256)
     }
+
+    func testLandscapeImageThumbnailLongestEdgeIs1024() throws {
+        let source = TestImageFactory.makeSolidColorImage(width: 3840, height: 2160, color: .green)
+        let thumbnail = try generator.generate(from: source, size: .medium)
+
+        XCTAssertEqual(max(thumbnail.width, thumbnail.height), 1024)
+    }
+
+    func testThumbnailSizeEnumMatchesPRDSpec() {
+        XCTAssertEqual(ThumbnailSize.small.maxEdgeLength, 256)
+        XCTAssertEqual(ThumbnailSize.medium.maxEdgeLength, 1024)
+        XCTAssertEqual(ThumbnailSize.allCases.count, 2)
+    }
+
+    func testGenerateDataHEICFormatWhenSupported() throws {
+        guard codec.isHEICSupported() else {
+            throw XCTSkip("HEIC encoding not supported on this platform")
+        }
+
+        let source = TestImageFactory.makeSolidColorImage(width: 2400, height: 1600, color: .red)
+        let jpegData = try codec.encode(image: source, format: .jpeg).data
+
+        let encoded = try generator.generateData(from: jpegData, size: .small, format: .heic)
+        let decoded = try codec.decode(data: encoded.data)
+
+        XCTAssertEqual(encoded.format, .heic)
+        XCTAssertFalse(encoded.didFallbackToJPEG)
+        XCTAssertLessThanOrEqual(max(decoded.width, decoded.height), ThumbnailSize.small.maxEdgeLength)
+    }
+
+    func testGenerateDataHEICFallbackToJPEG() throws {
+        let fallbackGenerator = ThumbnailGenerator(codec: FallbackImageCodec())
+        let source = TestImageFactory.makeSolidColorImage(width: 2000, height: 1500, color: .yellow)
+        let jpegData = try codec.encode(image: source, format: .jpeg).data
+
+        let encoded = try fallbackGenerator.generateData(from: jpegData, size: .medium, format: .heic)
+        let decoded = try codec.decode(data: encoded.data)
+
+        XCTAssertEqual(encoded.format, .jpeg)
+        XCTAssertTrue(encoded.didFallbackToJPEG)
+        XCTAssertLessThanOrEqual(max(decoded.width, decoded.height), ThumbnailSize.medium.maxEdgeLength)
+    }
+}
+
+// MARK: - Fallback Codec
+
+private struct FallbackImageCodec: ImageCodecProtocol {
+    func isHEICSupported() -> Bool { false }
+
+    func decode(data: Data) throws -> CGImage {
+        try ImageCodec().decode(data: data)
+    }
+
+    func encode(
+        image: CGImage,
+        format: ImageFormat,
+        quality: CGFloat
+    ) throws -> EncodedImage {
+        var inner = ImageCodec()
+        switch format {
+        case .jpeg:
+            return try inner.encode(image: image, format: .jpeg, quality: quality)
+        case .heic:
+            let result = try inner.encode(image: image, format: .jpeg, quality: quality)
+            return EncodedImage(data: result.data, format: .jpeg, didFallbackToJPEG: true)
+        }
+    }
 }
 
 // MARK: - Test Helpers

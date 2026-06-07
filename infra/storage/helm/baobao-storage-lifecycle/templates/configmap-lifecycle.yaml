@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "baobao-storage-lifecycle.fullname" . }}-lifecycle
+  labels:
+    {{- include "baobao-storage-lifecycle.labels" . | nindent 4 }}
+data:
+  oss-cn-lifecycle-rules.xml: |
+{{ .Files.Get "files/oss-cn-lifecycle-rules.xml" | indent 4 }}
+  s3-os-lifecycle-rules.json: |
+{{ .Files.Get "files/s3-os-lifecycle-rules.json" | indent 4 }}

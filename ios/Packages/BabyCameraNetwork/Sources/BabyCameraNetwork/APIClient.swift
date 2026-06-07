@@ -8,19 +8,22 @@ public struct APIClientConfiguration: Sendable {
     public let requestInterceptors: [RequestInterceptor]
     public let responseInterceptors: [ResponseInterceptor]
     public let refreshHandler: TokenRefreshHandler?
+    public let certificatePinning: CertificatePinningConfiguration
 
     public init(
         baseURL: URL,
         tokenStore: TokenStore,
         requestInterceptors: [RequestInterceptor] = [],
         responseInterceptors: [ResponseInterceptor] = [],
-        refreshHandler: TokenRefreshHandler? = nil
+        refreshHandler: TokenRefreshHandler? = nil,
+        certificatePinning: CertificatePinningConfiguration = .default
     ) {
         self.baseURL = baseURL
         self.tokenStore = tokenStore
         self.requestInterceptors = requestInterceptors
         self.responseInterceptors = responseInterceptors
         self.refreshHandler = refreshHandler
+        self.certificatePinning = certificatePinning
     }
 
     public static func standard(
@@ -28,7 +31,8 @@ public struct APIClientConfiguration: Sendable {
         tokenStore: TokenStore,
         regionConfig: RegionConfig,
         loggingInterceptor: LoggingInterceptor? = nil,
-        refreshHandler: TokenRefreshHandler? = nil
+        refreshHandler: TokenRefreshHandler? = nil,
+        certificatePinning: CertificatePinningConfiguration = .default
     ) -> APIClientConfiguration {
         var responseInterceptors: [ResponseInterceptor] = []
         if let loggingInterceptor {
@@ -42,7 +46,8 @@ public struct APIClientConfiguration: Sendable {
                 AuthInterceptor(tokenStore: tokenStore),
             ],
             responseInterceptors: responseInterceptors,
-            refreshHandler: refreshHandler
+            refreshHandler: refreshHandler,
+            certificatePinning: certificatePinning
         )
     }
 }
@@ -68,9 +73,11 @@ public final class APIClient: @unchecked Sendable {
     private let decoder: JSONDecoder
     private let refreshCoordinator = RefreshCoordinator()
 
-    public init(configuration: APIClientConfiguration, session: URLSession = .shared) {
+    public init(configuration: APIClientConfiguration, session: URLSession? = nil) {
         self.configuration = configuration
-        self.session = session
+        self.session = session ?? CertificatePinningSessionFactory.makeSession(
+            configuration: configuration.certificatePinning
+        )
         self.encoder = JSONEncoder()
         self.decoder = JSONDecoder()
     }

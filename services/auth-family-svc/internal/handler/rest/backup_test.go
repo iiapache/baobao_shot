@@ -1,6 +1,7 @@
 package rest
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -59,6 +60,11 @@ func TestBackupProviderFlow(t *testing.T) {
 	_ = json.Unmarshal(listData, &list)
 	if len(list.Items) != 1 {
 		t.Fatalf("list items = %d, want 1", len(list.Items))
+	}
+	if raw, err := mem.ListBackupProviders(context.Background(), userID); err != nil || len(raw) != 1 {
+		t.Fatalf("raw providers: %+v err=%v", raw, err)
+	} else if raw[0].AccessToken == "baidu-access" {
+		t.Fatal("access token stored in plaintext")
 	}
 
 	icloudBody, _ := json.Marshal(map[string]string{"kind": model.BackupProviderKindICloud})

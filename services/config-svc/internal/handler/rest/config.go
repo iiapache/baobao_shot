@@ -2,6 +2,7 @@ package rest
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/baobao/config-svc/internal/feature"
 	"github.com/baobao/config-svc/internal/middleware"
@@ -76,7 +77,12 @@ func (h *ConfigHandler) Features(w http.ResponseWriter, r *http.Request) {
 	snapshot := h.store.GetSnapshot()
 	results := make(map[string]feature.Result, len(snapshot.Features))
 	for _, def := range snapshot.Features {
-		results[def.Key] = feature.Evaluate(def, evalCtx)
+		result := feature.Evaluate(def, evalCtx)
+		if strings.HasPrefix(def.Key, "rollout.") {
+			pct := def.RolloutPercent
+			result.RolloutPercent = &pct
+		}
+		results[def.Key] = result
 	}
 
 	writeJSON(w, http.StatusOK, apiResponse{

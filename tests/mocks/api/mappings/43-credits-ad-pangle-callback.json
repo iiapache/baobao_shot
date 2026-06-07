@@ -1,0 +1,21 @@
+{
+  "request": {
+    "method": "POST",
+    "urlPath": "/v1/credits/ad-reward/pangle/callback"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "code": "OK",
+      "requestId": "req_mock_pangle_cb",
+      "data": {
+        "grantedCredits": 5,
+        "balanceAfter": 110,
+        "ledgerId": "led_pangle_001"
+      }
+    }
+  }
+}

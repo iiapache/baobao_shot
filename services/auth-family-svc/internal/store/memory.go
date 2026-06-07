@@ -3,6 +3,7 @@ package store
 import (
 	"context"
 	"fmt"
+	"strings"
 	"sync"
 	"time"
 
@@ -511,6 +512,25 @@ func (s *MemoryStore) HasChildConsent(_ context.Context, userID, version string)
 	defer s.mu.RUnlock()
 	_, ok := s.childConsents[consentKey(userID, version)]
 	return ok, nil
+}
+
+func (s *MemoryStore) GetLatestChildConsent(_ context.Context, userID string) (*model.ChildConsent, error) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	var latest *model.ChildConsent
+	for key, record := range s.childConsents {
+		if !strings.HasPrefix(key, userID+"|") {
+			continue
+		}
+		if latest == nil || record.AgreedAt.After(latest.AgreedAt) {
+			latest = record
+		}
+	}
+	if latest == nil {
+		return nil, ErrNotFound
+	}
+	return cloneChildConsent(latest), nil
 }
 
 func cloneChildConsent(c *model.ChildConsent) *model.ChildConsent {

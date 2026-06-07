@@ -226,6 +226,13 @@ final class LoggingRedactionTests: XCTestCase {
         XCTAssertFalse(redacted.contains("13800138000"))
         XCTAssertTrue(redacted.contains("[REDACTED]"))
     }
+
+    func testLogRedactorMasksAppleSub() {
+        let raw = #"{"appleSub":"000123.abc456def789.1234","accessToken":"tok"}"#
+        let redacted = LogRedactor.redact(raw)
+        XCTAssertFalse(redacted.contains("000123.abc456def789.1234"))
+        XCTAssertTrue(redacted.contains(#""appleSub":"[REDACTED]"#))
+    }
 }
 
 final class APIErrorTests: XCTestCase {

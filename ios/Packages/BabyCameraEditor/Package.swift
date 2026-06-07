@@ -7,8 +7,19 @@ let package = Package(
     products: [
         .library(name: "BabyCameraEditor", targets: ["BabyCameraEditor"]),
     ],
+    dependencies: [
+        .package(path: "../BabyCameraImageKit"),
+        .package(path: "../BabyCameraDiagnostics"),
+    ],
     targets: [
-        .target(name: "BabyCameraEditor"),
+        .target(
+            name: "BabyCameraEditor",
+            dependencies: [
+                "BabyCameraImageKit",
+                "BabyCameraDiagnostics",
+            ],
+            resources: [.process("Resources")]
+        ),
         .testTarget(
             name: "BabyCameraEditorTests",
             dependencies: ["BabyCameraEditor"]

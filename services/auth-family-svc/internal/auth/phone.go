@@ -7,7 +7,9 @@ import (
 	"fmt"
 	"log/slog"
 	"math/big"
+	"os"
 	"regexp"
+	"strings"
 	"time"
 
 	"github.com/baobao/auth-family-svc/internal/model"
@@ -103,7 +105,7 @@ func (s *PhoneAuthService) SendCode(ctx context.Context, phone, clientIP string)
 		return ErrRateLimited
 	}
 
-	code, err := generateNumericCode(codeDigits)
+	code, err := resolveVerificationCode(codeDigits)
 	if err != nil {
 		return fmt.Errorf("generate code: %w", err)
 	}
@@ -190,6 +192,13 @@ func (s *PhoneAuthService) Login(ctx context.Context, phone, code, clientIP, dev
 // ValidateCNPhone checks mainland China mobile format.
 func ValidateCNPhone(phone string) bool {
 	return cnPhonePattern.MatchString(phone)
+}
+
+func resolveVerificationCode(length int) (string, error) {
+	if fixed := strings.TrimSpace(os.Getenv("MOCK_SMS_FIXED_CODE")); len(fixed) == length {
+		return fixed, nil
+	}
+	return generateNumericCode(length)
 }
 
 func generateNumericCode(length int) (string, error) {

@@ -30,9 +30,11 @@ public struct CropStep: EditStep {
     public var kind: EditStepKind { .crop }
 
     public var rect: NormalizedRect
+    public var aspectRatio: CropAspectRatio
 
-    public init(rect: NormalizedRect) {
+    public init(rect: NormalizedRect, aspectRatio: CropAspectRatio = .free) {
         self.rect = rect
+        self.aspectRatio = aspectRatio
     }
 
     public func apply(to image: CIImage) -> CIImage {

@@ -1,0 +1,274 @@
+# BabyCamera v1 生产告警规则（T7.10）
+#
+# 部署：
+#   kubectl apply -f infra/monitoring/prometheus/alerts/babycamera-v1.yaml
+#
+# Alertmanager 路由（钉钉 / 飞书 / 电话）在 kube-prometheus-stack values 中配置：
+#   infra/monitoring/prometheus/alertmanager-config-snippet.yaml
+#
+# Webhook 占位（部署前替换）：
+#   DINGTALK_WEBHOOK_URL=https://oapi.dingtalk.com/robot/send?access_token=__REPLACE__
+#   FEISHU_WEBHOOK_URL=https://open.feishu.cn/open-apis/bot/v2/hook/__REPLACE__
+#   ONCALL_PHONE_WEBHOOK_URL=https://oncall.example.com/api/v1/alert/__REPLACE__
+
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: babycamera-v1
+  namespace: observability
+  labels:
+    release: prometheus
+    app.kubernetes.io/part-of: babycamera
+    app.kubernetes.io/component: monitoring
+spec:
+  groups:
+    - name: babycamera-v1.api
+      interval: 30s
+      rules:
+        - alert: BabyCameraAPIHigh5xxRate
+          expr: |
+            (
+              sum(rate(traces_spanmetrics_calls_total{http_status_code=~"5.."}[5m])) by (service_name)
+              /
+              sum(rate(traces_spanmetrics_calls_total[5m])) by (service_name)
+            ) > 0.01
+          for: 5m
+          labels:
+            severity: critical
+            team: backend
+            notify: dingtalk,feishu,phone
+          annotations:
+            summary: "服务 {{ $labels.service_name }} 5xx 占比 > 1%"
+            description: "过去 5 分钟 {{ $labels.service_name }} 5xx 占比为 {{ $value | humanizePercentage }}，超过 1% 阈值。"
+            runbook_url: "docs/ops/ONCALL_ROSTER_TEMPLATE.md"
+            dingtalk_webhook: "${DINGTALK_WEBHOOK_URL}"
+            feishu_webhook: "${FEISHU_WEBHOOK_URL}"
+            phone_webhook: "${ONCALL_PHONE_WEBHOOK_URL}"
+
+        - alert: BabyCameraGatewayHigh5xxRate
+          expr: |
+            sum(rate(apisix_http_status{code=~"5.."}[5m]))
+            /
+            sum(rate(apisix_http_status[5m])) > 0.01
+          for: 5m
+          labels:
+            severity: critical
+            team: infra
+            notify: dingtalk,feishu,phone
+          annotations:
+            summary: "API 网关 5xx 占比 > 1%"
+            description: "APISIX 网关全局 5xx 占比为 {{ $value | humanizePercentage }}。"
+            dingtalk_webhook: "${DINGTALK_WEBHOOK_URL}"
+            feishu_webhook: "${FEISHU_WEBHOOK_URL}"
+            phone_webhook: "${ONCALL_PHONE_WEBHOOK_URL}"
+
+        - alert: BabyCameraServiceHighP95Latency
+          expr: |
+            histogram_quantile(0.95,
+              sum(rate(traces_spanmetrics_duration_milliseconds_bucket[5m])) by (le, service_name)
+            ) > 2000
+          for: 10m
+          labels:
+            severity: warning
+            team: backend
+            notify: dingtalk,feishu
+          annotations:
+            summary: "服务 {{ $labels.service_name }} P95 延迟 > 2s"
+            description: "{{ $labels.service_name }} HTTP P95 延迟为 {{ $value }}ms，持续 10 分钟。"
+            dingtalk_webhook: "${DINGTALK_WEBHOOK_URL}"
+            feishu_webhook: "${FEISHU_WEBHOOK_URL}"
+
+    - name: babycamera-v1.ai
+      interval: 30s
+      rules:
+        - alert: BabyCameraAITaskLowSuccessRate
+          expr: |
+            (
+              sum(rate(babycamera_ai_task_total{status="success"}[10m]))
+              /
+              sum(rate(babycamera_ai_task_total{status=~"success|failed|rejected|timeout"}[10m]))
+            ) < 0.95
+          for: 10m
+          labels:
+            severity: critical
+            team: ai
+            notify: dingtalk,feishu,phone
+          annotations:
+            summary: "AI 任务成功率 < 95%"
+            description: "过去 10 分钟 AI 任务成功率为 {{ $value | humanizePercentage }}，低于 95% 阈值。"
+            dingtalk_webhook: "${DINGTALK_WEBHOOK_URL}"
+            feishu_webhook: "${FEISHU_WEBHOOK_URL}"
+            phone_webhook: "${ONCALL_PHONE_WEBHOOK_URL}"
+
+        - alert: BabyCameraAIImageP95TooSlow
+          expr: |
+            histogram_quantile(0.95,
+              sum(rate(babycamera_ai_task_duration_seconds_bucket{capability="image"}[5m])) by (le)
+            ) > 60
+          for: 10m
+          labels:
+            severity: warning
+            team: ai
+            notify: dingtalk,feishu
+          annotations:
+            summary: "AI 图片任务 P95 > 60s"
+            description: "图片类 AI 任务 P95 完成时间为 {{ $value }}s。"
+            dingtalk_webhook: "${DINGTALK_WEBHOOK_URL}"
+            feishu_webhook: "${FEISHU_WEBHOOK_URL}"
+
+        - alert: BabyCameraAIVideoP95TooSlow
+          expr: |
+            histogram_quantile(0.95,
+              sum(rate(babycamera_ai_task_duration_seconds_bucket{capability="video"}[5m])) by (le)
+            ) > 300
+          for: 10m
+          labels:
+            severity: warning
+            team: ai
+            notify: dingtalk,feishu
+          annotations:
+            summary: "AI 视频任务 P95 > 5min"
+            description: "视频类 AI 任务 P95 完成时间为 {{ $value }}s。"
+            dingtalk_webhook: "${DINGTALK_WEBHOOK_URL}"
+            feishu_webhook: "${FEISHU_WEBHOOK_URL}"
+
+    - name: babycamera-v1.commerce
+      interval: 30s
+      rules:
+        - alert: BabyCameraIAPVerifyHighFailureRate
+          expr: |
+            (
+              sum(rate(babycamera_iap_verify_total{result="failed"}[5m]))
+              /
+              sum(rate(babycamera_iap_verify_total{result=~"success|failed"}[5m]))
+            ) > 0.005
+          for: 5m
+          labels:
+            severity: critical
+            team: commerce
+            notify: dingtalk,feishu,phone
+          annotations:
+            summary: "IAP 校验失败率 > 0.5%"
+            description: "IAP 校验失败率为 {{ $value | humanizePercentage }}。"
+            dingtalk_webhook: "${DINGTALK_WEBHOOK_URL}"
+            feishu_webhook: "${FEISHU_WEBHOOK_URL}"
+            phone_webhook: "${ONCALL_PHONE_WEBHOOK_URL}"
+
+        - alert: BabyCameraAdRewardHighFailureRate
+          expr: |
+            (
+              sum(rate(babycamera_ad_reward_total{result="failed"}[5m]))
+              /
+              sum(rate(babycamera_ad_reward_total{result=~"success|failed"}[5m]))
+            ) > 0.01
+          for: 10m
+          labels:
+            severity: warning
+            team: commerce
+            notify: dingtalk,feishu
+          annotations:
+            summary: "广告激励回调失败率 > 1%"
+            description: "广告激励回调失败率为 {{ $value | humanizePercentage }}。"
+            dingtalk_webhook: "${DINGTALK_WEBHOOK_URL}"
+            feishu_webhook: "${FEISHU_WEBHOOK_URL}"
+
+        - alert: BabyCameraCreditReconciliationDiscrepancy
+          expr: increase(babycamera_credit_reconciliation_discrepancy_total[1h]) > 0
+          for: 0m
+          labels:
+            severity: critical
+            team: commerce
+            notify: dingtalk,feishu,phone
+          annotations:
+            summary: "积分对账发现差异（domain={{ $labels.domain }}）"
+            description: "过去 1 小时积分对账在 {{ $labels.domain }} 域发现 {{ $value }} 条差异，需立即核查审计表 credit_reconciliation_runs。"
+            dingtalk_webhook: "${DINGTALK_WEBHOOK_URL}"
+            feishu_webhook: "${FEISHU_WEBHOOK_URL}"
+            phone_webhook: "${ONCALL_PHONE_WEBHOOK_URL}"
+
+        - alert: BabyCameraCreditReconciliationStale
+          expr: (time() - max(babycamera_credit_reconciliation_last_run_timestamp_seconds)) > 90000
+          for: 15m
+          labels:
+            severity: warning
+            team: commerce
+            notify: dingtalk,feishu
+          annotations:
+            summary: "积分对账任务超过 25 小时未运行"
+            description: "上次对账距今 {{ $value | humanizeDuration }}，请检查 credit-sub-ad-svc cron。"
+            dingtalk_webhook: "${DINGTALK_WEBHOOK_URL}"
+            feishu_webhook: "${FEISHU_WEBHOOK_URL}"
+
+    - name: babycamera-v1.feed
+      interval: 30s
+      rules:
+        - alert: BabyCameraFeedP95TooSlow
+          expr: |
+            histogram_quantile(0.95,
+              sum(rate(babycamera_feed_request_duration_seconds_bucket[5m])) by (le)
+            ) > 0.8
+          for: 10m
+          labels:
+            severity: warning
+            team: backend
+            notify: dingtalk,feishu
+          annotations:
+            summary: "Feed 拉取 P95 > 800ms"
+            description: "Feed 列表 P95 延迟为 {{ $value }}s。"
+            dingtalk_webhook: "${DINGTALK_WEBHOOK_URL}"
+            feishu_webhook: "${FEISHU_WEBHOOK_URL}"
+
+        - alert: BabyCameraFeedP95TooSlowOTEL
+          expr: |
+            histogram_quantile(0.95,
+              sum(rate(traces_spanmetrics_duration_milliseconds_bucket{service_name="feed-svc"}[5m])) by (le)
+            ) > 800
+          for: 10m
+          labels:
+            severity: warning
+            team: backend
+            notify: dingtalk,feishu
+          annotations:
+            summary: "feed-svc OTEL P95 > 800ms（兜底）"
+            description: "feed-svc spanmetrics P95 为 {{ $value }}ms。"
+            dingtalk_webhook: "${DINGTALK_WEBHOOK_URL}"
+            feishu_webhook: "${FEISHU_WEBHOOK_URL}"
+
+    - name: babycamera-v1.notification
+      interval: 30s
+      rules:
+        - alert: BabyCameraAPNsHighFailureRate
+          expr: |
+            (
+              sum(rate(babycamera_apns_push_total{result=~"failed|unregistered"}[10m]))
+              /
+              sum(rate(babycamera_apns_push_total{result=~"success|failed|unregistered"}[10m]))
+            ) > 0.01
+          for: 10m
+          labels:
+            severity: critical
+            team: backend
+            notify: dingtalk,feishu,phone
+          annotations:
+            summary: "APNs 推送失败率 > 1%"
+            description: "APNs 推送失败率为 {{ $value | humanizePercentage }}。"
+            dingtalk_webhook: "${DINGTALK_WEBHOOK_URL}"
+            feishu_webhook: "${FEISHU_WEBHOOK_URL}"
+            phone_webhook: "${ONCALL_PHONE_WEBHOOK_URL}"
+
+    - name: babycamera-v1.infra
+      interval: 30s
+      rules:
+        - alert: BabyCameraMetricsScrapeDown
+          expr: up{job=~"baobao-.*|otel-collector-spanmetrics"} == 0
+          for: 5m
+          labels:
+            severity: critical
+            team: infra
+            notify: dingtalk,feishu,phone
+          annotations:
+            summary: "Prometheus scrape 目标 DOWN（{{ $labels.job }}）"
+            description: "{{ $labels.job }} / {{ $labels.instance }} 连续 5 分钟不可达。"
+            dingtalk_webhook: "${DINGTALK_WEBHOOK_URL}"
+            feishu_webhook: "${FEISHU_WEBHOOK_URL}"
+            phone_webhook: "${ONCALL_PHONE_WEBHOOK_URL}"

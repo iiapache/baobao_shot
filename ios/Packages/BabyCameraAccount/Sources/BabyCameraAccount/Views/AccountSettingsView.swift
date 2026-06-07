@@ -12,19 +12,20 @@ public struct AccountSettingsView: View {
     public var body: some View {
         List {
             if let session = coordinator.session {
-                Section("账号") {
+                Section(L10n.string("account.section")) {
                     DSListRow(
                         icon: "person.circle.fill",
-                        title: session.profile?.nickname ?? "未设置昵称",
+                        title: session.profile?.nickname ?? L10n.string("account.nickname_unset"),
                         subtitle: session.userId
                     )
                 }
             }
 
             Section {
-                DSButton("退出登录", style: .secondary) {
+                DSButton(L10n.string("account.logout"), style: .secondary) {
                     Task { await coordinator.handleLogout() }
                 }
+                .accessibilityIdentifier("logoutButton")
                 .listRowInsets(EdgeInsets())
                 .listRowBackground(Color.clear)
             }
@@ -37,11 +38,12 @@ public struct AccountSettingsView: View {
                         Task { await coordinator.handleLogout() }
                     }
                 } label: {
-                    Label("注销账号", systemImage: "trash")
+                    Label(L10n.string("account.delete.link"), systemImage: "trash")
                         .foregroundStyle(DSColors.error)
                 }
+                .accessibilityIdentifier("deleteAccountLink")
             }
         }
-        .navigationTitle("账号设置")
+        .navigationTitle(L10n.string("account.settings.title"))
     }
 }

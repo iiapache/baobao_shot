@@ -1,0 +1,32 @@
+{
+  "priority": 10,
+  "scenarioName": "ai_slow_network_poll",
+  "requiredScenarioState": "Started",
+  "newScenarioState": "running_1",
+  "request": {
+    "method": "GET",
+    "urlPath": "/v1/ai/tasks/tsk_e2e_slow_net",
+    "headers": {
+      "Authorization": {
+        "contains": "Bearer"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "code": "OK",
+      "message": "ok",
+      "requestId": "req_mock_ai_get_slow_1",
+      "data": {
+        "taskId": "tsk_e2e_slow_net",
+        "state": "running",
+        "costCredits": 8,
+        "balanceAfter": 92
+      }
+    }
+  }
+}

@@ -192,6 +192,19 @@ paths:
                 $ref: '../components/common.yaml#/components/schemas/ApiResponse'
 
   /v1/account/consents/child-data:
+    get:
+      tags: [account]
+      summary: 查询儿童信息同意状态（含版本升级检测）
+      operationId: accountGetChildConsent
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 查询成功
+          content:
+            application/json:
+              schema:
+                $ref: '../components/common.yaml#/components/schemas/ApiResponse'
     post:
       tags: [account]
       summary: 提交监护人同意

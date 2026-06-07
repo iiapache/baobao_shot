@@ -1,0 +1,44 @@
+# T3.2 — 双区对象存储生命周期与删除对账 Cron
+# 部署：
+#   helm upgrade --install storage-lifecycle ./infra/storage/helm/baobao-storage-lifecycle \
+#     -n baobao-infra --create-namespace \
+#     -f infra/storage/helm/baobao-storage-lifecycle/values-ack-cn.yaml
+
+reconcile:
+  enabled: true
+  schedule: "*/15 * * * *"
+  dryRun: true
+  region: cn
+  source: file
+  # 生产：挂载 MNS/SQS 消费 sidecar 或 ExternalSecret 注入队列凭据
+  eventsFile: ""
+
+image:
+  repository: alpine
+  tag: "3.20"
+  pullPolicy: IfNotPresent
+
+lifecycle:
+  # ConfigMap 挂载仓库内规则文件路径（Job 手动 apply 时使用）
+  ossRulesFile: lifecycle/oss-cn-lifecycle-rules.xml
+  s3RulesFile: lifecycle/s3-os-lifecycle-rules.json
+  ossBucket: baby-camera-cn
+  s3Bucket: baby-camera-os
+  awsRegion: ap-southeast-1
+
+serviceAccount:
+  create: true
+  name: ""
+  annotations: {}
+
+resources:
+  requests:
+    cpu: 10m
+    memory: 32Mi
+  limits:
+    cpu: 100m
+    memory: 64Mi
+
+nodeSelector: {}
+tolerations: []
+affinity: {}

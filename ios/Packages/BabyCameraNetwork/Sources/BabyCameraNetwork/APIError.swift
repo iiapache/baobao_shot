@@ -25,6 +25,8 @@ public enum APIErrorCode: String, Codable, Sendable, CaseIterable {
     case familyInviteUsedUp = "FAMILY_INVITE_USED_UP"
     case familyMemberLimit = "FAMILY_MEMBER_LIMIT"
     case familyNotAdmin = "FAMILY_NOT_ADMIN"
+    case familyAlreadyMember = "FAMILY_ALREADY_MEMBER"
+    case familyNotFound = "FAMILY_NOT_FOUND"
 
     // BABY_*
     case babyNotFound = "BABY_NOT_FOUND"
@@ -38,6 +40,9 @@ public enum APIErrorCode: String, Codable, Sendable, CaseIterable {
     case aiInputNotFound = "AI_INPUT_NOT_FOUND"
     case aiRateLimited = "AI_RATE_LIMITED"
     case aiAuditRejected = "AI_AUDIT_REJECTED"
+    case aiAppealNotAllowed = "AI_APPEAL_NOT_ALLOWED"
+    case aiAppealDuplicate = "AI_APPEAL_DUPLICATE"
+    case aiTaskNotFound = "AI_TASK_NOT_FOUND"
 
     // POST_*
     case postItemLimit = "POST_ITEM_LIMIT"

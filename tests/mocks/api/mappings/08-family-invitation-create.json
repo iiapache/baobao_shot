@@ -1,0 +1,34 @@
+{
+  "priority": 5,
+  "request": {
+    "method": "POST",
+    "urlPathPattern": "/v1/families/.+/invitations",
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .+"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "code": "OK",
+      "message": "ok",
+      "requestId": "req_mock_invite_create",
+      "data": {
+        "code": "888888",
+        "expireAt": "2026-12-31T23:59:59Z",
+        "maxUses": 8,
+        "usedCount": 0,
+        "qrPayload": {
+          "scheme": "baobao://invite",
+          "code": "888888",
+          "sig": "mock_sig_e2e"
+        }
+      }
+    }
+  }
+}

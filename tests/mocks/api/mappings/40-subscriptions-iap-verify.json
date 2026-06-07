@@ -1,0 +1,34 @@
+{
+  "request": {
+    "method": "POST",
+    "urlPath": "/v1/subscriptions/iap-verify",
+    "bodyPatterns": [
+      { "matchesJsonPath": "$.transactionId" },
+      { "matchesJsonPath": "$.productId" }
+    ]
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "code": "OK",
+      "requestId": "req_mock_sub_iap_verify",
+      "data": {
+        "subscriptionId": "sub_e2e_mock",
+        "state": "active",
+        "sku": "com.baobao.sub.monthly",
+        "periodStart": "2026-06-06T00:00:00Z",
+        "periodEnd": "2026-07-06T00:00:00Z",
+        "autoRenew": true,
+        "entitlements": {
+          "removeAds": true,
+          "brandWatermarkRemovable": true,
+          "allFilters": true,
+          "annualReviewRegen": true
+        }
+      }
+    }
+  }
+}

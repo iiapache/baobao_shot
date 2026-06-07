@@ -1,0 +1,38 @@
+{
+  "priority": 10,
+  "scenarioName": "ai_slow_network_poll",
+  "requiredScenarioState": "running_2",
+  "newScenarioState": "succeeded",
+  "request": {
+    "method": "GET",
+    "urlPath": "/v1/ai/tasks/tsk_e2e_slow_net",
+    "headers": {
+      "Authorization": {
+        "contains": "Bearer"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "code": "OK",
+      "message": "ok",
+      "requestId": "req_mock_ai_get_slow_done",
+      "data": {
+        "taskId": "tsk_e2e_slow_net",
+        "state": "succeeded",
+        "resultUrl": "http://localhost:18080/mock-ai/result/tsk_e2e_slow_net.heic",
+        "thumbnailUrl": "http://localhost:18080/mock-ai/result/tsk_e2e_slow_net-thumb.jpg",
+        "deepSynth": {
+          "watermark": "v1",
+          "manifest": "c2pa-v1"
+        },
+        "costCredits": 8,
+        "balanceAfter": 92
+      }
+    }
+  }
+}

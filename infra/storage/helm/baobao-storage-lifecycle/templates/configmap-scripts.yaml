@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "baobao-storage-lifecycle.fullname" . }}-scripts
+  labels:
+    {{- include "baobao-storage-lifecycle.labels" . | nindent 4 }}
+data:
+  reconcile-deletes.sh: |
+{{ .Files.Get "files/reconcile-deletes.sh" | indent 4 }}
+  verify-lifecycle.sh: |
+{{ .Files.Get "files/verify-lifecycle.sh" | indent 4 }}

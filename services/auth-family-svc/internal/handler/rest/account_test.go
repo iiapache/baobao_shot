@@ -65,6 +65,69 @@ func TestAccountGetMeWithoutConsent(t *testing.T) {
 	}
 }
 
+func TestAccountGetChildDataConsentStatus(t *testing.T) {
+	router, mem := newTestRouter(t)
+	userID := "usr_consent_status"
+	seedUser(t, mem, userID)
+
+	rec := httptest.NewRecorder()
+	router.ServeHTTP(rec, authRequest(http.MethodGet, "/v1/account/consents/child-data", nil, userID))
+	if rec.Code != http.StatusOK {
+		t.Fatalf("status = %d body = %s", rec.Code, rec.Body.String())
+	}
+	resp, _ := decodeAPIResponse(rec.Body.Bytes())
+	data, _ := json.Marshal(resp.Data)
+	var status childConsentStatusData
+	if err := json.Unmarshal(data, &status); err != nil {
+		t.Fatal(err)
+	}
+	if status.CurrentVersion != consent.CurrentConsentVersion {
+		t.Fatalf("currentVersion = %q", status.CurrentVersion)
+	}
+	if status.Agreed || !status.RequiresConsent {
+		t.Fatalf("expected requires consent before submit: %+v", status)
+	}
+
+	submitConsent(t, router, userID)
+
+	rec = httptest.NewRecorder()
+	router.ServeHTTP(rec, authRequest(http.MethodGet, "/v1/account/consents/child-data", nil, userID))
+	resp, _ = decodeAPIResponse(rec.Body.Bytes())
+	data, _ = json.Marshal(resp.Data)
+	_ = json.Unmarshal(data, &status)
+	if !status.Agreed || status.RequiresConsent {
+		t.Fatalf("expected valid consent after submit: %+v", status)
+	}
+	if status.AgreedVersion == nil || *status.AgreedVersion != consent.CurrentConsentVersion {
+		t.Fatalf("agreedVersion = %v", status.AgreedVersion)
+	}
+}
+
+func TestAccountGetChildDataConsentStatusStaleVersion(t *testing.T) {
+	router, mem := newTestRouter(t)
+	userID := "usr_consent_stale"
+	seedUser(t, mem, userID)
+
+	if _, err := mem.RecordChildConsent(t.Context(), store.RecordChildConsentInput{
+		UserID: userID, Version: "child_consent_v0", AgreedAt: time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC),
+	}); err != nil {
+		t.Fatal(err)
+	}
+
+	rec := httptest.NewRecorder()
+	router.ServeHTTP(rec, authRequest(http.MethodGet, "/v1/account/consents/child-data", nil, userID))
+	resp, _ := decodeAPIResponse(rec.Body.Bytes())
+	data, _ := json.Marshal(resp.Data)
+	var status childConsentStatusData
+	_ = json.Unmarshal(data, &status)
+	if status.Agreed || !status.RequiresConsent {
+		t.Fatalf("stale version should require re-consent: %+v", status)
+	}
+	if status.AgreedVersion == nil || *status.AgreedVersion != "child_consent_v0" {
+		t.Fatalf("agreedVersion = %v", status.AgreedVersion)
+	}
+}
+
 func TestAccountSubmitChildDataConsentAndGetMe(t *testing.T) {
 	router, mem := newTestRouter(t)
 	userID := "usr_me_with_consent"

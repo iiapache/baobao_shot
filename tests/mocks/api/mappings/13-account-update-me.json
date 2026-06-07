@@ -1,0 +1,32 @@
+{
+  "priority": 5,
+  "request": {
+    "method": "PATCH",
+    "urlPath": "/v1/account/me",
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .+"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "code": "OK",
+      "message": "ok",
+      "requestId": "req_mock_account_update",
+      "data": {
+        "nickname": "{{jsonPath request.body '$.nickname'}}",
+        "avatarUrl": null,
+        "region": "cn",
+        "consents": {
+          "childData": false
+        }
+      }
+    },
+    "transformers": ["response-template"]
+  }
+}

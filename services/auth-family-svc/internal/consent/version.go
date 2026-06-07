@@ -1,5 +1,5 @@
 package consent
 
 // CurrentConsentVersion is the active child-data consent document version.
-// Bump when legal text changes to require re-consent.
-const CurrentConsentVersion = "2026.06.01"
+// Bump when compliance/policies/child-data-consent-*.md changes to require re-consent.
+const CurrentConsentVersion = "child_consent_v1"

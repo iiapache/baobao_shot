@@ -1,0 +1,28 @@
+{
+  "priority": 5,
+  "request": {
+    "method": "POST",
+    "urlPath": "/v1/credits/iap-verify",
+    "bodyPatterns": [
+      { "matchesJsonPath": "$.transactionId" },
+      { "matchesJsonPath": "$.productId" }
+    ]
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "code": "OK",
+      "requestId": "req_mock_iap_verify",
+      "data": {
+        "grantedCredits": 100,
+        "balanceAfter": 200,
+        "transactionId": "{{jsonPath request.body '$.transactionId'}}",
+        "ledgerId": "led_iap_mock_001"
+      }
+    },
+    "transformers": ["response-template"]
+  }
+}

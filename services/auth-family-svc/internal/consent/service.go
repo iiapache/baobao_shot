@@ -2,6 +2,7 @@ package consent
 
 import (
 	"context"
+	"errors"
 	"strings"
 	"time"
 
@@ -46,4 +47,45 @@ func (s *Service) RecordChildDataConsent(ctx context.Context, userID, version st
 // HasValidChildDataConsent reports whether the user agreed to the current consent version.
 func (s *Service) HasValidChildDataConsent(ctx context.Context, userID string) (bool, error) {
 	return s.store.HasChildConsent(ctx, userID, CurrentConsentVersion)
+}
+
+// ChildDataConsentStatus is the consent state exposed to clients for version-upgrade detection.
+type ChildDataConsentStatus struct {
+	CurrentVersion  string
+	AgreedVersion   *string
+	Agreed          bool
+	AgreedAt        *time.Time
+	RequiresConsent bool
+}
+
+// GetChildDataConsentStatus returns the active document version and the user's latest agreement.
+func (s *Service) GetChildDataConsentStatus(ctx context.Context, userID string) (*ChildDataConsentStatus, error) {
+	hasCurrent, err := s.store.HasChildConsent(ctx, userID, CurrentConsentVersion)
+	if err != nil {
+		return nil, err
+	}
+
+	status := &ChildDataConsentStatus{
+		CurrentVersion:  CurrentConsentVersion,
+		Agreed:          hasCurrent,
+		RequiresConsent: !hasCurrent,
+	}
+
+	latest, err := s.store.GetLatestChildConsent(ctx, userID)
+	if errors.Is(err, store.ErrNotFound) {
+		return status, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	version := latest.Version
+	status.AgreedVersion = &version
+	agreedAt := latest.AgreedAt.UTC()
+	status.AgreedAt = &agreedAt
+	if latest.Version != CurrentConsentVersion {
+		status.Agreed = false
+		status.RequiresConsent = true
+	}
+	return status, nil
 }

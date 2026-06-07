@@ -20,8 +20,16 @@ tests/
 │   ├── smoke.env.example
 │   ├── baobao-p0-smoke.postman_collection.json
 │   └── README.md
-└── performance/
-    └── device-matrix.md      # iPhone 12 / 16 等基线机型
+├── e2e/                      # P1 端到端（T1.20）
+│   ├── e2e.sh
+│   ├── baobao-p1-e2e.postman_collection.json
+│   └── ios/                  # XCUITest 源文件
+└── performance/              # T7.6 性能压测基准
+    ├── README.md
+    ├── device-matrix.md      # iPhone 12 / 16 等基线机型
+    ├── benchmark-feed.sh
+    ├── benchmark-ai-mock.sh
+    └── PERF_BASELINE_REPORT_TEMPLATE.md
 ```
 
 ## 快速开始（P0 验收）
@@ -66,12 +74,20 @@ sequenceDiagram
 | [staging/README.md](./staging/README.md) | 双区域 staging 域名、请求头、VPN 访问 |
 | [accounts/test-accounts.yaml](./accounts/test-accounts.yaml) | 手机号 / Apple / 微信 / IAP 测试账号占位 |
 | [mocks/README.md](./mocks/README.md) | docker compose 启动三方 Mock |
+| [performance/README.md](./performance/README.md) | T7.6 性能压测基准与复现 |
 | [performance/device-matrix.md](./performance/device-matrix.md) | 性能基线机型与预算 |
 
 ## 后续扩展（P1+）
 
+- `e2e/` — P1 端到端（T1.20）：[e2e/README.md](./e2e/README.md)
 - `integration/` — 跨服务契约测试（待 P1 微服务就绪）
-- `e2e/` — XCUITest + staging 回归（T1.20）
+
+## P1 E2E 快速开始
+
+```bash
+cd tests/mocks && docker compose up -d mock-api   # 或 python3 api/mock_server.py
+cd ../e2e && chmod +x e2e.sh && ./e2e.sh
+```
 
 ## 验收自检清单
 
@@ -87,4 +103,4 @@ sequenceDiagram
 
 - T0.20：本目录
 - T0.8：staging 监控 — [infra/observability](../infra/observability/)
-- T1.20：登录 → 家庭 → 宝宝 E2E（扩展 smoke）
+- T1.20：登录 → 家庭 → 宝宝 E2E — [e2e/](./e2e/)

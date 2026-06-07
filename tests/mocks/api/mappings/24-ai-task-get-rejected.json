@@ -1,0 +1,30 @@
+{
+  "priority": 10,
+  "request": {
+    "method": "GET",
+    "urlPath": "/v1/ai/tasks/tsk_e2e_rejected",
+    "headers": {
+      "Authorization": {
+        "contains": "Bearer"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "code": "OK",
+      "message": "ok",
+      "requestId": "req_mock_ai_get_rejected",
+      "data": {
+        "taskId": "tsk_e2e_rejected",
+        "state": "rejected",
+        "failureReason": "该内容不符合社区规范",
+        "costCredits": 8,
+        "balanceAfter": 100
+      }
+    }
+  }
+}

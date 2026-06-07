@@ -58,8 +58,12 @@ outbound:
 | POST | `/v1/uploads/complete` | uploadComplete |
 | POST | `/v1/posts` | postCreate |
 | GET | `/health` | — |
+| GET | `/v1/ai/plays` | aiListPlays |
+| POST | `/v1/ai/tasks` | aiCreateTask |
+| GET | `/v1/ai/tasks/{taskId}` | aiGetTask |
+| POST | `/v1/ai/tasks/{taskId}/appeal` | aiAppealTask |
 
-映射文件：`api/mappings/`。
+映射文件：`api/mappings/`（P1: `07`–`15`；P3 AI: `16`–`33`）。
 
 ## 健康检查
 

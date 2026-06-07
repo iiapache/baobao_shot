@@ -1,0 +1,26 @@
+{
+  "priority": 10,
+  "scenarioName": "p4_sign_in",
+  "requiredScenarioState": "Started",
+  "newScenarioState": "signed",
+  "request": {
+    "method": "POST",
+    "urlPath": "/v1/credits/sign-in"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "code": "OK",
+      "requestId": "req_mock_sign_in",
+      "data": {
+        "grantedCredits": 5,
+        "balanceAfter": 105,
+        "streak": 1,
+        "ledgerId": "led_sign_001"
+      }
+    }
+  }
+}

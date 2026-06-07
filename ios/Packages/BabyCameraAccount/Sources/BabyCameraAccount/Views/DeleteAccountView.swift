@@ -20,52 +20,53 @@ public struct DeleteAccountView: View {
     public var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: DSSpacing.lg) {
-                Text("注销账号")
+                Text(L10n.localizedKey("account.delete.title"))
                     .font(DSTypography.title)
                     .foregroundStyle(DSColors.textPrimary)
 
-                Text("注销后 7 天内可撤销。到期后将永久删除账号及关联数据，此操作不可恢复。")
+                Text(L10n.localizedKey("account.delete.description"))
                     .font(DSTypography.body)
                     .foregroundStyle(DSColors.textSecondary)
 
                 VStack(alignment: .leading, spacing: DSSpacing.xs) {
-                    bullet("家庭组中的照片与动态将不可访问")
-                    bullet("积分余额与订阅权益将失效")
-                    bullet("本地缓存数据将在下次启动时清除")
+                    bullet(L10n.string("account.delete.bullet.photos"))
+                    bullet(L10n.string("account.delete.bullet.credits"))
+                    bullet(L10n.string("account.delete.bullet.cache"))
                 }
 
-                DSButton("确认注销账号", style: .destructive, isLoading: viewModel.isLoading) {
+                DSButton(L10n.string("account.delete.confirm_button"), style: .destructive, isLoading: viewModel.isLoading) {
                     showConfirmation = true
                 }
+                .accessibilityIdentifier("confirmDeleteAccountButton")
             }
             .padding(DSSpacing.lg)
         }
         .background(DSColors.background)
         .navigationBarTitleDisplayMode(.inline)
         .confirmationDialog(
-            "确定要注销账号吗？",
+            L10n.string("account.delete.confirm_title"),
             isPresented: $showConfirmation,
             titleVisibility: .visible
         ) {
-            Button("注销账号", role: .destructive) {
+            Button(L10n.string("account.delete.link"), role: .destructive) {
                 Task { await performDeletion() }
             }
-            Button("取消", role: .cancel) {}
+            Button(L10n.string("common.cancel"), role: .cancel) {}
         } message: {
-            Text("7 天内可在设置中撤销注销。")
+            Text(L10n.localizedKey("account.delete.confirm_message"))
         }
-        .alert("注销已提交", isPresented: $showSuccess) {
-            Button("知道了") {
+        .alert(L10n.string("account.delete.submitted_title"), isPresented: $showSuccess) {
+            Button(L10n.string("common.ok")) {
                 onDeleted()
                 dismiss()
             }
         } message: {
             if let result = viewModel.deletionResult {
-                Text("将于 \(result.scheduledAt) 完成注销。在此之前可撤销。")
+                Text(L10n.string("account.delete.submitted_message", result.scheduledAt))
             }
         }
-        .alert("注销失败", isPresented: errorBinding) {
-            Button("知道了", role: .cancel) {}
+        .alert(L10n.string("account.delete.failed_title"), isPresented: errorBinding) {
+            Button(L10n.string("common.ok"), role: .cancel) {}
         } message: {
             Text(viewModel.errorMessage ?? "")
         }

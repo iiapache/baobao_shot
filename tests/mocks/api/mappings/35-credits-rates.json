@@ -1,0 +1,33 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPath": "/v1/credits/rates"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "code": "OK",
+      "requestId": "req_mock_credits_rates",
+      "data": {
+        "version": "20250606001",
+        "plays": [
+          { "playId": "ghibli_kid", "kind": "image", "creditCost": 8 },
+          {
+            "playId": "video_walk",
+            "kind": "video",
+            "durationTiers": [
+              { "durationSeconds": 5, "creditCost": 60 },
+              { "durationSeconds": 10, "creditCost": 120 }
+            ]
+          }
+        ],
+        "rechargePacks": [
+          { "productId": "com.baobao.credits.100", "credits": 100, "priceCny": 10 }
+        ]
+      }
+    }
+  }
+}

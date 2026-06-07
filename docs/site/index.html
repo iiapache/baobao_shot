@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>BabyCamera 内部文档</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #f6f7f9;
+      --card: #ffffff;
+      --text: #1a1d21;
+      --muted: #5c6570;
+      --accent: #2f6fed;
+      --border: #e2e6eb;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0f1115;
+        --card: #171a21;
+        --text: #eef1f5;
+        --muted: #9aa3ad;
+        --accent: #6b9bff;
+        --border: #2a3038;
+      }
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+    .wrap {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 48px 20px 64px;
+    }
+    h1 { font-size: 1.75rem; margin: 0 0 8px; }
+    .subtitle { color: var(--muted); margin: 0 0 32px; font-size: 0.95rem; }
+    .grid { display: grid; gap: 16px; }
+    .card {
+      display: block;
+      padding: 20px 22px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      text-decoration: none;
+      color: inherit;
+      transition: border-color 0.15s ease;
+    }
+    .card:hover { border-color: var(--accent); }
+    .card h2 { margin: 0 0 6px; font-size: 1.1rem; }
+    .card p { margin: 0; color: var(--muted); font-size: 0.9rem; }
+    .tag {
+      display: inline-block;
+      margin-top: 10px;
+      font-size: 0.75rem;
+      color: var(--accent);
+      font-weight: 600;
+    }
+    footer {
+      margin-top: 40px;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 0.85em;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>BabyCamera 内部文档</h1>
+    <p class="subtitle">T7.18 · API 契约、运维 Runbook、数据导出格式</p>
+
+    <div class="grid">
+      <a class="card" href="api/index.html">
+        <h2>REST API 参考</h2>
+        <p>基于 <code>contracts/openapi</code> 自动生成，覆盖鉴权、家庭、媒体、AI、Feed、积分、通知、备份等模块。</p>
+        <span class="tag">Redoc · 需先运行 generate 脚本</span>
+      </a>
+
+      <a class="card" href="../ops/RUNBOOK.md">
+        <h2>运维 Runbook</h2>
+        <p>常见故障处理：AI 模型、内容审核、IAP、APNs 推送、微信 OpenSDK。</p>
+        <span class="tag">Markdown</span>
+      </a>
+
+      <a class="card" href="../ops/DATA_EXPORT_FORMAT.md">
+        <h2>数据导出格式</h2>
+        <p>设置 → 数据导出 zip 结构说明，对齐 T6.11 端侧 <code>DataExportService</code>。</p>
+        <span class="tag">Markdown</span>
+      </a>
+
+      <a class="card" href="../ops/METRICS_CATALOG.md">
+        <h2>监控指标目录</h2>
+        <p>Grafana 看板与 Prometheus 告警对应的业务指标定义（T7.10）。</p>
+        <span class="tag">Markdown</span>
+      </a>
+
+      <a class="card" href="../../contracts/README.md">
+        <h2>API 契约仓库</h2>
+        <p>OpenAPI / protobuf 目录结构、lint 与 breaking change 流程。</p>
+        <span class="tag">Markdown</span>
+      </a>
+    </div>
+
+    <footer>
+      生成 API 文档：<code>./scripts/generate-api-docs.sh</code> ·
+      本地预览见 <code>docs/site/README.md</code>
+    </footer>
+  </div>
+</body>
+</html>

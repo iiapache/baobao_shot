@@ -1,0 +1,47 @@
+# Alertmanager 路由片段 — 合并到 kube-prometheus-stack values（T7.10）
+#
+# helm upgrade --install prometheus prometheus-community/kube-prometheus-stack \
+#   -n observability \
+#   -f infra/observability/prometheus/values-dev.yaml \
+#   -f infra/monitoring/prometheus/alertmanager-config-snippet.yaml
+#
+# 部署前通过 Vault / K8s Secret 注入真实 webhook URL，勿将 token 提交仓库。
+
+alertmanager:
+  config:
+    global:
+      resolve_timeout: 5m
+    route:
+      receiver: feishu-default
+      group_by: ['alertname', 'service_name', 'severity']
+      group_wait: 30s
+      group_interval: 5m
+      repeat_interval: 4h
+      routes:
+        - matchers:
+            - severity = critical
+          receiver: oncall-p0
+          continue: true
+        - matchers:
+            - notify =~ ".*dingtalk.*"
+          receiver: dingtalk
+        - matchers:
+            - notify =~ ".*feishu.*"
+          receiver: feishu-default
+    receivers:
+      - name: feishu-default
+        webhook_configs:
+          - url: '${FEISHU_WEBHOOK_URL}'
+            send_resolved: true
+      - name: dingtalk
+        webhook_configs:
+          - url: '${DINGTALK_WEBHOOK_URL}'
+            send_resolved: true
+      - name: oncall-p0
+        webhook_configs:
+          - url: '${FEISHU_WEBHOOK_URL}'
+            send_resolved: true
+          - url: '${DINGTALK_WEBHOOK_URL}'
+            send_resolved: true
+          - url: '${ONCALL_PHONE_WEBHOOK_URL}'
+            send_resolved: true

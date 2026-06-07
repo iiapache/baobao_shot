@@ -42,6 +42,14 @@ type childConsentData struct {
 	AgreedAt string `json:"agreedAt"`
 }
 
+type childConsentStatusData struct {
+	CurrentVersion  string  `json:"currentVersion"`
+	AgreedVersion   *string `json:"agreedVersion"`
+	Agreed          bool    `json:"agreed"`
+	AgreedAt        *string `json:"agreedAt,omitempty"`
+	RequiresConsent bool    `json:"requiresConsent"`
+}
+
 type deletionData struct {
 	RequestedAt  string `json:"requestedAt"`
 	ScheduledAt  string `json:"scheduledAt"`
@@ -89,6 +97,34 @@ func (h *AccountHandler) GetMe(w http.ResponseWriter, r *http.Request) {
 		Consents: map[string]bool{
 			"childData": hasConsent,
 		},
+	})
+}
+
+// GetChildDataConsent handles GET /v1/account/consents/child-data.
+func (h *AccountHandler) GetChildDataConsent(w http.ResponseWriter, r *http.Request) {
+	userID, ok := requireUser(w, r)
+	if !ok {
+		return
+	}
+
+	status, err := h.consents.GetChildDataConsentStatus(r.Context(), userID)
+	if err != nil {
+		writeAPI(w, http.StatusInternalServerError, "SYS_INTERNAL", "internal error", r)
+		return
+	}
+
+	var agreedAt *string
+	if status.AgreedAt != nil {
+		formatted := status.AgreedAt.UTC().Format(time.RFC3339)
+		agreedAt = &formatted
+	}
+
+	writeAPI(w, http.StatusOK, "OK", "ok", r, childConsentStatusData{
+		CurrentVersion:  status.CurrentVersion,
+		AgreedVersion:   status.AgreedVersion,
+		Agreed:          status.Agreed,
+		AgreedAt:        agreedAt,
+		RequiresConsent: status.RequiresConsent,
 	})
 }
 

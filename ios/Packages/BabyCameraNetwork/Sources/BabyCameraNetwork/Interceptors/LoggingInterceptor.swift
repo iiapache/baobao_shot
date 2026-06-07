@@ -36,6 +36,10 @@ public enum LogRedactor {
         pattern: #"("phone"\s*:\s*")[^"]+(")"#,
         options: [.caseInsensitive]
     )
+    private static let appleSubFieldPattern = try! NSRegularExpression(
+        pattern: #"("appleSub"\s*:\s*")[^"]+(")"#,
+        options: [.caseInsensitive]
+    )
 
     public static func redact(_ input: String) -> String {
         var result = input
@@ -43,6 +47,7 @@ public enum LogRedactor {
         result = replaceMatches(in: result, pattern: authorizationPattern, template: "$1[REDACTED]$2")
         result = replaceMatches(in: result, pattern: refreshTokenPattern, template: "$1[REDACTED]$2")
         result = replaceMatches(in: result, pattern: phoneFieldPattern, template: "$1[REDACTED]$2")
+        result = replaceMatches(in: result, pattern: appleSubFieldPattern, template: "$1[REDACTED]$2")
         result = replaceMatches(in: result, pattern: phonePattern, template: "[REDACTED_PHONE]")
         return result
     }
@@ -82,6 +87,7 @@ public final class LoggingInterceptor: ResponseInterceptor, @unchecked Sendable 
             "[\(method)] \(path) status=\(status) auth=\(authHeader) body=\(body)"
         )
         logger.log(message)
+        FeedbackDiagnosticLogStore.append(message)
         if captureForTesting {
             lock.lock()
             loggedMessages.append(message)

@@ -1,0 +1,33 @@
+{
+  "priority": 10,
+  "request": {
+    "method": "POST",
+    "urlPath": "/v1/ai/tasks/tsk_e2e_rejected/appeal",
+    "headers": {
+      "Authorization": {
+        "contains": "Bearer"
+      }
+    },
+    "bodyPatterns": [
+      {
+        "matchesJsonPath": "$.reason"
+      }
+    ]
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "code": "OK",
+      "message": "ok",
+      "requestId": "req_mock_ai_appeal",
+      "data": {
+        "taskId": "tsk_e2e_rejected",
+        "state": "appealed",
+        "appealId": "apl_e2e_001"
+      }
+    }
+  }
+}

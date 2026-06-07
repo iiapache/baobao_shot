@@ -1,0 +1,68 @@
+{{- if .Values.reconcile.enabled }}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "baobao-storage-lifecycle.fullname" . }}-reconcile
+  labels:
+    {{- include "baobao-storage-lifecycle.labels" . | nindent 4 }}
+spec:
+  schedule: {{ .Values.reconcile.schedule | quote }}
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            {{- include "baobao-storage-lifecycle.selectorLabels" . | nindent 12 }}
+        spec:
+          {{- if .Values.serviceAccount.create }}
+          serviceAccountName: {{ include "baobao-storage-lifecycle.serviceAccountName" . }}
+          {{- end }}
+          restartPolicy: OnFailure
+          containers:
+            - name: reconcile
+              image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+              imagePullPolicy: {{ .Values.image.pullPolicy }}
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  apk add --no-cache bash python3 >/dev/null
+                  chmod +x /scripts/reconcile-deletes.sh
+                  export REGION="{{ .Values.reconcile.region }}"
+                  export DELETE_EVENTS_SOURCE="{{ .Values.reconcile.source }}"
+                  {{- if .Values.reconcile.dryRun }}
+                  export RECONCILE_DRY_RUN=1
+                  {{- end }}
+                  {{- if .Values.reconcile.eventsFile }}
+                  export DELETE_EVENTS_FILE="{{ .Values.reconcile.eventsFile }}"
+                  {{- end }}
+                  exec /scripts/reconcile-deletes.sh
+              volumeMounts:
+                - name: scripts
+                  mountPath: /scripts
+                  readOnly: true
+              {{- with .Values.resources }}
+              resources:
+                {{- toYaml . | nindent 16 }}
+              {{- end }}
+          volumes:
+            - name: scripts
+              configMap:
+                name: {{ include "baobao-storage-lifecycle.fullname" . }}-scripts
+                defaultMode: 0555
+          {{- with .Values.nodeSelector }}
+          nodeSelector:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.affinity }}
+          affinity:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.tolerations }}
+          tolerations:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+{{- end }}

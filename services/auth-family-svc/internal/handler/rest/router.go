@@ -35,7 +35,11 @@ func NewRouter(cfg *config.Config, backend *store.Backend) http.Handler {
 	consentSvc := consent.NewService(backend.Store)
 	accountSvc := account.NewService(backend.Store)
 	accountHandler := NewAccountHandler(backend.Store, consentSvc, accountSvc)
-	backupHandler := NewBackupHandler(backup.NewService(backend.Store))
+	backupSealer, err := cfg.BackupTokenSealer()
+	if err != nil {
+		panic("backup token sealer: " + err.Error())
+	}
+	backupHandler := NewBackupHandler(backup.NewEncryptedService(backend.Store, backupSealer))
 
 	revocation := store.NewRevocationStore(cfg.RedisURL)
 	issuer := auth.NewTokenIssuer(cfg.JWTSigningSecret)
@@ -69,6 +73,7 @@ func NewRouter(cfg *config.Config, backend *store.Backend) http.Handler {
 
 	r.Route("/v1/account", func(r chi.Router) {
 		r.Get("/me", accountHandler.GetMe)
+		r.Get("/consents/child-data", accountHandler.GetChildDataConsent)
 		r.Post("/consents/child-data", accountHandler.SubmitChildDataConsent)
 		r.Post("/logout", sessionHandler.Logout)
 		r.Delete("/", accountHandler.DeleteAccount)

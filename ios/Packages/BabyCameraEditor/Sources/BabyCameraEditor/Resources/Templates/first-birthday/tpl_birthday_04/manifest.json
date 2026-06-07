@@ -1,0 +1,86 @@
+{
+  "schemaVersion": "1.0.0",
+  "taskRef": "T0.11 / T2.14",
+  "id": "tpl_birthday_04",
+  "name": "周岁卡 · 全家福",
+  "category": "first-birthday",
+  "categoryLabel": "周岁卡",
+  "description": "全家福占位，周岁祝福",
+  "preview": "templates/first-birthday/tpl_birthday_04/preview.jpg",
+  "thumbnail": "templates/first-birthday/tpl_birthday_04/thumb.jpg",
+  "canvas": {
+    "width": 1080,
+    "height": 1440,
+    "dpi": 72
+  },
+  "placeholders": [
+    {
+      "id": "photo_main",
+      "type": "photo",
+      "label": "主照片",
+      "rect": {
+        "x": 0.1,
+        "y": 0.15,
+        "width": 0.8,
+        "height": 0.55
+      },
+      "aspectRatio": "3:4"
+    },
+    {
+      "id": "baby_name",
+      "type": "text",
+      "label": "宝宝昵称",
+      "fontId": "font_baobao_elegant",
+      "defaultValue": "{{baby_name}}",
+      "rect": {
+        "x": 0.1,
+        "y": 0.75,
+        "width": 0.8,
+        "height": 0.08
+      },
+      "editable": true
+    },
+    {
+      "id": "milestone_label",
+      "type": "text",
+      "label": "周岁标题",
+      "fontId": "font_baobao_elegant",
+      "defaultValue": "周岁快乐",
+      "rect": {
+        "x": 0.1,
+        "y": 0.05,
+        "width": 0.8,
+        "height": 0.1
+      },
+      "editable": true
+    },
+    {
+      "id": "date_label",
+      "type": "text",
+      "label": "日期",
+      "fontId": "font_baobao_serif",
+      "defaultValue": "{{capture_date}}",
+      "rect": {
+        "x": 0.1,
+        "y": 0.85,
+        "width": 0.8,
+        "height": 0.06
+      },
+      "editable": true
+    }
+  ],
+  "steps": [],
+  "resources": {
+    "background": "templates/first-birthday/tpl_birthday_04/background.png",
+    "overlay": "templates/first-birthday/tpl_birthday_04/overlay.png",
+    "fonts": [
+      "font_baobao_elegant",
+      "font_baobao_serif"
+    ],
+    "stickers": []
+  },
+  "remoteConfigurable": true,
+  "configSvcKey": "editor.templates.tpl_birthday_04",
+  "minAppVersion": "1.0.0",
+  "editorStepType": "TemplateStep"
+}

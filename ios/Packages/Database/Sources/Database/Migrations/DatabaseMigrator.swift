@@ -5,6 +5,14 @@ public enum AppDatabaseMigrator {
     public static func makeMigrator() -> DatabaseMigrator {
         var migrator = DatabaseMigrator()
         registerV1Initial(&migrator)
+        registerV1_1FamilySync(&migrator)
+        return migrator
+    }
+
+    /// T2.4 验收：仅回放 `v1_initial`，供单测校验 11 张核心表。
+    static func makeV1InitialOnlyMigrator() -> DatabaseMigrator {
+        var migrator = DatabaseMigrator()
+        registerV1Initial(&migrator)
         return migrator
     }
 
@@ -112,6 +120,21 @@ public enum AppDatabaseMigrator {
             try db.create(table: "setting") { t in
                 t.column("key", .text).primaryKey()
                 t.column("value", .text).notNull()
+            }
+        }
+    }
+
+    private static func registerV1_1FamilySync(_ migrator: inout DatabaseMigrator) {
+        migrator.registerMigration("v1_1_family_sync") { db in
+            try db.create(table: "family") { t in
+                t.column("id", .text).primaryKey()
+                t.column("name", .text).notNull()
+                t.column("myRole", .text).notNull()
+                t.column("updatedAt", .integer).notNull().defaults(to: 0)
+            }
+
+            try db.alter(table: "membership") { t in
+                t.add(column: "updatedAt", .integer).notNull().defaults(to: 0)
             }
         }
     }

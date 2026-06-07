@@ -10,6 +10,7 @@ let package = Package(
     dependencies: [
         .package(path: "../DesignSystem"),
         .package(path: "../BabyCameraNetwork"),
+        .package(path: "../BabyCameraDiagnostics"),
     ],
     targets: [
         .target(
@@ -17,6 +18,7 @@ let package = Package(
             dependencies: [
                 "DesignSystem",
                 "BabyCameraNetwork",
+                "BabyCameraDiagnostics",
             ]
         ),
         .testTarget(

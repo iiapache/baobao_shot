@@ -12,7 +12,7 @@ public struct TemplatePlaceholder: Codable, Equatable, Sendable {
     }
 }
 
-/// 模板步骤：预设步骤序列 + 占位符；T2.14 将对接远端 manifest。
+/// 模板步骤：预设步骤序列 + 占位符；manifest 由 `TemplateCatalog` 构建。
 public struct TemplateStep: EditStep {
     public var kind: EditStepKind { .template }
 

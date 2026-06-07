@@ -124,3 +124,81 @@ func TestRecordChildDataConsentUpsert(t *testing.T) {
 		t.Fatalf("agreedAt = %v, want %v", record.AgreedAt, second)
 	}
 }
+
+func TestGetChildDataConsentStatusWithoutConsent(t *testing.T) {
+	mem := store.NewMemoryStore()
+	ctx := context.Background()
+	user, _ := mem.CreateUser(ctx, store.CreateUserInput{
+		ID: "usr_status_none", AppleSub: "apple-status-none", Region: "cn",
+	})
+
+	svc := NewService(mem)
+	status, err := svc.GetChildDataConsentStatus(ctx, user.ID)
+	if err != nil {
+		t.Fatalf("get status: %v", err)
+	}
+	if status.CurrentVersion != CurrentConsentVersion {
+		t.Fatalf("currentVersion = %q", status.CurrentVersion)
+	}
+	if status.Agreed || !status.RequiresConsent {
+		t.Fatalf("expected requires consent: %+v", status)
+	}
+	if status.AgreedVersion != nil {
+		t.Fatalf("agreedVersion should be nil: %+v", status)
+	}
+}
+
+func TestGetChildDataConsentStatusStaleVersion(t *testing.T) {
+	mem := store.NewMemoryStore()
+	ctx := context.Background()
+	user, _ := mem.CreateUser(ctx, store.CreateUserInput{
+		ID: "usr_status_stale", AppleSub: "apple-status-stale", Region: "cn",
+	})
+
+	stale := "child_consent_v0"
+	fixed := time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)
+	if _, err := mem.RecordChildConsent(ctx, store.RecordChildConsentInput{
+		UserID: user.ID, Version: stale, AgreedAt: fixed,
+	}); err != nil {
+		t.Fatalf("seed stale consent: %v", err)
+	}
+
+	svc := NewService(mem)
+	status, err := svc.GetChildDataConsentStatus(ctx, user.ID)
+	if err != nil {
+		t.Fatalf("get status: %v", err)
+	}
+	if status.Agreed {
+		t.Fatal("stale version should not count as agreed")
+	}
+	if !status.RequiresConsent {
+		t.Fatal("stale version should require re-consent")
+	}
+	if status.AgreedVersion == nil || *status.AgreedVersion != stale {
+		t.Fatalf("agreedVersion = %v, want %q", status.AgreedVersion, stale)
+	}
+}
+
+func TestGetChildDataConsentStatusCurrentVersion(t *testing.T) {
+	mem := store.NewMemoryStore()
+	ctx := context.Background()
+	user, _ := mem.CreateUser(ctx, store.CreateUserInput{
+		ID: "usr_status_current", AppleSub: "apple-status-current", Region: "cn",
+	})
+
+	svc := NewService(mem)
+	if _, err := svc.RecordChildDataConsent(ctx, user.ID, CurrentConsentVersion, true, "", ""); err != nil {
+		t.Fatalf("record consent: %v", err)
+	}
+
+	status, err := svc.GetChildDataConsentStatus(ctx, user.ID)
+	if err != nil {
+		t.Fatalf("get status: %v", err)
+	}
+	if !status.Agreed || status.RequiresConsent {
+		t.Fatalf("expected valid consent: %+v", status)
+	}
+	if status.AgreedVersion == nil || *status.AgreedVersion != CurrentConsentVersion {
+		t.Fatalf("agreedVersion = %v", status.AgreedVersion)
+	}
+}

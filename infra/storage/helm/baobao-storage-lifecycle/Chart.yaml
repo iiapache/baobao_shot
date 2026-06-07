@@ -1,0 +1,6 @@
+apiVersion: v2
+name: baobao-storage-lifecycle
+description: Baobao object storage lifecycle refs + delete-event reconcile CronJob (T3.2)
+type: application
+version: 0.1.0
+appVersion: "1.0"

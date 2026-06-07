@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<false/>
+		<key>NSAllowsLocalNetworking</key>
+		<false/>
+	</dict>
+	<key>AppAttestEnabled</key>
+	<false/>
+	<key>SentryDSN</key>
+	<string>$(SENTRY_DSN)</string>
+	<key>BuglyAppID</key>
+	<string>$(BUGLY_APP_ID)</string>
+	<key>AppEnvironment</key>
+	<string>$(APP_ENVIRONMENT)</string>
+	<key>CrashReportingEnabled</key>
+	<string>$(CRASH_REPORTING_ENABLED)</string>
+</dict>
+</plist>

@@ -1,3 +1,4 @@
+import DesignSystem
 import Foundation
 import SwiftUI
 
@@ -42,11 +43,16 @@ public final class AccountCoordinator: ObservableObject {
 
     public func handleAuthenticated(_ session: AuthSession) {
         self.session = session
-        if session.isNewUser {
+        if needsOnboarding(for: session) {
             phase = .onboarding(session)
         } else {
             phase = .authenticated(session)
         }
+    }
+
+    public func completeOnboarding(_ session: AuthSession) {
+        self.session = session
+        phase = .authenticated(session)
     }
 
     public func handleLogout() async {
@@ -71,37 +77,56 @@ public final class AccountCoordinator: ObservableObject {
         session = nil
         phase = .login
     }
+
+    private func needsOnboarding(for session: AuthSession) -> Bool {
+        let completionKey = "com.babycamera.onboarding.completed.\(session.userId)"
+        if UserDefaults.standard.bool(forKey: completionKey) {
+            return false
+        }
+        return session.isNewUser
+    }
 }
 
-public struct AccountRootView<AuthenticatedContent: View>: View {
+public struct AccountRootView<AuthenticatedContent: View, OnboardingContent: View>: View {
     @StateObject private var coordinator: AccountCoordinator
     private let authenticatedContent: (AuthSession) -> AuthenticatedContent
+    private let onboardingContent: (AuthSession) -> OnboardingContent
 
     public init(
         coordinator: AccountCoordinator,
-        @ViewBuilder authenticatedContent: @escaping (AuthSession) -> AuthenticatedContent
+        @ViewBuilder authenticatedContent: @escaping (AuthSession) -> AuthenticatedContent,
+        @ViewBuilder onboardingContent: @escaping (AuthSession) -> OnboardingContent
     ) {
         _coordinator = StateObject(wrappedValue: coordinator)
         self.authenticatedContent = authenticatedContent
+        self.onboardingContent = onboardingContent
     }
 
     public init(
-        @ViewBuilder authenticatedContent: @escaping (AuthSession) -> AuthenticatedContent
+        @ViewBuilder authenticatedContent: @escaping (AuthSession) -> AuthenticatedContent,
+        @ViewBuilder onboardingContent: @escaping (AuthSession) -> OnboardingContent
     ) {
-        self.init(coordinator: AccountCoordinator(), authenticatedContent: authenticatedContent)
+        self.init(
+            coordinator: AccountCoordinator(),
+            authenticatedContent: authenticatedContent,
+            onboardingContent: onboardingContent
+        )
     }
 
     public var body: some View {
         Group {
             switch coordinator.phase {
             case .bootstrapping:
-                ProgressView("正在恢复登录状态…")
+                ProgressView(L10n.string("login.restoring_session"))
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             case .login:
                 LoginView(viewModel: coordinator.makeLoginViewModel()) { session in
                     coordinator.handleAuthenticated(session)
                 }
-            case let .authenticated(session), let .onboarding(session):
+            case let .onboarding(session):
+                onboardingContent(session)
+                    .environmentObject(coordinator)
+            case let .authenticated(session):
                 authenticatedContent(session)
                     .environmentObject(coordinator)
             }

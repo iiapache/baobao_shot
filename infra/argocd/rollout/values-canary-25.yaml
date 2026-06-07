@@ -1,0 +1,39 @@
+# Helm values — Canary 灰度 25%（T7.11 演练第二步）
+# 配合 scripts/ops/traffic-shift.sh --weight 25
+
+rollout:
+  enabled: true
+  strategy: canary
+
+  canary:
+    canaryService: "{{ .Release.Name }}-canary"
+    stableService: "{{ .Release.Name }}-stable"
+    trafficRouting:
+      apisix:
+        routeName: hello-api
+        namespace: gateway
+    steps:
+      - setWeight: 5
+      - pause: { duration: 5m }
+      - setWeight: 25
+      - pause: { duration: 10m }
+
+commonLabels:
+  baobao.io/deployment-strategy: canary
+  baobao.io/canary-weight: "25"
+
+commonAnnotations:
+  argocd.argoproj.io/sync-wave: "1"
+  baobao.io/canary-weight: "25"
+
+image:
+  repository: registry.example.com/baobao/hello
+  tag: "latest"
+  pullPolicy: IfNotPresent
+
+replicaCount: 2
+
+ingress:
+  enabled: false
+  annotations:
+    baobao.io/canary-weight: "25"

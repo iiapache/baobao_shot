@@ -1,0 +1,408 @@
+{
+  "info": {
+    "name": "Baobao P3 AI E2E — ai-dispatch-svc",
+    "description": "T3.26：图像 happy / ModelFailed / Rejected+申诉 / 视频 5s·10s / 弱网·切后台 mock。对齐 contracts/openapi §6。",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:18080" },
+    { "key": "region", "value": "cn" },
+    { "key": "appVersion", "value": "1.0.0-staging" },
+    { "key": "deviceId", "value": "qa-device-iphone12-001" },
+    { "key": "adminPhone", "value": "13800138001" },
+    { "key": "adminCode", "value": "123456" },
+    { "key": "accessToken", "value": "" },
+    { "key": "familyId", "value": "fam_e2e_001" },
+    { "key": "inputObjectKey", "value": "ai-tmp/usr_e2e_admin/e2e-input.heic" },
+    { "key": "taskHappyId", "value": "" },
+    { "key": "taskFailedId", "value": "" },
+    { "key": "taskRejectedId", "value": "" },
+    { "key": "taskVid5Id", "value": "" },
+    { "key": "taskVid10Id", "value": "" },
+    { "key": "taskSlowId", "value": "" },
+    { "key": "taskBgId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "P3 AI E2E",
+      "item": [
+        {
+          "name": "0 Health",
+          "request": { "method": "GET", "url": "{{baseUrl}}/health" },
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('HTTP 200', () => pm.response.to.have.status(200));"] } }]
+        },
+        {
+          "name": "1 authPhoneLogin",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-Region", "value": "{{region}}" },
+              { "key": "X-App-Version", "value": "{{appVersion}}" },
+              { "key": "X-Device-Id", "value": "{{deviceId}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"phone\": \"{{adminPhone}}\",\n  \"code\": \"{{adminCode}}\"\n}" },
+            "url": "{{baseUrl}}/v1/auth/phone/login"
+          },
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+            "const j = pm.response.json();",
+            "pm.collectionVariables.set('accessToken', j.data.accessToken);"
+          ] } }]
+        },
+        {
+          "name": "2 aiListPlays",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" },
+              { "key": "X-Region", "value": "{{region}}" },
+              { "key": "X-App-Version", "value": "{{appVersion}}" },
+              { "key": "X-Device-Id", "value": "{{deviceId}}" }
+            ],
+            "url": "{{baseUrl}}/v1/ai/plays"
+          },
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+            "const j = pm.response.json();",
+            "pm.test('has ghibli_kid', () => pm.expect(JSON.stringify(j.data.plays)).to.include('ghibli_kid'));",
+            "pm.test('has video_walk', () => pm.expect(JSON.stringify(j.data.plays)).to.include('video_walk'));"
+          ] } }]
+        },
+        {
+          "name": "3 uploadInit ai-input",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" },
+              { "key": "X-Region", "value": "{{region}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"purpose\": \"ai-input\",\n  \"familyId\": \"{{familyId}}\",\n  \"items\": [{\"clientRef\": \"ai-ref-1\", \"kind\": \"photo\", \"mime\": \"image/heic\", \"size\": 2048}]\n}"
+            },
+            "url": "{{baseUrl}}/v1/uploads/init"
+          },
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('HTTP 200', () => pm.response.to.have.status(200));"] } }]
+        },
+        {
+          "name": "A1 aiCreateTask image happy",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" },
+              { "key": "X-Region", "value": "{{region}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"play\": \"ghibli_kid\",\n  \"inputObjectKey\": \"{{inputObjectKey}}\",\n  \"familyId\": \"{{familyId}}\",\n  \"params\": {\"aspectRatio\": \"1:1\"}\n}"
+            },
+            "url": "{{baseUrl}}/v1/ai/tasks"
+          },
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+            "const j = pm.response.json();",
+            "pm.collectionVariables.set('taskHappyId', j.data.taskId);",
+            "pm.test('credit_held', () => pm.expect(j.data.state).to.eql('credit_held'));"
+          ] } }]
+        },
+        {
+          "name": "A2 aiGetTask happy poll 1",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" },
+              { "key": "X-Region", "value": "{{region}}" }
+            ],
+            "url": "{{baseUrl}}/v1/ai/tasks/{{taskHappyId}}"
+          },
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+            "const j = pm.response.json();",
+            "pm.test('running or succeeded', () => pm.expect(['running','succeeded']).to.include(j.data.state));"
+          ] } }]
+        },
+        {
+          "name": "A2b aiGetTask happy succeeded",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" },
+              { "key": "X-Region", "value": "{{region}}" }
+            ],
+            "url": "{{baseUrl}}/v1/ai/tasks/{{taskHappyId}}"
+          },
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+            "const j = pm.response.json();",
+            "pm.test('succeeded', () => pm.expect(j.data.state).to.eql('succeeded'));",
+            "pm.test('resultUrl', () => pm.expect(j.data.resultUrl).to.be.a('string'));",
+            "pm.test('deepSynth', () => pm.expect(j.data.deepSynth).to.be.an('object'));"
+          ] } }]
+        },
+        {
+          "name": "B1 aiCreateTask model_failed",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" },
+              { "key": "X-E2E-Scenario", "value": "model_failed" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"play\": \"ghibli_kid\",\n  \"inputObjectKey\": \"{{inputObjectKey}}\",\n  \"familyId\": \"{{familyId}}\"\n}"
+            },
+            "url": "{{baseUrl}}/v1/ai/tasks"
+          },
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+            "pm.collectionVariables.set('taskFailedId', pm.response.json().data.taskId);"
+          ] } }]
+        },
+        {
+          "name": "B2 aiGetTask model_failed",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": "{{baseUrl}}/v1/ai/tasks/{{taskFailedId}}"
+          },
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+            "const j = pm.response.json();",
+            "pm.test('failed', () => pm.expect(j.data.state).to.eql('failed'));",
+            "pm.test('failureReason', () => pm.expect(j.data.failureReason).to.be.a('string'));"
+          ] } }]
+        },
+        {
+          "name": "C1 aiCreateTask rejected",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" },
+              { "key": "X-E2E-Scenario", "value": "rejected" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"play\": \"ghibli_kid\",\n  \"inputObjectKey\": \"{{inputObjectKey}}\",\n  \"familyId\": \"{{familyId}}\"\n}"
+            },
+            "url": "{{baseUrl}}/v1/ai/tasks"
+          },
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.collectionVariables.set('taskRejectedId', pm.response.json().data.taskId);"
+          ] } }]
+        },
+        {
+          "name": "C2 aiGetTask rejected",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": "{{baseUrl}}/v1/ai/tasks/{{taskRejectedId}}"
+          },
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('rejected', () => pm.expect(pm.response.json().data.state).to.eql('rejected'));"
+          ] } }]
+        },
+        {
+          "name": "C3 aiAppealTask",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"reason\": \"E2E误判申诉\"\n}" },
+            "url": "{{baseUrl}}/v1/ai/tasks/{{taskRejectedId}}/appeal"
+          },
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+            "const j = pm.response.json();",
+            "pm.test('appealed', () => pm.expect(j.data.state).to.eql('appealed'));",
+            "pm.test('appealId', () => pm.expect(j.data.appealId).to.be.a('string'));"
+          ] } }]
+        },
+        {
+          "name": "D1 aiCreateTask video 5s",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"play\": \"video_walk\",\n  \"inputObjectKey\": \"{{inputObjectKey}}\",\n  \"familyId\": \"{{familyId}}\",\n  \"params\": {\"duration\": 5, \"aspectRatio\": \"9:16\"}\n}"
+            },
+            "url": "{{baseUrl}}/v1/ai/tasks"
+          },
+          "event": [{ "listen": "test", "script": { "exec": [
+            "const j = pm.response.json();",
+            "pm.collectionVariables.set('taskVid5Id', j.data.taskId);",
+            "pm.test('cost 60', () => pm.expect(j.data.costCredits).to.eql(60));"
+          ] } }]
+        },
+        {
+          "name": "D2 aiGetTask video 5s poll 1",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": "{{baseUrl}}/v1/ai/tasks/{{taskVid5Id}}"
+          },
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('HTTP 200', () => pm.response.to.have.status(200));"
+          ] } }]
+        },
+        {
+          "name": "D2b aiGetTask video 5s succeeded",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": "{{baseUrl}}/v1/ai/tasks/{{taskVid5Id}}"
+          },
+          "event": [{ "listen": "test", "script": { "exec": [
+            "const j = pm.response.json();",
+            "pm.test('succeeded mp4', () => { pm.expect(j.data.state).to.eql('succeeded'); pm.expect(j.data.resultUrl).to.include('.mp4'); });"
+          ] } }]
+        },
+        {
+          "name": "E1 aiCreateTask video 10s",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"play\": \"video_walk\",\n  \"inputObjectKey\": \"{{inputObjectKey}}\",\n  \"familyId\": \"{{familyId}}\",\n  \"params\": {\"duration\": 10}\n}"
+            },
+            "url": "{{baseUrl}}/v1/ai/tasks"
+          },
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.collectionVariables.set('taskVid10Id', pm.response.json().data.taskId);"
+          ] } }]
+        },
+        {
+          "name": "E2 aiGetTask video 10s poll 1",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": "{{baseUrl}}/v1/ai/tasks/{{taskVid10Id}}"
+          },
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('HTTP 200', () => pm.response.to.have.status(200));"
+          ] } }]
+        },
+        {
+          "name": "E2b aiGetTask video 10s succeeded",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": "{{baseUrl}}/v1/ai/tasks/{{taskVid10Id}}"
+          },
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('succeeded', () => pm.expect(pm.response.json().data.state).to.eql('succeeded'));"
+          ] } }]
+        },
+        {
+          "name": "F1 aiCreateTask slow network",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" },
+              { "key": "X-E2E-Network", "value": "slow" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"play\": \"ghibli_kid\",\n  \"inputObjectKey\": \"{{inputObjectKey}}\",\n  \"familyId\": \"{{familyId}}\"\n}"
+            },
+            "url": "{{baseUrl}}/v1/ai/tasks"
+          },
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.collectionVariables.set('taskSlowId', pm.response.json().data.taskId);"
+          ] } }]
+        },
+        {
+          "name": "F2 aiGetTask slow poll 1",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": "{{baseUrl}}/v1/ai/tasks/{{taskSlowId}}"
+          },
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('HTTP 200', () => pm.response.to.have.status(200));"
+          ] } }]
+        },
+        {
+          "name": "F2b aiGetTask slow poll 2",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": "{{baseUrl}}/v1/ai/tasks/{{taskSlowId}}"
+          },
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('HTTP 200', () => pm.response.to.have.status(200));"
+          ] } }]
+        },
+        {
+          "name": "F2c aiGetTask slow succeeded",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": "{{baseUrl}}/v1/ai/tasks/{{taskSlowId}}"
+          },
+          "event": [{ "listen": "test", "script": { "exec": [
+            "const j = pm.response.json();",
+            "pm.test('succeeded', () => pm.expect(j.data.state).to.eql('succeeded'));"
+          ] } }]
+        },
+        {
+          "name": "G1 aiCreateTask background",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" },
+              { "key": "X-E2E-Scenario", "value": "background" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"play\": \"ghibli_kid\",\n  \"inputObjectKey\": \"{{inputObjectKey}}\",\n  \"familyId\": \"{{familyId}}\"\n}"
+            },
+            "url": "{{baseUrl}}/v1/ai/tasks"
+          },
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.collectionVariables.set('taskBgId', pm.response.json().data.taskId);",
+            "pm.test('running', () => pm.expect(pm.response.json().data.state).to.eql('running'));"
+          ] } }]
+        },
+        {
+          "name": "G2 aiGetTask background poll 1",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": "{{baseUrl}}/v1/ai/tasks/{{taskBgId}}"
+          },
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('HTTP 200', () => pm.response.to.have.status(200));"
+          ] } }]
+        },
+        {
+          "name": "G2b aiGetTask background succeeded",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": "{{baseUrl}}/v1/ai/tasks/{{taskBgId}}"
+          },
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('succeeded', () => pm.expect(pm.response.json().data.state).to.eql('succeeded'));"
+          ] } }]
+        }
+      ]
+    }
+  ]
+}

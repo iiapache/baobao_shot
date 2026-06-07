@@ -1,0 +1,1 @@
+"""caption-svc FastAPI application."""

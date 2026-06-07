@@ -1,0 +1,5 @@
+DROP TABLE IF EXISTS feed_audit_logs;
+DROP TABLE IF EXISTS likes;
+DROP TABLE IF EXISTS comments;
+DROP TABLE IF EXISTS post_items;
+DROP TABLE IF EXISTS posts;

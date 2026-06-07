@@ -3,12 +3,28 @@ import XCTest
 @testable import Database
 
 final class MigrationTests: XCTestCase {
+    /// T2.4 `v1_initial` 规定的 11 张核心表（不含后续 `v1_1_family_sync` 的 `family`）。
+    private let v1InitialTables = [
+        "ai_task_local",
+        "baby",
+        "comment_cache",
+        "credit_txn_cache",
+        "derived",
+        "like_cache",
+        "membership",
+        "milestone",
+        "photo",
+        "post_cache",
+        "setting",
+    ]
+
     private let expectedTables = [
         "ai_task_local",
         "baby",
         "comment_cache",
         "credit_txn_cache",
         "derived",
+        "family",
         "like_cache",
         "membership",
         "milestone",
@@ -25,7 +41,8 @@ final class MigrationTests: XCTestCase {
         "post_cache": ["id", "familyId", "ownerUserId", "items", "caption", "createdAt", "syncedAt"],
         "comment_cache": ["id", "postId", "userId", "text", "createdAt"],
         "like_cache": ["postId", "userId", "likedAt"],
-        "membership": ["userId", "familyId", "role", "nickname", "joinAt"],
+        "family": ["id", "name", "myRole", "updatedAt"],
+        "membership": ["userId", "familyId", "role", "nickname", "joinAt", "updatedAt"],
         "credit_txn_cache": ["id", "type", "amount", "ref", "createdAt"],
         "milestone": ["id", "babyId", "name", "date", "kind", "reminded"],
         "setting": ["key", "value"],
@@ -43,6 +60,12 @@ final class MigrationTests: XCTestCase {
     ]
 
     // MARK: - Table inventory
+
+    func testV1InitialOnlyMigrationCreatesElevenCoreTables() throws {
+        let appDatabase = try makeDatabase(migrator: AppDatabaseMigrator.makeV1InitialOnlyMigrator())
+        let tables = try fetchUserTables(from: appDatabase)
+        XCTAssertEqual(tables, v1InitialTables)
+    }
 
     func testV1InitialMigrationCreatesAllTables() throws {
         let appDatabase = try AppDatabase.makeInMemory()
@@ -92,10 +115,30 @@ final class MigrationTests: XCTestCase {
             try Int.fetchOne(db, sql: "SELECT COUNT(*) FROM grdb_migrations") ?? 0
         }
 
-        XCTAssertEqual(migrationCount, 1)
+        XCTAssertEqual(migrationCount, 2)
     }
 
-    // MARK: - Cold-start performance (T2.4 acceptance placeholder)
+    func testMigrationReplayOnDiskIsIdempotent() throws {
+        let tempURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent("babycamera-migration-replay-\(UUID().uuidString).sqlite")
+        defer { try? FileManager.default.removeItem(at: tempURL) }
+
+        let first = try AppDatabase.make(at: tempURL.path)
+        let tablesAfterFirst = try fetchUserTables(from: first)
+
+        try first.migrate()
+        try first.migrate()
+
+        let migrationCount = try first.dbWriter.read { db in
+            try Int.fetchOne(db, sql: "SELECT COUNT(*) FROM grdb_migrations") ?? 0
+        }
+        let tablesAfterReplay = try fetchUserTables(from: first)
+
+        XCTAssertEqual(migrationCount, 2)
+        XCTAssertEqual(tablesAfterReplay, tablesAfterFirst)
+    }
+
+    // MARK: - Cold-start performance (T2.4)
 
     func testColdStartMigrationCompletesWithinBudget() throws {
         let tempURL = FileManager.default.temporaryDirectory
@@ -106,16 +149,26 @@ final class MigrationTests: XCTestCase {
         _ = try AppDatabase.make(at: tempURL.path)
         let elapsedMs = (CFAbsoluteTimeGetCurrent() - start) * 1_000
 
-        // Placeholder budget from T2.4: cold-start migration ≤ 200ms on device.
-        // CI / simulator may vary; this guards gross regressions during development.
+        // T2.4 验收：冷启动迁移 ≤ 200ms（真机/模拟器基准；CI 防 gross regression）
         XCTAssertLessThan(
             elapsedMs,
             200,
-            "v1_initial migration took \(String(format: "%.1f", elapsedMs))ms (budget 200ms)"
+            "cold-start migration took \(String(format: "%.1f", elapsedMs))ms (budget 200ms)"
         )
     }
 
     // MARK: - Helpers
+
+    private func makeDatabase(migrator: DatabaseMigrator) throws -> AppDatabase {
+        var config = Configuration()
+        config.prepareDatabase { db in
+            try db.execute(sql: "PRAGMA foreign_keys = ON")
+        }
+
+        let dbQueue = try DatabaseQueue(path: ":memory:", configuration: config)
+        try migrator.migrate(dbQueue)
+        return AppDatabase(dbWriter: dbQueue)
+    }
 
     private func fetchUserTables(from appDatabase: AppDatabase) throws -> [String] {
         try appDatabase.dbWriter.read { db in

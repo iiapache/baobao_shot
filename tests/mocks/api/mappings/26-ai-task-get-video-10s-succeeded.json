@@ -1,0 +1,35 @@
+{
+  "priority": 10,
+  "request": {
+    "method": "GET",
+    "urlPath": "/v1/ai/tasks/tsk_e2e_vid_10s",
+    "headers": {
+      "Authorization": {
+        "contains": "Bearer"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "code": "OK",
+      "message": "ok",
+      "requestId": "req_mock_ai_get_vid10",
+      "data": {
+        "taskId": "tsk_e2e_vid_10s",
+        "state": "succeeded",
+        "resultUrl": "http://localhost:18080/mock-ai/result/tsk_e2e_vid_10s.mp4",
+        "thumbnailUrl": "http://localhost:18080/mock-ai/result/tsk_e2e_vid_10s-cover.jpg",
+        "deepSynth": {
+          "watermark": "v1",
+          "manifest": "c2pa-v1"
+        },
+        "costCredits": 120,
+        "balanceAfter": -20
+      }
+    }
+  }
+}

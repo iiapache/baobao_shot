@@ -32,12 +32,14 @@ public struct BabyRecord: Sendable, Equatable, Codable {
     }
 }
 
-/// Local cache for baby profiles. Implementation will use GRDB + network sync (T1.19+).
+/// Local cache for baby profiles with GRDB persistence and network sync (T1.19).
 public protocol BabyRepository: Sendable {
     func fetchAll(familyId: String) async throws -> [BabyRecord]
     func fetch(id: String) async throws -> BabyRecord?
     func save(_ baby: BabyRecord) async throws
+    func saveIfNewer(_ baby: BabyRecord) async throws -> Bool
     func delete(id: String) async throws
+    func deleteByFamilyExcept(familyId: String, ids: Set<String>) async throws
 }
 
 extension BabyRecord: FetchableRecord, PersistableRecord {
@@ -79,9 +81,35 @@ public struct GRDBBabyRepository: BabyRepository {
         }
     }
 
+    public func saveIfNewer(_ baby: BabyRecord) async throws -> Bool {
+        try await dbWriter.write { db in
+            let existing = try BabyRecord.fetchOne(db, key: baby.id)
+            guard SyncMerge.shouldApplyRemote(localUpdatedAt: existing?.updatedAt, remoteUpdatedAt: baby.updatedAt) else {
+                return false
+            }
+            try baby.save(db)
+            return true
+        }
+    }
+
     public func delete(id: String) async throws {
         _ = try await dbWriter.write { db in
             try BabyRecord.deleteOne(db, key: id)
+        }
+    }
+
+    public func deleteByFamilyExcept(familyId: String, ids: Set<String>) async throws {
+        try await dbWriter.write { db in
+            if ids.isEmpty {
+                try BabyRecord
+                    .filter(BabyRecord.Columns.familyId == familyId)
+                    .deleteAll(db)
+                return
+            }
+            try BabyRecord
+                .filter(BabyRecord.Columns.familyId == familyId)
+                .filter(!ids.contains(BabyRecord.Columns.id))
+                .deleteAll(db)
         }
     }
 }

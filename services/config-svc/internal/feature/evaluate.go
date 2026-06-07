@@ -22,8 +22,9 @@ type Definition struct {
 
 // Result is the evaluated flag for a single client.
 type Result struct {
-	Enabled bool   `json:"enabled"`
-	Variant string `json:"variant,omitempty"`
+	Enabled        bool   `json:"enabled"`
+	Variant        string `json:"variant,omitempty"`
+	RolloutPercent *int   `json:"rolloutPercent,omitempty"` // configured target; set for rollout.* keys
 }
 
 // Evaluate resolves whether a feature is enabled for the given context.

@@ -92,9 +92,64 @@ STS 策略应限制：
 - [ ] CDN 仅缓存 `family/`、`ai-out/`、`avatar/` 前缀
 - [ ] 凭据来自 Vault，仓库无 AK/SK
 
-## 7. 相关任务
+## 7. T3.2 — 生命周期部署与删除对账
+
+> 产出：Helm 打包 + 目录策略文档 + 对账 Cron stub + 验收脚本
+
+### 目录
+
+```text
+infra/storage/
+├── PREFIX_POLICY.md                    # 目录前缀策略（ai-tmp/24h、ai-out/30d、family/长期）
+├── scripts/
+│   ├── apply-lifecycle.sh              # 应用 OSS/S3 生命周期到云桶
+│   ├── verify-lifecycle.sh             # T3.2 验收（本地规则 + 可选远端）
+│   └── reconcile-deletes.sh            # 删除事件对账 stub（RECONCILE: 日志）
+├── fixtures/delete-events.ndjson       # 对账 stub 样例事件
+├── helm/baobao-storage-lifecycle/      # ConfigMap + CronJob
+├── oss-cn/event-notification.yaml      # OSS 删除/过期事件 → MNS
+└── s3-os/event-notification.json.template
+```
+
+### 部署生命周期
+
+```bash
+chmod +x infra/storage/scripts/*.sh
+./infra/storage/scripts/apply-lifecycle.sh all   # 需 ossutil / aws CLI + Vault 凭据
+```
+
+### 部署对账 Cron（K8s）
+
+```bash
+helm upgrade --install storage-lifecycle infra/storage/helm/baobao-storage-lifecycle \
+  -n baobao-infra --create-namespace \
+  -f infra/storage/helm/baobao-storage-lifecycle/values-ack-cn.yaml
+# Pod 日志应出现 RECONCILE: status=...
+```
+
+### T3.2 验收
+
+```bash
+./infra/storage/scripts/verify-lifecycle.sh
+# 期望：RESULT: PASS (N/N checks)
+
+RECONCILE_DRY_RUN=1 ./infra/storage/scripts/reconcile-deletes.sh
+DELETE_EVENTS_FILE=infra/storage/fixtures/delete-events.ndjson \
+  ./infra/storage/scripts/reconcile-deletes.sh
+# 期望：RESULT: RECONCILE processed=3 ...
+```
+
+| 验收项 | 期望 |
+| --- | --- |
+| `ai-tmp/` | Expiration 1 天 |
+| `ai-out/` | Expiration 30 天 |
+| `family/` | 无 Expiration；90d/365d 分层 |
+| 删除事件 | event-notification 模板含 ObjectRemoved |
+| 对账日志 | `RECONCILE:` 结构化行可见 |
+
+## 8. 相关任务
 
 - T0.5：本目录 + [infra/messaging/kafka/](../messaging/kafka/)
 - T3.1：media-svc STS 直传
-- T3.2：生命周期生效验证 + 删除事件对账
-- T5.5：撤回发布 OSS 清理
+- T3.2：本节目录策略 + 对账 stub（本节）
+- T5.5：撤回发布 OSS 清理 + MNS/SQS 消费者实装

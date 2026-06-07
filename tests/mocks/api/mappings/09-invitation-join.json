@@ -1,0 +1,28 @@
+{
+  "priority": 5,
+  "request": {
+    "method": "POST",
+    "urlPathPattern": "/v1/invitations/.+/join",
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .+"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "code": "OK",
+      "message": "ok",
+      "requestId": "req_mock_invite_join",
+      "data": {
+        "familyId": "fam_e2e_001",
+        "role": "family",
+        "joinedAt": "2026-06-06T10:00:00Z"
+      }
+    }
+  }
+}

@@ -94,6 +94,35 @@ final class ImageCodecTests: XCTestCase {
 
         XCTAssertEqual(encoded.data.prefix(2), Data([0xFF, 0xD8]))
     }
+
+    func testDecodeJPEGDataRoundTrip() throws {
+        let original = TestImageFactory.makeSolidColorImage(width: 128, height: 96, color: .red)
+        let jpegData = try codec.encode(image: original, format: .jpeg).data
+        let decoded = try codec.decode(data: jpegData)
+
+        XCTAssertEqual(decoded.width, 128)
+        XCTAssertEqual(decoded.height, 96)
+    }
+
+    func testDecodeHEICDataWhenSupported() throws {
+        guard codec.isHEICSupported() else {
+            throw XCTSkip("HEIC encoding not supported on this platform")
+        }
+
+        let original = TestImageFactory.makeSolidColorImage(width: 256, height: 256, color: .blue)
+        let heicData = try codec.encode(image: original, format: .heic).data
+        let decoded = try codec.decode(data: heicData)
+
+        XCTAssertEqual(decoded.width, 256)
+        XCTAssertEqual(decoded.height, 256)
+    }
+
+    func testImageFormatUTTypeIdentifiers() {
+        XCTAssertEqual(ImageFormat.jpeg.utTypeIdentifier, "public.jpeg")
+        XCTAssertEqual(ImageFormat.heic.utTypeIdentifier, "public.heic")
+        XCTAssertEqual(ImageFormat.jpeg.fileExtension, "jpg")
+        XCTAssertEqual(ImageFormat.heic.fileExtension, "heic")
+    }
 }
 
 // MARK: - Test Helpers

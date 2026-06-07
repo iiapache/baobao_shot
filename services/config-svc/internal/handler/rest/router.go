@@ -27,5 +27,11 @@ func NewRouter(cfg *config.Config, s store.Store) http.Handler {
 		r.Get("/plays", configHandler.Plays)
 	})
 
+	admin := NewAdminHandler(s, cfg.AdminToken)
+	r.Route("/v1/admin", func(r chi.Router) {
+		r.Patch("/features/{key}", admin.PatchFeature)
+		r.Patch("/plays/{id}", admin.PatchPlay)
+	})
+
 	return r
 }

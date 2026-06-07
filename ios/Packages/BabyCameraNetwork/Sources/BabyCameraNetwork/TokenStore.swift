@@ -68,6 +68,8 @@ public final class InMemoryTokenStore: TokenStore, @unchecked Sendable {
 /// Keychain 持久化 — `kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly`
 public final class KeychainTokenStore: TokenStore, @unchecked Sendable {
     public static let defaultService = "com.babycamera.app.tokens"
+    /// T7.8：Token 必须使用 AfterFirstUnlock + ThisDeviceOnly，禁止 iCloud 同步与弱可访问性。
+    public static let defaultAccessibility: CFString = kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly
 
     private let lock = NSLock()
     private let service: String
@@ -77,7 +79,7 @@ public final class KeychainTokenStore: TokenStore, @unchecked Sendable {
 
     public init(
         service: String = KeychainTokenStore.defaultService,
-        accessibility: CFString = kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly
+        accessibility: CFString = KeychainTokenStore.defaultAccessibility
     ) {
         self.service = service
         self.accessAccount = "\(service).access"
