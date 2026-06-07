@@ -26,6 +26,7 @@
       "requestId": "req_mock_ai_create_happy",
       "data": {
         "taskId": "tsk_e2e_img_happy",
+        "play": "ghibli_kid",
         "state": "credit_held",
         "costCredits": 8,
         "balanceAfter": 92,

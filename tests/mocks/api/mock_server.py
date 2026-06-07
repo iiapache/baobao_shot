@@ -1236,19 +1236,56 @@ class Handler(BaseHTTPRequestHandler):
         scenario = self.headers.get("X-E2E-Scenario", "")
         user_id = self._user_id()
 
-        # P0 冒烟旧格式兼容（babyId + media）
+        # P0 冒烟旧格式兼容（babyId + media）；须写入 POSTS 供 Feed / 点赞联调
         if "media" in body and "items" not in body:
+            family_id = str(body.get("familyId", "fam_smoke_001"))
+            baby_id = str(body.get("babyId", "bb_smoke_001"))
+            post_id = "post_smoke_001"
+            created_at = _utc_now_iso()
+            caption = body.get("caption", "P0 冒烟发布（mock）")
+            media_in = body.get("media", [])
+            items_out = []
+            for idx, item in enumerate(media_in):
+                kind = item.get("kind", "image")
+                if kind == "photo":
+                    kind = "image"
+                items_out.append(
+                    {
+                        "itemId": f"pit_smoke_{idx + 1}",
+                        "kind": kind,
+                        "objectKey": item.get("objectKey", ""),
+                        "mime": item.get("mime"),
+                        "width": item.get("width", 0),
+                        "height": item.get("height", 0),
+                        "duration": item.get("duration"),
+                        "deepSynth": bool(item.get("deepSynth")),
+                        "thumbnailKey": item.get("thumbnailKey"),
+                    }
+                )
+            post = {
+                "postId": post_id,
+                "familyId": family_id,
+                "ownerUserId": user_id,
+                "babyIds": [baby_id],
+                "caption": caption,
+                "visibility": "family",
+                "status": "published",
+                "createdAt": created_at,
+                "items": items_out,
+            }
+            POSTS[post_id] = post
+            _push_family_notification(post)
             self._send(
                 200,
                 api_response(
                     {
-                        "postId": "post_smoke_001",
+                        "postId": post_id,
                         "status": "published",
-                        "familyId": body.get("familyId", "fam_smoke_001"),
-                        "babyId": body.get("babyId", "bb_smoke_001"),
-                        "media": body.get("media", []),
-                        "caption": body.get("caption", "P0 冒烟发布（mock）"),
-                        "createdAt": _utc_now_iso(),
+                        "familyId": family_id,
+                        "babyId": baby_id,
+                        "media": media_in,
+                        "caption": caption,
+                        "createdAt": created_at,
                     },
                     "req_mock_post_create",
                 ),
@@ -2107,6 +2144,7 @@ class Handler(BaseHTTPRequestHandler):
             api_response(
                 {
                     "taskId": task_id,
+                    "play": play,
                     "state": initial,
                     "costCredits": cost,
                     "balanceAfter": balance,
