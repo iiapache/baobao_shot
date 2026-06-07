@@ -1,0 +1,55 @@
+{{- range .Values.mocks }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "third-party-mocks.mockFullname" (dict "root" $ "name" .name) }}
+  labels:
+    {{- include "third-party-mocks.mockLabels" (dict "root" $ "name" .name) | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ .name }}
+      app.kubernetes.io/instance: {{ $.Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ .name }}
+        app.kubernetes.io/instance: {{ $.Release.Name }}
+    spec:
+      containers:
+        - name: wiremock
+          image: "{{ $.Values.image.repository }}:{{ $.Values.image.tag }}"
+          imagePullPolicy: {{ $.Values.image.pullPolicy }}
+          args:
+            {{- toYaml $.Values.wiremock.command | nindent 12 }}
+          ports:
+            - name: http
+              containerPort: {{ .port }}
+              protocol: TCP
+          volumeMounts:
+            - name: mappings
+              mountPath: /home/wiremock/mappings
+              readOnly: true
+          livenessProbe:
+            httpGet:
+              path: /__admin/health
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 15
+          readinessProbe:
+            httpGet:
+              path: /__admin/health
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          {{- with $.Values.wiremock.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      volumes:
+        - name: mappings
+          configMap:
+            name: {{ include "third-party-mocks.mockFullname" (dict "root" $ "name" .name) }}-mappings
+{{- end }}

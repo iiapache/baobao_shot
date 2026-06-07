@@ -109,6 +109,7 @@ let package = Package(
                 "BabyCameraPermissions",
                 "BabyCameraImageKit",
                 "BabyCameraBaby",
+                "BabyCameraDiagnostics",
                 "Database",
             ],
             path: "Packages/BabyCameraCamera/Sources/BabyCameraCamera"

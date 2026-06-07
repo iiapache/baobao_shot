@@ -1,0 +1,10 @@
+apiVersion: v2
+name: microservice
+description: Baobao Go 微服务通用 Helm chart（Deployment + Service）
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
+dependencies:
+  - name: common
+    version: 0.1.0
+    repository: file://../common

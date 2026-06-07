@@ -63,6 +63,10 @@ final class P1AccountFamilyE2ETests: XCTestCase {
         let home = app.otherElements["mainHomeView"]
         XCTAssertTrue(home.waitForExistence(timeout: 10))
 
+        // 账号入口已迁移至「我的」Tab
+        app.tabBars.buttons["我的"].tap()
+        XCTAssertTrue(app.otherElements["mainTabProfile"].waitForExistence(timeout: 5))
+
         // 注销账号
         app.buttons["accountSettingsLink"].tap()
         app.buttons["deleteAccountLink"].tap()

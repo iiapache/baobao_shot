@@ -10,6 +10,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/baobao/ai-dispatch-svc/internal/adapter/cnconfig"
 	"github.com/baobao/ai-dispatch-svc/internal/adapter/osconfig"
 	"github.com/baobao/ai-dispatch-svc/internal/auditclient"
 	"github.com/baobao/ai-dispatch-svc/internal/auth"
@@ -94,7 +95,8 @@ func run() error {
 			creditClient = grpcCredit
 			slog.Info("credit-sub-ad-svc client enabled", "addr", cfg.CreditSvcGRPCAddr)
 		}
-		adapters := osconfig.EnrichAdapters(worker.DefaultDevAdapters(), ctx, flagClient)
+		adapters := cnconfig.EnrichAdapters(worker.DefaultDevAdapters())
+		adapters = osconfig.EnrichAdapters(adapters, ctx, flagClient)
 		modelRouter := worker.BuildDevRouter(adapters, filingStore.Bindings())
 		processor := worker.NewProcessor(taskStore, modelRouter, creditClient,
 			worker.WithFilings(filingStore.Bindings()),

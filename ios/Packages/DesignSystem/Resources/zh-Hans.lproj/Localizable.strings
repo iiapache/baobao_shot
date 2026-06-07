@@ -70,6 +70,9 @@
 "onboarding.consent.restricted.camera" = "拍摄儿童照片前需完成监护人同意";
 "onboarding.consent.restricted.family" = "创建家庭前需完成监护人同意";
 "onboarding.consent.restricted.import" = "导入儿童照片前需完成监护人同意";
+"onboarding.consent.restricted.feed_publish" = "发布家庭圈动态前需完成监护人同意";
+"onboarding.consent.restricted.feed_engagement" = "点赞或评论家庭圈动态前需完成监护人同意";
+"onboarding.consent.restricted.ai_submit" = "提交 AI 任务前需完成监护人同意";
 "onboarding.consent.restricted.title" = "功能暂不可用";
 "onboarding.consent.restricted_hint" = "未勾选同意前，拍摄、导入照片及创建宝宝等关键功能将受限。";
 "onboarding.consent.subtitle" = "根据相关法规，收集儿童照片前需由监护人阅读并同意";
@@ -149,6 +152,8 @@
 "settings.cache.total" = "总占用";
 "settings.cache.usage_section" = "缓存占用";
 "settings.cache.websocket" = "WebSocket 缓存";
+"ai.compliance.algorithm_filing" = "算法备案号";
+"ai.compliance.deep_synthesis" = "深度合成说明";
 "settings.compliance.pending" = "备案办理中";
 "settings.compliance.version_in_browser" = "%@ · 在浏览器中查看";
 "settings.compliance.view_in_browser" = "在浏览器中查看";

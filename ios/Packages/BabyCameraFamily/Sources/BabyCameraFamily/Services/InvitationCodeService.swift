@@ -154,7 +154,7 @@ public struct InvitationCodeService: Sendable {
     }
 
     private func isPlainInviteCode(_ string: String) -> Bool {
-        string.count == 6 && string.allSatisfy(\.isNumber)
+        string.count == ProductLimits.inviteCodeLength && string.allSatisfy(\.isNumber)
     }
 
     private func constantTimeCompare(_ lhs: String, _ rhs: String) -> Bool {

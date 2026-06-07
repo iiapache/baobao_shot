@@ -1,3 +1,4 @@
+import BabyCameraNetwork
 import BabyCameraTimeline
 import DesignSystem
 import SwiftUI
@@ -6,6 +7,7 @@ import SwiftUI
 struct P2E2ERootView: View {
     @StateObject private var store: P2E2EFlowStore
     @StateObject private var timelineViewModel: TimelineViewModel
+    @StateObject private var networkReachability = NetworkReachability()
 
     init(offlineMode: Bool = UITestLaunchConfiguration.isOfflineMode) {
         let flowStore = P2E2EFlowStore(offlineMode: offlineMode)
@@ -22,6 +24,9 @@ struct P2E2ERootView: View {
             content
                 .navigationBarTitleDisplayMode(.inline)
         }
+        .environmentObject(networkReachability)
+        .onAppear { networkReachability.start() }
+        .onDisappear { networkReachability.stop() }
         .accessibilityIdentifier("p2e2eRootView")
     }
 

@@ -1,0 +1,14 @@
+# media-svc — staging 媒体上传（OSS mock / memory 后端）
+
+extraEnv:
+  ENVIRONMENT: staging
+  STORAGE_BACKEND: memory
+  JWT_SIGNING_SECRET: staging-dev-only-change-me
+
+env:
+  - name: ENVIRONMENT
+    value: staging
+  - name: STORAGE_BACKEND
+    value: memory
+  - name: JWT_SIGNING_SECRET
+    value: staging-dev-only-change-me

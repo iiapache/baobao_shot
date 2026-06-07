@@ -68,6 +68,63 @@ func TestFeaturesRegionAndRollout(t *testing.T) {
 	}
 }
 
+func TestProductConfigEndpoint(t *testing.T) {
+	cfg := &config.Config{ServiceName: "config-svc"}
+	router := NewRouter(cfg, store.NewMemoryStore())
+
+	req := httptest.NewRequest(http.MethodGet, "/v1/config/product", nil)
+	rec := httptest.NewRecorder()
+	router.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Fatalf("status = %d, want 200; body=%s", rec.Code, rec.Body.String())
+	}
+
+	var resp apiResponse
+	if err := json.Unmarshal(rec.Body.Bytes(), &resp); err != nil {
+		t.Fatal(err)
+	}
+	data, ok := resp.Data.(map[string]any)
+	if !ok {
+		t.Fatal("data is not a map")
+	}
+	if data["version"] != "20250607001" {
+		t.Fatalf("version = %v", data["version"])
+	}
+	configMap, ok := data["config"].(map[string]any)
+	if !ok {
+		t.Fatal("config missing")
+	}
+	family, ok := configMap["family"].(map[string]any)
+	if !ok || int(family["maxBabies"].(float64)) != 5 {
+		t.Fatalf("family = %v", configMap["family"])
+	}
+}
+
+func TestFeaturesProductLimitsFlags(t *testing.T) {
+	cfg := &config.Config{ServiceName: "config-svc"}
+	router := NewRouter(cfg, store.NewMemoryStore())
+
+	req := httptest.NewRequest(http.MethodGet, "/v1/config/features", nil)
+	req.Header.Set("X-Region", "cn")
+	rec := httptest.NewRecorder()
+	router.ServeHTTP(rec, req)
+
+	var resp apiResponse
+	if err := json.Unmarshal(rec.Body.Bytes(), &resp); err != nil {
+		t.Fatal(err)
+	}
+	data := resp.Data.(map[string]any)
+	features := data["features"].(map[string]any)
+	flag, ok := features["product.limits.family_babies"].(map[string]any)
+	if !ok {
+		t.Fatal("product.limits.family_babies missing")
+	}
+	if flag["variant"] != "5" {
+		t.Fatalf("variant = %v, want 5", flag["variant"])
+	}
+}
+
 func TestFeaturesOSTrainingOptOut(t *testing.T) {
 	cfg := &config.Config{ServiceName: "config-svc"}
 	router := NewRouter(cfg, store.NewMemoryStore())

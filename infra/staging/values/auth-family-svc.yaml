@@ -1,0 +1,41 @@
+# auth-family-svc — staging outbound 注入
+# 合并：cluster-values + ack-cn-outbound.yaml + 本文件
+#
+# SMS（INT-01）：
+#   默认 mock + MOCK_SMS_FIXED_CODE，不调用阿里云。
+#   切真实短信：SMS_PROVIDER=aliyun，Vault 注入 aliyun-sms 凭据，并配置 SMS_TEST_PHONES 白名单。
+#   详见 services/auth-family-svc/README.md §短信验证码
+#
+# Apple 登录（INT-02）：
+#   默认 APPLE_AUTH_MOCK=true，跳过 JWKS 签名校验（E2E / 冒烟兼容）。
+#   真机闭环：APPLE_AUTH_MOCK=false + APPLE_BUNDLE_ID=com.babycamera.app
+#   详见 services/auth-family-svc/README.md §Apple 登录
+
+extraEnv:
+  ENVIRONMENT: staging
+  APPLE_AUTH_MOCK: "true"
+  MOCK_APPLE_VERIFY: "true"
+  APPLE_BUNDLE_ID: com.babycamera.app
+  SMS_PROVIDER: mock
+  MOCK_SMS_FIXED_CODE: "123456"
+  SMS_TEST_PHONES: "13800138001:123456,13800138002:123456,13800138003:123456"
+  # V1.1 微信 Open API；live client 启用后替换 api.weixin.qq.com
+  WECHAT_OPEN_API_BASE: http://mock-wechat.third-party-mocks.svc.cluster.local:8080
+
+env:
+  - name: ENVIRONMENT
+    value: staging
+  - name: APPLE_AUTH_MOCK
+    value: "true"
+  - name: MOCK_APPLE_VERIFY
+    value: "true"
+  - name: APPLE_BUNDLE_ID
+    value: com.babycamera.app
+  - name: SMS_PROVIDER
+    value: mock
+  - name: MOCK_SMS_FIXED_CODE
+    value: "123456"
+  - name: SMS_TEST_PHONES
+    value: "13800138001:123456,13800138002:123456,13800138003:123456"
+  - name: WECHAT_OPEN_API_BASE
+    value: http://mock-wechat.third-party-mocks.svc.cluster.local:8080

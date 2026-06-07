@@ -12,6 +12,7 @@ let package = Package(
         .package(path: "../Database"),
         .package(path: "../BabyCameraImageKit"),
         .package(path: "../BabyCameraBaby"),
+        .package(path: "../BabyCameraNetwork"),
     ],
     targets: [
         .target(
@@ -21,6 +22,7 @@ let package = Package(
                 "Database",
                 "BabyCameraImageKit",
                 "BabyCameraBaby",
+                "BabyCameraNetwork",
             ]
         ),
         .testTarget(

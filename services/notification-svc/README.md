@@ -70,7 +70,11 @@ Token 以 `invalid:` 前缀模拟 Apple 410 失效，触发自动清理。
 | `STORAGE_BACKEND` | `memory` | `memory` 或 `postgres` |
 | `DATABASE_URL` | （空） | `STORAGE_BACKEND=postgres` 时必填 |
 | `APNS_SANDBOX` | `true` | stub 池使用 sandbox host |
-| `APNS_TOPIC` | `app.babycamera` | 推送 topic（gRPC SendPush） |
+| `APNS_MOCK` | dev/staging=`true`, prod=`false` | `true`=MockSender；`false`=Apple HTTP/2 |
+| `APNS_TOPIC` | `app.babycamera` | 推送 topic（Bundle ID） |
+| `APNS_KEY_ID` | （空） | Live 模式必填：Auth Key ID |
+| `APNS_TEAM_ID` | （空） | Live 模式必填：Team ID |
+| `APNS_PRIVATE_KEY_PEM` | （空） | Live 模式必填：`.p8` PEM |
 | `DEBUG_ENDPOINTS` | dev=`true` / prod=`false` | 是否暴露 `/v1/debug/apns-ping` |
 
 ## 命令

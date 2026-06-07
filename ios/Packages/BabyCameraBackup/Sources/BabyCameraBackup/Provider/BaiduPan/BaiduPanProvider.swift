@@ -45,15 +45,21 @@ public struct BaiduPanProvider: BackupProvider, Sendable {
     }
 
     public static func live(
+        oauth: any BaiduPanOAuthProviding = LiveBaiduPanOAuthService(),
+        openAPI: any BaiduPanOpenAPIProviding = BaiduPanOpenAPIClient(),
         tokenStore: any BaiduPanTokenStoring = KeychainBaiduPanTokenStore(),
         ledger: any BaiduPanUploadLedger = InMemoryBaiduPanUploadLedger()
     ) -> BaiduPanProvider {
         BaiduPanProvider(
-            oauth: LiveBaiduPanOAuthService(),
-            openAPI: BaiduPanOpenAPIClient(),
+            oauth: oauth,
+            openAPI: openAPI,
             tokenStore: tokenStore,
             ledger: ledger
         )
+    }
+
+    public func currentCredentials() -> BaiduPanCredentials? {
+        tokenStore.load()
     }
 
     public func authorize() async throws {

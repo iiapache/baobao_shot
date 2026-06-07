@@ -1,0 +1,41 @@
+# EKS 新加坡 — staging 微服务 umbrella 覆盖（ENV-03）
+
+global:
+  cluster: eks-os
+  region: os
+  environment: staging
+
+imageTag: staging
+
+auth-family-svc:
+  image:
+    repository: "<AWS_ACCOUNT_ID>.dkr.ecr.ap-southeast-1.amazonaws.com/baobao/auth-family-svc"
+  extraEnv:
+    DEPLOY_REGION: os
+    WECHAT_OPEN_API_BASE: http://mock-wechat.third-party-mocks.svc.cluster.local:8080
+
+media-svc:
+  image:
+    repository: "<AWS_ACCOUNT_ID>.dkr.ecr.ap-southeast-1.amazonaws.com/baobao/media-svc"
+
+feed-svc:
+  image:
+    repository: "<AWS_ACCOUNT_ID>.dkr.ecr.ap-southeast-1.amazonaws.com/baobao/feed-svc"
+
+audit-svc:
+  image:
+    repository: "<AWS_ACCOUNT_ID>.dkr.ecr.ap-southeast-1.amazonaws.com/baobao/audit-svc"
+  extraEnv:
+    DEPLOY_REGION: os
+
+ai-dispatch-svc:
+  image:
+    repository: "<AWS_ACCOUNT_ID>.dkr.ecr.ap-southeast-1.amazonaws.com/baobao/ai-dispatch-svc"
+
+credit-sub-ad-svc:
+  image:
+    repository: "<AWS_ACCOUNT_ID>.dkr.ecr.ap-southeast-1.amazonaws.com/baobao/credit-sub-ad-svc"
+
+notification-svc:
+  image:
+    repository: "<AWS_ACCOUNT_ID>.dkr.ecr.ap-southeast-1.amazonaws.com/baobao/notification-svc"

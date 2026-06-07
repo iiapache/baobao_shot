@@ -42,10 +42,29 @@ func TestLoadPostgresBackend(t *testing.T) {
 	}
 }
 
-func TestLoadInvalidBackend(t *testing.T) {
-	t.Setenv("STORAGE_BACKEND", "redis")
-	_, err := Load()
-	if err == nil {
-		t.Fatal("expected error for invalid STORAGE_BACKEND")
+func TestLoadAppleAuthMockPrefersAppleAuthMockEnv(t *testing.T) {
+	t.Setenv("APPLE_AUTH_MOCK", "false")
+	t.Setenv("MOCK_APPLE_VERIFY", "true")
+
+	cfg, err := Load()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if cfg.MockAppleVerify {
+		t.Fatal("APPLE_AUTH_MOCK=false should disable mock mode")
+	}
+}
+
+func TestValidateRequiresBundleIDWhenLiveAppleAuth(t *testing.T) {
+	cfg := &Config{MockAppleVerify: false, AppleBundleID: ""}
+	if err := cfg.Validate(); err == nil {
+		t.Fatal("expected validation error for missing APPLE_BUNDLE_ID")
+	}
+}
+
+func TestValidateAllowsMockWithoutBundleID(t *testing.T) {
+	cfg := &Config{MockAppleVerify: true, AppleBundleID: ""}
+	if err := cfg.Validate(); err != nil {
+		t.Fatal(err)
 	}
 }

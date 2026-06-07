@@ -1,23 +1,29 @@
 import DesignSystem
 import SwiftUI
 
-public struct AIPlayDetailView: View {
+public struct AIPlayDetailView<RestrictedSubmit: View>: View {
     @ObservedObject private var viewModel: AIPlayDetailViewModel
 
     private let onRecharge: () -> Void
     private let onSignIn: () -> Void
     private let onTaskSubmitted: (AITaskCreatedData) -> Void
+    private let submitAllowed: Bool
+    private let restrictedSubmitContent: () -> RestrictedSubmit
 
     public init(
         viewModel: AIPlayDetailViewModel,
         onRecharge: @escaping () -> Void = {},
         onSignIn: @escaping () -> Void = {},
-        onTaskSubmitted: @escaping (AITaskCreatedData) -> Void = { _ in }
+        onTaskSubmitted: @escaping (AITaskCreatedData) -> Void = { _ in },
+        submitAllowed: Bool = true,
+        @ViewBuilder restrictedSubmitContent: @escaping () -> RestrictedSubmit
     ) {
         self.viewModel = viewModel
         self.onRecharge = onRecharge
         self.onSignIn = onSignIn
         self.onTaskSubmitted = onTaskSubmitted
+        self.submitAllowed = submitAllowed
+        self.restrictedSubmitContent = restrictedSubmitContent
     }
 
     public var body: some View {
@@ -29,6 +35,14 @@ public struct AIPlayDetailView: View {
                 DSLoadingView(message: "提交任务中…", style: .fullScreen)
             case .submitted:
                 submittedView
+            case .error where viewModel.preview == nil:
+                DSErrorView(
+                    kind: .generic,
+                    message: viewModel.state.errorMessage,
+                    actionTitle: "重试"
+                ) {
+                    Task { await viewModel.loadPreview() }
+                }
             default:
                 detailContent
             }
@@ -92,16 +106,24 @@ public struct AIPlayDetailView: View {
 
                 if let preview = viewModel.preview {
                     creditSummary(preview)
-                    signInHint(preview)
+                    if !preview.hasSufficientCredit {
+                        insufficientCreditBanner(preview)
+                    } else {
+                        signInHint(preview)
+                    }
                 }
 
-                DSButton(
-                    submitButtonTitle,
-                    style: .primary,
-                    isLoading: viewModel.state == .loadingPreview,
-                    isDisabled: viewModel.preview == nil || viewModel.state.isBusy
-                ) {
-                    viewModel.requestSubmit()
+                if submitAllowed {
+                    DSButton(
+                        submitButtonTitle,
+                        style: .primary,
+                        isLoading: viewModel.state == .loadingPreview,
+                        isDisabled: viewModel.preview == nil || viewModel.state.isBusy
+                    ) {
+                        viewModel.requestSubmit()
+                    }
+                } else {
+                    restrictedSubmitContent()
                 }
             }
             .padding(DSSpacing.md)
@@ -183,6 +205,19 @@ public struct AIPlayDetailView: View {
         }
     }
 
+    private func insufficientCreditBanner(_ preview: CreditPreview) -> some View {
+        DSErrorView(
+            kind: .insufficientCredit,
+            message: "还需 \(max(preview.costCredits - preview.balance, 0)) 积分，当前余额 \(preview.balance) 积分",
+            actionTitle: "去充值",
+            secondaryActionTitle: preview.signInAvailable ? "去签到" : nil,
+            style: .banner,
+            action: onRecharge,
+            secondaryAction: preview.signInAvailable ? onSignIn : nil
+        )
+        .accessibilityIdentifier("ai_play_insufficient_credit_banner")
+    }
+
     private var submittedView: some View {
         DSEmptyState(
             systemImage: "checkmark.circle.fill",
@@ -244,6 +279,24 @@ public struct AIPlayDetailView: View {
                     viewModel.clearError()
                 }
             }
+        )
+    }
+}
+
+public extension AIPlayDetailView where RestrictedSubmit == EmptyView {
+    init(
+        viewModel: AIPlayDetailViewModel,
+        onRecharge: @escaping () -> Void = {},
+        onSignIn: @escaping () -> Void = {},
+        onTaskSubmitted: @escaping (AITaskCreatedData) -> Void = { _ in }
+    ) {
+        self.init(
+            viewModel: viewModel,
+            onRecharge: onRecharge,
+            onSignIn: onSignIn,
+            onTaskSubmitted: onTaskSubmitted,
+            submitAllowed: true,
+            restrictedSubmitContent: { EmptyView() }
         )
     }
 }

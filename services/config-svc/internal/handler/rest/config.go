@@ -48,6 +48,12 @@ type playsData struct {
 	Source  string                 `json:"source"`
 }
 
+type productData struct {
+	Version string `json:"version"`
+	Source  string `json:"source"`
+	Config  any    `json:"config"`
+}
+
 // Features handles GET /v1/config/features.
 func (h *ConfigHandler) Features(w http.ResponseWriter, r *http.Request) {
 	region, ok := middleware.RegionFromContext(r.Context())
@@ -97,6 +103,20 @@ func (h *ConfigHandler) Features(w http.ResponseWriter, r *http.Request) {
 				UserIDHash: evalCtx.UserIDHash,
 			},
 			Features: results,
+		},
+	})
+}
+
+// Product handles GET /v1/config/product.
+func (h *ConfigHandler) Product(w http.ResponseWriter, r *http.Request) {
+	snapshot := h.store.GetSnapshot()
+	writeJSON(w, http.StatusOK, apiResponse{
+		Code:      "OK",
+		RequestID: requestID(r),
+		Data: productData{
+			Version: snapshot.Version,
+			Source:  "product-config.yaml",
+			Config:  snapshot.Product,
 		},
 	})
 }

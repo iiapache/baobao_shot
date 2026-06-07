@@ -7,18 +7,25 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/baobao/credit-sub-ad-svc/internal/appattest"
 	"github.com/baobao/credit-sub-ad-svc/internal/iap"
 	"github.com/baobao/credit-sub-ad-svc/internal/middleware"
 )
 
+var errEmptyBody = errors.New("empty body")
+
 // IAPVerifyHandler serves POST /v1/credits/iap-verify.
 type IAPVerifyHandler struct {
-	iap *iap.Service
+	iap       *iap.Service
+	appAttest appattest.Verifier
 }
 
 // NewIAPVerifyHandler creates IAP verify REST handlers.
-func NewIAPVerifyHandler(svc *iap.Service) *IAPVerifyHandler {
-	return &IAPVerifyHandler{iap: svc}
+func NewIAPVerifyHandler(svc *iap.Service, verifier appattest.Verifier) *IAPVerifyHandler {
+	if verifier == nil {
+		verifier = appattest.DisabledVerifier{}
+	}
+	return &IAPVerifyHandler{iap: svc, appAttest: verifier}
 }
 
 type iapVerifyRequest struct {
@@ -48,8 +55,16 @@ func (h *IAPVerifyHandler) Verify(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var req iapVerifyRequest
-	if err := decodeIAPVerifyRequest(r, &req); err != nil {
+	body, err := readIAPVerifyBody(r)
+	if err != nil {
 		writeError(w, http.StatusBadRequest, "COMMON_BAD_PARAM", "invalid json", r)
+		return
+	}
+	if err := json.Unmarshal(body, &req); err != nil {
+		writeError(w, http.StatusBadRequest, "COMMON_BAD_PARAM", "invalid json", r)
+		return
+	}
+	if !verifyAppAttest(w, r, h.appAttest, req.TransactionID, req.ProductID, body) {
 		return
 	}
 

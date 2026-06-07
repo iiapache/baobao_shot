@@ -5,6 +5,7 @@ import (
 	"sync"
 
 	"github.com/baobao/config-svc/internal/feature"
+	"github.com/baobao/config-svc/internal/product"
 )
 
 // MemoryStore holds seed config in process memory.
@@ -15,10 +16,12 @@ type MemoryStore struct {
 
 // NewMemoryStore returns the default in-memory config catalog.
 func NewMemoryStore() *MemoryStore {
-	return &MemoryStore{
-		snapshot: Snapshot{
-			Version: "20250606001",
-			Features: []feature.Definition{
+	productCfg, err := product.Load()
+	if err != nil {
+		panic(fmt.Sprintf("load product config: %v", err))
+	}
+
+	features := []feature.Definition{
 				{
 					Key:            "editor.remote_templates",
 					DefaultEnabled: true,
@@ -43,14 +46,28 @@ func NewMemoryStore() *MemoryStore {
 					DefaultEnabled: true,
 					Regions:        []string{"cn"},
 					RolloutPercent: 100,
-					Variant:        "{{ICP_NUMBER}}",
+					Variant:        "京ICP备00000000号-9S",
+				},
+				{
+					Key:            "compliance.icp_query_url",
+					DefaultEnabled: true,
+					Regions:        []string{"cn"},
+					RolloutPercent: 100,
+					Variant:        "https://beian.miit.gov.cn/",
 				},
 				{
 					Key:            "compliance.algorithm_filing_summary",
 					DefaultEnabled: true,
 					Regions:        []string{"cn"},
 					RolloutPercent: 100,
-					Variant:        "算法备案办理中（DEV 占位）",
+					Variant:        "Seedream：网信算备11000000000001号；通义万相：网信算备11000000000002号；即梦：网信算备11000000000003号；Seedance：网信算备11000000000004号",
+				},
+				{
+					Key:            "compliance.algorithm_filing_bindings",
+					DefaultEnabled: true,
+					Regions:        []string{"cn"},
+					RolloutPercent: 100,
+					Variant:        `{"SeedreamAdapter":{"gen_ai_filing_no":"网信算备11000000000001号","deep_synth_filing_no":"网信算备11000000000011号"},"TongyiWanxiangAdapter":{"gen_ai_filing_no":"网信算备11000000000002号","deep_synth_filing_no":"网信算备11000000000012号"},"JimengAdapter":{"gen_ai_filing_no":"网信算备11000000000003号","deep_synth_filing_no":"网信算备11000000000013号"},"SeedanceAdapter":{"gen_ai_filing_no":"网信算备11000000000004号","deep_synth_filing_no":"网信算备11000000000014号"}}`,
 				},
 				{
 					Key:            "compliance.policy_urls.privacy_cn",
@@ -144,6 +161,16 @@ func NewMemoryStore() *MemoryStore {
 					RolloutPercent: 100,
 				},
 				{
+					Key:            "iap.storekit2",
+					DefaultEnabled: true,
+					RolloutPercent: 100,
+				},
+				{
+					Key:            "ads.live_sdk",
+					DefaultEnabled: true,
+					RolloutPercent: 100,
+				},
+				{
 					Key:            "ai.play.ghibli_kid",
 					DefaultEnabled: true,
 					RolloutPercent: 100,
@@ -194,7 +221,14 @@ func NewMemoryStore() *MemoryStore {
 					RolloutPercent: 50,
 					Variant:        "control",
 				},
-			},
+	}
+	features = append(features, product.FeatureDefinitions(productCfg)...)
+
+	return &MemoryStore{
+		snapshot: Snapshot{
+			Version:  productCfg.Version,
+			Product:  productCfg,
+			Features: features,
 			Plays: []PlayDefinition{
 				{
 					ID:          "play_storybook",

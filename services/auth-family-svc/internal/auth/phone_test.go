@@ -37,7 +37,7 @@ func newTestPhoneService(t *testing.T, now time.Time) (*PhoneAuthService, *recor
 	users := store.NewMemoryStore()
 	verification := store.NewMemoryVerificationStore()
 	sms := &recordingSMS{}
-	svc := NewPhoneAuthService(users, verification, sms, newTestTokenService(users))
+	svc := NewPhoneAuthService(users, verification, sms, newTestTokenService(users), &CodeResolver{provider: "mock"})
 	svc.now = func() time.Time { return now }
 	return svc, sms, verification
 }

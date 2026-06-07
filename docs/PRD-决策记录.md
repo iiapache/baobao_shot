@@ -167,26 +167,97 @@
 
 ---
 
-## 待二次决策清单（保留于 PRD §12.1）
+## 二次决策落地（2026-06-07 · OPT-05）
 
-> 这些项已记录在 PRD 末尾，等待产品负责人后续拍板：
+> 采纳 PRD v0.1 草案作为 V1.0 基线；参数写入 [product-config.yaml](./product-config.yaml)，由 config-svc `GET /v1/config/product` 与各服务常量同步。
 
-1. 订阅价格档位最终值
-2. 积分单价与单次 AI 扣减表（需算法成本对账）
-3. 新用户赠送 / 每日签到 / 看广告积分上限的具体数值
-4. AI 模型选择策略：用户只选玩法 vs 暴露模型名
-5. 视频时长档位是否仅 5s/10s，或新增 3s 试用档
-6. 家庭组规模上限、宝宝数上限
-7. 邀请码具体规则
-8. 管理员失联接管的阈值参数
-9. 孕期模式归入 V1.0 还是 V1.1
-10. 深度合成标识的具体外观与不可关闭策略确认
-11. 桌面小组件 V1 提供尺寸数量
-12. 字体 / 贴纸版权采购预算
-13. 数据导出格式细节（zip / PDF）
-14. 海外版隐私政策与跨境传输方案
-15. 是否在 PRD 中显式说明微信仅支持朋友圈 / 好友
-16. Apple Watch / iPad 是否纳入未来路线
+### 决策 D10：积分充值与 AI 扣减（V1.0 基线）
+
+- **决策**：按 PRD §4.11.2–§4.11.3 草案执行；`rates.manifest.json` 版本 `20250606001`
+- **充值档位**：¥6/60 · ¥30/330 · ¥68/800 · ¥198/2500
+- **AI 扣减**：图像 8–15 · 视频 5s/60 · 10s/120 · 年度回顾 50 · 智能文案 0
+- **落地**：`credit-sub-ad-svc/internal/rates/` · config-svc `rollout.pricing_variant`
+
+### 决策 D11：订阅价格档位
+
+- **决策**：月 ¥18 · 季 ¥45 · 年 ¥128（赠 200 积分）· 终身 ¥498（赠 500 积分）
+- **落地**：`compliance/app-store/IAP_PRODUCTS.md` · `credit-sub-ad-svc/internal/subscription/catalog.go`
+
+### 决策 D12：积分获取渠道数值
+
+- **决策**：注册 100 · 完善档案 20 · 签到 5–20（连签递增）· 激励广告 5/次、日上限 5 · 邀请 50
+- **落地**：`credit-sub-ad-svc/internal/channel/` · `signin/credits.go` · iOS `SignInCredits`
+
+### 决策 D13：AI 玩法暴露策略
+
+- **决策**：用户只选玩法，后端智能路由，端侧不暴露模型名（延续 D8）
+- **落地**：`ai-dispatch-svc` 玩法目录；无模型选择 UI
+
+### 决策 D14：视频时长档位
+
+- **决策**：V1.0 仅 **5s / 10s** 两档；**不新增 3s 试用档**
+- **落地**：`product-config.yaml` `ai_video.duration_tiers_seconds: [5, 10]`
+
+### 决策 D15：家庭组与宝宝上限
+
+- **决策**：家庭成员上限 **8** · 宝宝上限 **5** · 创建家庭 ≤2 · 加入家庭 ≤3
+- **落地**：`auth-family-svc/internal/family/errors.go` · `baby/errors.go`（新增 `MaxBabiesPerFamily` 校验）
+
+### 决策 D16：邀请码规则
+
+- **决策**：**6 位数字** · **24 小时** TTL · 单码最多 **8 次**
+- **落地**：`auth-family-svc/internal/family/` · iOS `ProductLimits` · `InvitationCodeService`
+
+### 决策 D17：管理员失联接管
+
+- **决策**：管理员 **30 天**无登录 · **50%** 家人赞成 · **7 天**异议期
+- **落地**：`auth-family-svc/internal/family/takeover.go`
+
+### 决策 D18：孕期模式范围
+
+- **决策**：**V1.1** 实施；V1.0 不开放（`product.scope.pregnancy_mode=false`）
+- **落地**：config-svc feature flag · T2.10 禁导
+
+### 决策 D19：桌面小组件 V1 尺寸
+
+- **决策**：V1.0 提供 **小 / 中 / 大 + 锁屏** 四种（T6.9 全量实施）
+- **落地**：`product-config.yaml` `scope_v1.widget_sizes`
+
+### 决策 D20：数据导出格式
+
+- **决策**：V1.0 仅 **zip**（原图 + 元数据 JSON + 时间线 HTML）；不含 PDF
+- **落地**：`product-config.yaml` `scope_v1.data_export_formats`
+
+### 决策 D21：海外区原图出境与 AI
+
+- **决策**：V1.0 海外区 **不上传原图**至 OpenAI / Google；仅脱敏后调度或灰度关闭
+- **落地**：`product-config.yaml` `scope_v1.overseas_original_to_openai: false` · T7.4 合规路径
+
+### 决策 D22：微信分享范围说明
+
+- **决策**：PRD 与隐私政策 **显式写明**仅支持朋友圈 / 好友，不支持公众号 / 视频号代发
+- **落地**：PRD §4.10 · 合规 HTML · config-svc `product.scope.wechat_share`
+
+### 决策 D23：Apple Watch / iPad
+
+- **决策**：V1.0 **不实施**；V1.1+ 评估（Watch 简易入口 · iPad 适配放 V1.2）
+- **落地**：`product-config.yaml` `scope_v1.deferred_platforms`
+
+### 决策 D24：深度合成标识
+
+- **决策**：AI 生成内容强制「AI 生成 · 深度合成」角标 **不可关闭**；品牌水印订阅可关（PRD §4.10.2）
+- **落地**：`ai-dispatch-svc` watermark 链路（T3.13）
+
+### 决策 D25：字体 / 贴纸预算
+
+- **决策**：P0 T0.11 已锁定（自研 + 外采字体 6 款 + 自研贴纸 60 个）；不在 V1.0 变更
+- **落地**：`ios/ODR/README.md`
+
+---
+
+## 待二次决策清单（历史 · 已由 D10–D25 闭合）
+
+> 原 PRD §12.1 条目已于 2026-06-07 按草案基线拍板；后续调价或限额变更请追加 **D26+** 条目。
 
 ---
 

@@ -93,3 +93,5 @@ cd ios && xcodebuild -project BabyCamera.xcodeproj -scheme BabyCamera \
 ## 相关任务
 
 - T6.6 备份凭据 API · T6.9 Widget · T6.11 数据导出 · T6.15 本 E2E
+- iOS 真机 iCloud / 系统相册联调：[ios/docs/ICLOUD_PHOTOS_BACKUP_STAGING.md](../../ios/docs/ICLOUD_PHOTOS_BACKUP_STAGING.md)（OPT-04）
+- iOS 真机百度网盘 OAuth：[ios/docs/BAIDU_PAN_OAUTH_STAGING.md](../../ios/docs/BAIDU_PAN_OAUTH_STAGING.md)（OPT-03）

@@ -35,11 +35,49 @@ func (MockAppleVerifier) Verify(_ context.Context, identityToken string) (*Apple
 // ProductionAppleVerifier validates JWT signature against Apple JWKS.
 type ProductionAppleVerifier struct {
 	BundleID string
+	JWKS     AppleJWKSProvider
 }
 
 // Verify validates the token signature using Apple public keys.
-func (ProductionAppleVerifier) Verify(_ context.Context, _ string) (*AppleClaims, error) {
-	return nil, fmt.Errorf("production Apple verification not enabled in T1.1; set MOCK_APPLE_VERIFY=true")
+func (v *ProductionAppleVerifier) Verify(ctx context.Context, identityToken string) (*AppleClaims, error) {
+	if v.BundleID == "" {
+		return nil, errors.New("APPLE_BUNDLE_ID required for Apple token verification")
+	}
+	if v.JWKS == nil {
+		return nil, errors.New("apple JWKS provider not configured")
+	}
+
+	identityToken = strings.TrimSpace(identityToken)
+	if identityToken == "" {
+		return nil, errors.New("empty identity token")
+	}
+
+	parser := jwt.NewParser(
+		jwt.WithValidMethods([]string{jwt.SigningMethodRS256.Alg()}),
+		jwt.WithIssuer(appleIssuer),
+		jwt.WithAudience(v.BundleID),
+		jwt.WithExpirationRequired(),
+	)
+
+	token, err := parser.Parse(identityToken, func(token *jwt.Token) (any, error) {
+		kid, _ := token.Header["kid"].(string)
+		return v.JWKS.PublicKey(ctx, kid)
+	})
+	if err != nil {
+		return nil, fmt.Errorf("verify identity token: %w", err)
+	}
+
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok || !token.Valid {
+		return nil, errors.New("invalid token claims")
+	}
+
+	sub, _ := claims["sub"].(string)
+	if sub == "" {
+		return nil, errors.New("missing sub claim")
+	}
+
+	return &AppleClaims{Sub: sub}, nil
 }
 
 func parseAppleClaims(identityToken string, requireSignature bool) (*AppleClaims, error) {
@@ -84,7 +122,10 @@ func NewAppleVerifier(mockVerify bool, bundleID string) AppleVerifier {
 	if mockVerify {
 		return MockAppleVerifier{}
 	}
-	return ProductionAppleVerifier{BundleID: bundleID}
+	return &ProductionAppleVerifier{
+		BundleID: bundleID,
+		JWKS:     NewAppleJWKSClient(nil),
+	}
 }
 
 // AppleLoginInput is the service-layer Apple sign-in request.

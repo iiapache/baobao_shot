@@ -1,0 +1,4 @@
+// OPT-02 App Attest（DeviceCheck DCAppAttestService）
+// 默认关闭；Release.xcconfig 覆盖为 YES
+
+APP_ATTEST_ENABLED = NO

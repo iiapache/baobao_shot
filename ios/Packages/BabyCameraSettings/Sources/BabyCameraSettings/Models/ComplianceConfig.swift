@@ -49,13 +49,22 @@ public struct ComplianceConfig: Equatable, Sendable {
     public static var icpPendingText: String { L10n.string("settings.compliance.pending") }
     public static var algorithmPendingText: String { L10n.string("settings.compliance.pending") }
     public static let policyHost = "www.babycamera.app"
+    public static let productionLegalBaseURL = "https://\(policyHost)/legal"
+    public static let debugLegalBaseURL = "http://localhost:8765/compliance/legal"
     public static let defaultPolicyVersion = "v1.0.0"
 
-    public static func defaults(for region: AppRegion) -> ComplianceConfig {
-        let base = "https://\(policyHost)/legal"
+    public static func defaults(for region: AppRegion, bundle: Bundle = .main) -> ComplianceConfig {
+        defaults(for: region, legalBaseURL: resolvedLegalBaseURL(bundle: bundle))
+    }
+
+    static func defaults(for region: AppRegion, legalBaseURL: String) -> ComplianceConfig {
+        let base = legalBaseURL.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
         let privacySlug = region == .cn ? "privacy-policy-cn" : "privacy-policy-os"
+        let bundled = region == .cn ? ComplianceBundledConfig.load() : nil
         return ComplianceConfig(
-            icpQueryURL: URL(string: "https://beian.miit.gov.cn/"),
+            icpNumber: bundled?.icpNumber,
+            icpQueryURL: bundled?.icpQueryURL ?? URL(string: "https://beian.miit.gov.cn/"),
+            algorithmFilingSummary: bundled?.algorithmFilingSummary,
             privacyPolicyURL: URL(string: "\(base)/\(privacySlug)"),
             termsURL: URL(string: "\(base)/terms-of-service"),
             deepSynthesisURL: URL(string: "\(base)/deep-synthesis-notice"),
@@ -65,6 +74,17 @@ public struct ComplianceConfig: Equatable, Sendable {
             deepSynthesisVersion: defaultPolicyVersion,
             thirdPartySDKListVersion: defaultPolicyVersion
         )
+    }
+
+    static func resolvedLegalBaseURL(bundle: Bundle = .main) -> String {
+        legalBaseURL(from: bundle.infoDictionary ?? [:]) ?? productionLegalBaseURL
+    }
+
+    static func legalBaseURL(from infoDictionary: [String: Any]) -> String? {
+        guard let raw = infoDictionary["LegalBaseURL"] as? String else { return nil }
+        let trimmed = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty, !trimmed.hasPrefix("$(") else { return nil }
+        return trimmed.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
     }
 
     /// 政策行副标题：`v1.0.0 · 在浏览器中查看`

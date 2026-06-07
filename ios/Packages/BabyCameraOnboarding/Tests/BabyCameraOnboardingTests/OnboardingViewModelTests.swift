@@ -169,6 +169,30 @@ final class ChildDataConsentGateTests: XCTestCase {
         XCTAssertTrue(ChildDataConsentGate.isFeatureAllowed(.camera, profile: profile))
     }
 
+    func testFeedAndAIWriteOpsBlockedWithoutConsent() {
+        let profile = UserProfile(
+            nickname: "测试",
+            avatarUrl: nil,
+            region: "cn",
+            consents: UserConsents(childData: false)
+        )
+        XCTAssertFalse(ChildDataConsentGate.isFeatureAllowed(.feedPublish, profile: profile))
+        XCTAssertFalse(ChildDataConsentGate.isFeatureAllowed(.feedEngagement, profile: profile))
+        XCTAssertFalse(ChildDataConsentGate.isFeatureAllowed(.aiSubmit, profile: profile))
+    }
+
+    func testFeedAndAIWriteOpsAllowedWithConsent() {
+        let profile = UserProfile(
+            nickname: "测试",
+            avatarUrl: nil,
+            region: "cn",
+            consents: UserConsents(childData: true)
+        )
+        XCTAssertTrue(ChildDataConsentGate.isFeatureAllowed(.feedPublish, profile: profile))
+        XCTAssertTrue(ChildDataConsentGate.isFeatureAllowed(.feedEngagement, profile: profile))
+        XCTAssertTrue(ChildDataConsentGate.isFeatureAllowed(.aiSubmit, profile: profile))
+    }
+
     func testDetectsConsentRequiredAPIError() {
         let error = APIError(
             code: .accountConsentRequired,

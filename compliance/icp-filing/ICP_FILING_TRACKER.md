@@ -59,7 +59,7 @@
 
 | 字段 | 占位值 | 正式值（T7.2 回填） | 状态 |
 | --- | --- | --- | --- |
-| **App ICP 备案号** | `{{ICP_NUMBER}}` 例：`京ICP备12345678号-9A` | _待管局下发_ | 未下发 |
+| **App ICP 备案号** | `京ICP备00000000号-9S`（staging，见 `compliance/client-config.yaml`） | _待管局下发_ | staging 占位 |
 | 网站 ICP 备案号（隐私政策域名，如有） | `{{WEB_ICP_NUMBER}}` | _待填_ | 未下发 |
 | 查询链接 | [工信部 ICP/IP 地址/域名信息备案管理系统](https://beian.miit.gov.cn/) | — | — |
 
@@ -67,7 +67,7 @@
 
 ```json
 {
-  "compliance.icp_number": "{{ICP_NUMBER}}",
+  "compliance.icp_number": "京ICP备00000000号-9S",
   "compliance.icp_query_url": "https://beian.miit.gov.cn/"
 }
 ```

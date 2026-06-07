@@ -201,9 +201,10 @@ kubectl logs -l app=notification-svc -n production --tail=200 | rg -i "apns|push
 | Universal Link | 与开放平台登记一致；`WechatUniversalLinkValidator` |
 | AppID / AppSecret | Vault `auth-family/wechat-open`；Secret 重置会立即失效 |
 | 分享缩略图 | ≤ 32KB、最长边 ≤ 120px（`WechatThumbnailAdapter`） |
+| 端侧 stub / live 切换 | `WechatUseOpenSDK` + `enable-wechat-opensdk.sh`；见 [WECHAT_OPENSDK.md](../../ios/Packages/BabyCameraFamilyFeed/Documentation/WECHAT_OPENSDK.md) |
 
 ```bash
-# staging mock 探活
+# staging mock 探活（后端 OAuth，非 iOS OpenSDK）
 curl -sS http://mock-wechat:18082/health
 ```
 

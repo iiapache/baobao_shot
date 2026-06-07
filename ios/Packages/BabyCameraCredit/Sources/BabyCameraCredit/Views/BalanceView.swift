@@ -6,6 +6,7 @@ public struct BalanceView: View {
     @ObservedObject private var creditService: CreditService
 
     private let iapService: IAPService?
+    private let adManager: AdManager?
     private let onInviteFriends: () -> Void
 
     @State private var showRecharge = false
@@ -14,11 +15,13 @@ public struct BalanceView: View {
         viewModel: BalanceViewModel,
         creditService: CreditService,
         iapService: IAPService? = nil,
+        adManager: AdManager? = nil,
         onInviteFriends: @escaping () -> Void = {}
     ) {
         self.viewModel = viewModel
         self.creditService = creditService
         self.iapService = iapService
+        self.adManager = adManager
         self.onInviteFriends = onInviteFriends
     }
 
@@ -100,6 +103,13 @@ public struct BalanceView: View {
                         )
                     }
                     .buttonStyle(.plain)
+                }
+
+                if let adManager {
+                    RewardedAdEntry(adManager: adManager) { _ in
+                        Task { await viewModel.reload() }
+                    }
+                    .accessibilityIdentifier("balanceRewardedAdEntry")
                 }
             }
 

@@ -12,12 +12,13 @@ import (
 
 // DebugHandler exposes staging smoke-test endpoints.
 type DebugHandler struct {
-	apns *apns.Client
+	apns     *apns.Client
+	simulated bool
 }
 
 // NewDebugHandler creates debug handlers when DEBUG_ENDPOINTS is enabled.
-func NewDebugHandler(client *apns.Client) *DebugHandler {
-	return &DebugHandler{apns: client}
+func NewDebugHandler(client *apns.Client, simulated bool) *DebugHandler {
+	return &DebugHandler{apns: client, simulated: simulated}
 }
 
 type apnsPingRequest struct {
@@ -85,7 +86,7 @@ func (h *DebugHandler) APNsPing(w http.ResponseWriter, r *http.Request) {
 		StatusCode: result.StatusCode,
 		Host:       host,
 		Region:     string(region),
-		Simulated:  true,
+		Simulated:  h.simulated,
 	}
 
 	if err != nil {

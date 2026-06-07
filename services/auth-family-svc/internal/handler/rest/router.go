@@ -5,6 +5,7 @@ import (
 
 	"github.com/baobao/auth-family-svc/internal/account"
 	"github.com/baobao/auth-family-svc/internal/auth"
+	"github.com/baobao/auth-family-svc/internal/auth/sms"
 	"github.com/baobao/auth-family-svc/internal/backup"
 	"github.com/baobao/auth-family-svc/internal/avatar"
 	"github.com/baobao/auth-family-svc/internal/config"
@@ -47,7 +48,15 @@ func NewRouter(cfg *config.Config, backend *store.Backend) http.Handler {
 
 	authSvc := auth.NewService(backend.Store, auth.NewAppleVerifier(cfg.MockAppleVerify, cfg.AppleBundleID), tokenSvc)
 	authHandler := NewAuthHandler(authSvc)
-	phoneSvc := auth.NewPhoneAuthService(backend.Users(), backend.Verification, nil, tokenSvc)
+	codeResolver, err := auth.NewCodeResolver(cfg.SMSProvider, cfg.MockSMSFixedCode, cfg.SMSTestPhones)
+	if err != nil {
+		panic("sms code resolver: " + err.Error())
+	}
+	smsSender, err := sms.NewSender(cfg, codeResolver.Whitelist())
+	if err != nil {
+		panic("sms sender: " + err.Error())
+	}
+	phoneSvc := auth.NewPhoneAuthService(backend.Users(), backend.Verification, smsSender, tokenSvc, codeResolver)
 	phoneHandler := NewPhoneAuthHandler(phoneSvc)
 	sessionHandler := NewSessionHandler(tokenSvc)
 	verifyHandler := NewVerifyHandler(tokenSvc)

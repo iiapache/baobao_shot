@@ -1,6 +1,6 @@
-# Sentry / Bugly 第三方依赖占位（T7.7）
+# Sentry / Bugly 第三方依赖（T7.7 / UX-05）
 
-当前工程使用 **stub 实现**（`BabyCameraDiagnostics`），无需添加以下依赖即可编译。
+`BabyCameraDiagnostics` 已实现 **adapter 层**（Live + Noop Stub）。默认 CI/本地无 SDK 仍可编译；启用真实 SDK 见下文。
 
 ## Sentry（SPM）
 
@@ -9,6 +9,13 @@ https://github.com/getsentry/sentry-cocoa.git
 ```
 
 版本：`from: "8.36.0"`
+
+启用 Sentry SPM（Staging/Release 构建）：
+
+```bash
+ios/Packages/BabyCameraDiagnostics/scripts/enable-crash-sdks.sh
+# 然后在 Xcode 中 File → Packages → Resolve Package Versions
+```
 
 接入步骤见：
 

@@ -24,6 +24,7 @@ func NewRouter(cfg *config.Config, s store.Store) http.Handler {
 
 	r.Route("/v1/config", func(r chi.Router) {
 		r.Get("/features", configHandler.Features)
+		r.Get("/product", configHandler.Product)
 		r.Get("/plays", configHandler.Plays)
 	})
 

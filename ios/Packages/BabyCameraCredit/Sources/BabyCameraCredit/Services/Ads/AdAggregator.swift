@@ -14,20 +14,23 @@ public struct AdAggregator: Sendable {
     public static func makeDefault(
         region: AppRegion,
         unitIDs: AdUnitIDs? = nil,
-        clients: [any AdSDKClient]? = nil
+        clients: [any AdSDKClient]? = nil,
+        bundle: Bundle = .main,
+        forceStub: Bool = false,
+        featureFlagEnabled: Bool? = nil
     ) -> AdAggregator {
-        let resolvedUnitIDs = unitIDs ?? .stub(region: region)
-        let resolvedClients: [any AdSDKClient]
-        if let clients {
-            resolvedClients = clients
-        } else {
-            switch region {
-            case .cn:
-                resolvedClients = StubAdSDKFactory.makeCNClients()
-            case .os:
-                resolvedClients = StubAdSDKFactory.makeOSClients()
-            }
-        }
+        let resolvedUnitIDs = unitIDs ?? AdSDKClientFactory.resolveUnitIDs(
+            region: region,
+            bundle: bundle,
+            forceStub: forceStub,
+            featureFlagEnabled: featureFlagEnabled
+        )
+        let resolvedClients = clients ?? AdSDKClientFactory.makeClients(
+            region: region,
+            bundle: bundle,
+            forceStub: forceStub,
+            featureFlagEnabled: featureFlagEnabled
+        )
         return AdAggregator(clients: resolvedClients, unitIDs: resolvedUnitIDs)
     }
 

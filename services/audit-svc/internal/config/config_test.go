@@ -87,7 +87,35 @@ func TestAliyunGreenDefaults(t *testing.T) {
 	}
 }
 
+func TestAliyunGreenLiveModeWithEndpoint(t *testing.T) {
+	t.Setenv("ALIYUN_GREEN_ACCESS_KEY_ID", "")
+	t.Setenv("ALIYUN_GREEN_ACCESS_KEY_SECRET", "")
+	t.Setenv("ALIYUN_GREEN_MOCK_MODE", "false")
+	t.Setenv("ALIYUN_GREEN_ENDPOINT", "http://mock-audit.example:8080")
+	cfg, err := Load()
+	if err != nil {
+		t.Fatalf("Load() error = %v", err)
+	}
+	if cfg.AliyunGreenMockMode {
+		t.Fatal("expected live mode with endpoint")
+	}
+	if cfg.AliyunGreenEndpoint != "http://mock-audit.example:8080" {
+		t.Fatalf("endpoint = %q", cfg.AliyunGreenEndpoint)
+	}
+}
+
+func TestAliyunGreenLiveModeRequiresCredentialsOrEndpoint(t *testing.T) {
+	t.Setenv("ALIYUN_GREEN_ACCESS_KEY_ID", "")
+	t.Setenv("ALIYUN_GREEN_ACCESS_KEY_SECRET", "")
+	t.Setenv("ALIYUN_GREEN_MOCK_MODE", "false")
+	t.Setenv("ALIYUN_GREEN_ENDPOINT", "")
+	if _, err := Load(); err == nil {
+		t.Fatal("expected error when live mode without credentials or endpoint")
+	}
+}
+
 func TestAliyunGreenLiveMode(t *testing.T) {
+	t.Setenv("ALIYUN_GREEN_ENDPOINT", "")
 	t.Setenv("ALIYUN_GREEN_ACCESS_KEY_ID", "ak_test")
 	t.Setenv("ALIYUN_GREEN_ACCESS_KEY_SECRET", "sk_test")
 	t.Setenv("ALIYUN_GREEN_MOCK_MODE", "false")

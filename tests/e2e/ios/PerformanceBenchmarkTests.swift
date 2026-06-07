@@ -1,7 +1,7 @@
 import XCTest
 
-/// T7.6 性能基准汇总占位（相机 ≤ 800ms · 编辑器 ≤ 500ms）。
-/// 真机测量：Instruments Time Profiler + 埋点 `editor_open_ms`。
+/// T7.6 性能基准汇总（相机 ≤ 800ms · 编辑器 ≤ 500ms）。
+/// 真机测量：`PerformanceTracker` 日志 + [INSTRUMENTS_GUIDE.md](../../../tests/performance/INSTRUMENTS_GUIDE.md)
 /// API 压测：tests/performance/benchmark-feed.sh · benchmark-ai-mock.sh
 final class PerformanceBenchmarkTests: XCTestCase {
     private enum Budget {

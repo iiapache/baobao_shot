@@ -36,6 +36,8 @@ type Config struct {
 	ReconciliationCronEnabled bool
 	ReconciliationCronInterval time.Duration
 	AIDispatchCostMeteringURL string
+	AppAttestEnabled          bool
+	AppAttestMock             bool
 }
 
 // Load reads configuration from environment with sensible defaults.
@@ -106,7 +108,17 @@ func Load() (*Config, error) {
 		ReconciliationCronEnabled:  strings.ToLower(getEnv("RECONCILIATION_CRON_ENABLED", "true")) == "true",
 		ReconciliationCronInterval: time.Duration(reconIntervalHours) * time.Hour,
 		AIDispatchCostMeteringURL:  getEnv("AI_DISPATCH_COST_METERING_URL", ""),
+		AppAttestEnabled:           loadAppAttestEnabled(),
+		AppAttestMock:              loadAppAttestMock(),
 	}, nil
+}
+
+func loadAppAttestEnabled() bool {
+	return strings.EqualFold(getEnv("APP_ATTEST_ENABLED", "false"), "true")
+}
+
+func loadAppAttestMock() bool {
+	return strings.EqualFold(getEnv("APP_ATTEST_MOCK", "true"), "true")
 }
 
 // KafkaEnabled reports whether a Kafka broker list is configured.

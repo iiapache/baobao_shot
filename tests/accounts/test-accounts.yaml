@@ -1,13 +1,13 @@
-# 测试账号池（占位）
+# 测试账号池
 #
-# 用途：staging 回归、冒烟、E2E、性能基线
+# 用途：staging 回归、冒烟、E2E、性能基线、TestFlight 真机联调
 # 安全：禁止提交真实密码/Token；产线凭据走 Vault（见 infra/accounts/THIRD_PARTY_ACCOUNTS.md）
 # 对齐：contracts/openapi paths/auth.yaml、family.yaml、baby.yaml
 #
-# 维护：QA 负责人更新 status；开通后替换 placeholder 字段
+# 维护：QA 负责人更新 status；激活步骤见 tests/accounts/README.md
 
 schema_version: "1"
-updated_at: "2026-06-06"
+updated_at: "2026-06-07"
 environment: staging
 
 # ---------------------------------------------------------------------------
@@ -19,8 +19,8 @@ phone_accounts:
     region: cn
     role: admin
     description: 主冒烟账号 · 家庭管理员
-    sms_code_mock: "123456"          # 仅 mock-api / staging 测试网关生效
-    status: placeholder              # placeholder | active | disabled
+    sms_code_mock: "123456"          # mock-api / staging MOCK_SMS_FIXED_CODE 固定码
+    status: active                   # placeholder | active | disabled
     family_id: fam_smoke_001
     baby_ids: [bb_smoke_001]
     notes: 创建家庭、发布 Feed 默认使用此账号

@@ -1,17 +1,4 @@
 import Foundation
-#if canImport(DeviceCheck)
-import DeviceCheck
-#endif
-
-/// App Attest 开关（T7.8 stub）：默认关闭，TestFlight / 生产由运维或 Info.plist 开启。
-public enum AppAttestConfiguration: Sendable {
-    public static var isEnabled: Bool {
-        if let env = ProcessInfo.processInfo.environment["APP_ATTEST_ENABLED"] {
-            return env == "1" || env.lowercased() == "true"
-        }
-        return Bundle.main.object(forInfoDictionaryKey: "AppAttestEnabled") as? Bool ?? false
-    }
-}
 
 public enum AppAttestError: Error, Sendable, Equatable {
     case disabled
@@ -29,113 +16,48 @@ public protocol AppAttestProviding: Sendable {
     func generateAssertion(keyId: String, clientDataHash: Data) async throws -> Data
 }
 
-/// App Attest stub：iOS 14+ 可选，编译守卫；开关关闭时返回 `.disabled`。
+/// App Attest 门面：按 OPT-02 配置解析 live / stub 实现。
 public final class AppAttestService: AppAttestProviding, @unchecked Sendable {
     public static let shared = AppAttestService()
 
-    private let isEnabled: Bool
+    private let backing: AppAttestProviding
 
-    public init(isEnabled: Bool = AppAttestConfiguration.isEnabled) {
-        self.isEnabled = isEnabled
+    public init(
+        isEnabled: Bool? = nil,
+        forceStub: Bool = false,
+        backing: AppAttestProviding? = nil
+    ) {
+        if let backing {
+            self.backing = backing
+        } else if forceStub || isEnabled == false {
+            self.backing = StubAppAttestService()
+        } else if isEnabled == true {
+            self.backing = LiveAppAttestService()
+        } else {
+            self.backing = AppAttestConfigurationFactory.resolve(forceStub: forceStub)
+        }
     }
 
     public var isSupported: Bool {
-        guard isEnabled else { return false }
-        if #available(iOS 14.0, *) {
-            return AppAttestServiceCore.isSupported
-        }
-        return false
+        backing.isSupported
     }
 
     public func generateKey() async throws -> String {
-        guard isEnabled else { throw AppAttestError.disabled }
-        if #available(iOS 14.0, *) {
-            return try await AppAttestServiceCore.generateKey()
-        }
-        throw AppAttestError.notSupported
+        try await backing.generateKey()
     }
 
     public func attestKey(_ keyId: String, clientDataHash: Data) async throws -> Data {
-        guard isEnabled else { throw AppAttestError.disabled }
-        if #available(iOS 14.0, *) {
-            return try await AppAttestServiceCore.attestKey(keyId, clientDataHash: clientDataHash)
-        }
-        throw AppAttestError.notSupported
+        try await backing.attestKey(keyId, clientDataHash: clientDataHash)
     }
 
     public func generateAssertion(keyId: String, clientDataHash: Data) async throws -> Data {
-        guard isEnabled else { throw AppAttestError.disabled }
-        if #available(iOS 14.0, *) {
-            return try await AppAttestServiceCore.generateAssertion(
-                keyId: keyId,
-                clientDataHash: clientDataHash
-            )
-        }
-        throw AppAttestError.notSupported
+        try await backing.generateAssertion(keyId: keyId, clientDataHash: clientDataHash)
     }
 }
 
-@available(iOS 14.0, *)
-private enum AppAttestServiceCore {
-    static var isSupported: Bool {
-        #if canImport(DeviceCheck)
-        DCAppAttestService.shared.isSupported
-        #else
-        false
-        #endif
-    }
-
-    static func generateKey() async throws -> String {
-        #if canImport(DeviceCheck)
-        try await withCheckedThrowingContinuation { continuation in
-            DCAppAttestService.shared.generateKey { keyId, error in
-                if let error {
-                    continuation.resume(throwing: error)
-                } else if let keyId {
-                    continuation.resume(returning: keyId)
-                } else {
-                    continuation.resume(throwing: AppAttestError.keyGenerationFailed)
-                }
-            }
-        }
-        #else
-        throw AppAttestError.notSupported
-        #endif
-    }
-
-    static func attestKey(_ keyId: String, clientDataHash: Data) async throws -> Data {
-        #if canImport(DeviceCheck)
-        try await withCheckedThrowingContinuation { continuation in
-            DCAppAttestService.shared.attestKey(keyId, clientDataHash: clientDataHash) { attestation, error in
-                if let error {
-                    continuation.resume(throwing: error)
-                } else if let attestation {
-                    continuation.resume(returning: attestation)
-                } else {
-                    continuation.resume(throwing: AppAttestError.attestationFailed)
-                }
-            }
-        }
-        #else
-        throw AppAttestError.notSupported
-        #endif
-    }
-
-    static func generateAssertion(keyId: String, clientDataHash: Data) async throws -> Data {
-        #if canImport(DeviceCheck)
-        try await withCheckedThrowingContinuation { continuation in
-            DCAppAttestService.shared.generateAssertion(keyId, clientDataHash: clientDataHash) { assertion, error in
-                if let error {
-                    continuation.resume(throwing: error)
-                } else if let assertion {
-                    continuation.resume(returning: assertion)
-                } else {
-                    continuation.resume(throwing: AppAttestError.assertionFailed)
-                }
-            }
-        }
-        #else
-        throw AppAttestError.notSupported
-        #endif
+/// 向后兼容：`AppAttestConfiguration.isEnabled` 读取 plist / 环境变量。
+public enum AppAttestConfiguration: Sendable {
+    public static var isEnabled: Bool {
+        AppAttestConfigurationFactory.resolveEnabled()
     }
 }

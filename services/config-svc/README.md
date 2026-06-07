@@ -9,6 +9,7 @@
 | GET | `/health` | 存活探针 |
 | GET | `/ready` | 就绪探针 |
 | GET | `/v1/config/features` | Feature flags（按 region / userIdHash 分流） |
+| GET | `/v1/config/product` | V1.0 产品参数快照（[product-config.yaml](../../docs/product-config.yaml)） |
 | GET | `/v1/config/plays` | 玩法目录占位 |
 | PATCH | `/v1/admin/features/{key}` | 紧急更新 flag（T7.14，`X-Admin-Token`） |
 | PATCH | `/v1/admin/plays/{id}` | 紧急下架玩法目录项 |
@@ -40,7 +41,21 @@
 | `rollout.ai_plays_percent` | `1%` | 与 App Store Phased Release 同步的 AI 玩法放量 |
 | `rollout.pricing_variant` | `control` @ 50% | 积分定价 A/B 变体 |
 
-详见 [docs/ops/PHASED_RELEASE_PLAN.md](../../docs/ops/PHASED_RELEASE_PLAN.md)、[remote-kill-switch.sh](../../scripts/ops/remote-kill-switch.sh)。
+### OPT-05 产品参数 Flags（源自 product-config.yaml）
+
+| Key | Variant | 说明 |
+| --- | --- | --- |
+| `product.config.version` | `20250607001` | 产品配置版本 |
+| `product.limits.family_members` | `8` | 家庭成员上限 |
+| `product.limits.family_babies` | `5` | 宝宝档案上限 |
+| `product.invite.ttl_hours` | `24` | 邀请码有效期（小时） |
+| `product.invite.max_uses` | `8` | 单码可用次数 |
+| `product.credits.signup` | `100` | 新用户赠送积分 |
+| `product.ai_video.duration_tiers` | `5,10` | 视频时长档位（秒） |
+| `product.scope.pregnancy_mode` | disabled · `v1.1` | 孕期模式归属 |
+| `product.scope.wechat_share` | `moments,friends` | 微信分享范围 |
+
+详见 [docs/ops/PHASED_RELEASE_PLAN.md](../../docs/ops/PHASED_RELEASE_PLAN.md)、[remote-kill-switch.sh](../../scripts/ops/remote-kill-switch.sh)、[PRD-决策记录.md §D10–D25](../../docs/PRD-决策记录.md)。
 
 ## 命令
 
@@ -58,6 +73,7 @@ curl -s -H 'X-Region: cn' -H 'X-App-Version: 1.5.0' \
   -H 'Authorization: Bearer dev' \
   localhost:8009/v1/config/features | jq .
 curl -s -H 'X-Region: cn' localhost:8009/v1/config/plays | jq .
+curl -s localhost:8009/v1/config/product | jq .
 ```
 
 ## 参考

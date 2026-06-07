@@ -5,6 +5,7 @@ import (
 
 	"github.com/baobao/config-svc/internal/config"
 	"github.com/baobao/config-svc/internal/feature"
+	"github.com/baobao/config-svc/internal/product"
 )
 
 // PlayDefinition is a placeholder play catalog entry.
@@ -18,9 +19,10 @@ type PlayDefinition struct {
 
 // Snapshot is the full config payload served to clients.
 type Snapshot struct {
-	Version  string              `json:"version"`
+	Version  string               `json:"version"`
+	Product  product.Config       `json:"product,omitempty"`
 	Features []feature.Definition `json:"features"`
-	Plays    []PlayDefinition    `json:"plays"`
+	Plays    []PlayDefinition     `json:"plays"`
 }
 
 // Store reads feature and play definitions.

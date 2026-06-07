@@ -81,10 +81,12 @@ public struct AITaskProgressView: View {
     private func failureView(_ presentation: AITaskFailurePresentation) -> some View {
         ScrollView {
             VStack(spacing: DSSpacing.md) {
-                DSEmptyState(
-                    systemImage: failureIcon(for: presentation.kind),
+                DSErrorView(
+                    kind: errorKind(for: presentation.kind),
                     title: presentation.title,
-                    message: presentation.message
+                    message: presentation.message,
+                    actionTitle: presentation.canAppeal ? nil : "完成",
+                    action: presentation.canAppeal ? nil : onDone
                 )
                 .frame(minHeight: 220)
 
@@ -126,14 +128,14 @@ public struct AITaskProgressView: View {
         .accessibilityIdentifier("ai_task_credit_refund_banner")
     }
 
-    private func failureIcon(for kind: AITaskFailureKind) -> String {
+    private func errorKind(for kind: AITaskFailureKind) -> DSErrorView.Kind {
         switch kind {
         case .modelFailed:
-            return "exclamationmark.triangle.fill"
+            return .generic
         case .rejected:
-            return "hand.raised.fill"
+            return .auditRejected
         case .appealed:
-            return "envelope.fill"
+            return .generic
         }
     }
 

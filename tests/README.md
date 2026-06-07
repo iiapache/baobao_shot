@@ -10,7 +10,10 @@ tests/
 ├── staging/
 │   └── README.md             # Staging 拓扑与访问方式
 ├── accounts/
-│   └── test-accounts.yaml    # 测试账号池（占位）
+│   ├── README.md             # 测试账号激活与 Staging 固定码说明
+│   ├── test-accounts.yaml    # 测试账号池
+│   ├── activate-staging.sh   # ENV-05 激活校验与环境导出
+│   └── staging.env.example
 ├── mocks/
 │   ├── docker-compose.yaml   # IAP / 微信 / 广告 / 审核 / AI + API Mock
 │   ├── README.md
@@ -72,7 +75,8 @@ sequenceDiagram
 | 文档 | 内容 |
 | --- | --- |
 | [staging/README.md](./staging/README.md) | 双区域 staging 域名、请求头、VPN 访问 |
-| [accounts/test-accounts.yaml](./accounts/test-accounts.yaml) | 手机号 / Apple / 微信 / IAP 测试账号占位 |
+| [accounts/README.md](./accounts/README.md) | 测试账号激活、固定码 `123456`、真机登录 |
+| [accounts/test-accounts.yaml](./accounts/test-accounts.yaml) | 手机号 / Apple / 微信 / IAP 测试账号 |
 | [mocks/README.md](./mocks/README.md) | docker compose 启动三方 Mock |
 | [performance/README.md](./performance/README.md) | T7.6 性能压测基准与复现 |
 | [performance/device-matrix.md](./performance/device-matrix.md) | 性能基线机型与预算 |
@@ -94,7 +98,7 @@ cd ../e2e && chmod +x e2e.sh && ./e2e.sh
 - [ ] `docker compose up -d mock-api` 成功，`curl localhost:18080/health` 返回 200
 - [ ] `./tests/smoke/smoke.sh` 全部断言通过
 - [ ] Postman 集合 7 步 Run 通过（mock 模式）
-- [ ] `test-accounts.yaml` 含 CN/OS 账号占位与 `devices` 条目
+- [ ] `test-accounts.yaml` 主账号 `qa-cn-admin-001` 为 `status: active`，含 `devices` 条目
 - [ ] `device-matrix.md` 含 iPhone 12 + iPhone 16 基线
 - [ ] `mocks/docker-compose.yaml` 含 IAP / 微信 / 广告 / 审核 / AI 五类服务
 - [ ] 响应结构符合 `ApiResponse` / `AuthTokens`（见 common.yaml）

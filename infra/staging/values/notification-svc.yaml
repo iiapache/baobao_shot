@@ -1,0 +1,28 @@
+# notification-svc — staging APNs / Kafka 推送
+
+extraEnv:
+  SERVICE_NAME: notification-svc
+  HTTP_PORT: "8008"
+  GRPC_PORT: "9008"
+  ENVIRONMENT: staging
+  STORAGE_BACKEND: memory
+  APNS_MOCK: "true"
+  APNS_SANDBOX: "true"
+  APNS_TOPIC: com.babycamera.app
+  DEBUG_ENDPOINTS: "true"
+  KAFKA_BROKERS: kafka.staging.svc.cluster.local:9092
+  KAFKA_GROUP_ID: notification-svc
+
+env:
+  - name: SERVICE_NAME
+    value: notification-svc
+  - name: HTTP_PORT
+    value: "8008"
+  - name: ENVIRONMENT
+    value: staging
+  - name: APNS_MOCK
+    value: "true"
+  - name: APNS_SANDBOX
+    value: "true"
+  - name: APNS_TOPIC
+    value: com.babycamera.app

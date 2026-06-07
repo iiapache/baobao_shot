@@ -2,3 +2,6 @@
 public enum BabyCameraMilestone {
     public static let version = "0.2.0"
 }
+
+/// 里程碑列表 + 日历组合视图（内置 + 自定义）。
+public typealias MilestoneListView = CustomMilestoneListView

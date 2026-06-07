@@ -1,9 +1,31 @@
 package aliyun
 
 import (
+	"bytes"
 	"context"
-	"errors"
+	"encoding/json"
+	"fmt"
+	"io"
+	"net/http"
+	"strings"
+	"time"
 )
+
+type brokenClient struct {
+	err error
+}
+
+func (b brokenClient) AuditText(context.Context, string, string) (bool, []string, error) {
+	return false, nil, b.err
+}
+
+func (b brokenClient) AuditImage(context.Context, string, string) (bool, []string, error) {
+	return false, nil, b.err
+}
+
+func (b brokenClient) AuditVideo(context.Context, string, string) (bool, []string, error) {
+	return false, nil, b.err
+}
 
 // Client performs Aliyun Green content moderation RPCs.
 type Client interface {
@@ -12,37 +34,97 @@ type Client interface {
 	AuditVideo(ctx context.Context, objectKey, scenes string) (bool, []string, error)
 }
 
-// HTTPClient is a stub for live Aliyun Green API integration (T3.4 skeleton).
+// HTTPClient calls Green scan endpoints over HTTP (mock-audit WireMock or signed upstream).
 type HTTPClient struct {
-	AccessKeyID     string
-	AccessKeySecret string
-	Region          string
+	Endpoint        string
+	ObjectURLPrefix string
 	ImageScenes     string
 	TextScenes      string
+	HTTP            *http.Client
 }
 
-var errLiveClientStub = errors.New("aliyun green live client not implemented")
+func (c *HTTPClient) httpClient() *http.Client {
+	if c.HTTP != nil {
+		return c.HTTP
+	}
+	return &http.Client{Timeout: 4 * time.Second}
+}
 
-// AuditText calls Aliyun text antispam API (stub).
+func (c *HTTPClient) endpoint() string {
+	if strings.TrimSpace(c.Endpoint) != "" {
+		return strings.TrimRight(c.Endpoint, "/")
+	}
+	return "https://green.cn-shanghai.aliyuncs.com"
+}
+
 func (c *HTTPClient) AuditText(ctx context.Context, text, scenes string) (bool, []string, error) {
-	_ = ctx
-	_ = text
-	_ = scenes
-	return false, nil, errLiveClientStub
+	if scenes == "" {
+		scenes = c.TextScenes
+	}
+	body, err := json.Marshal(map[string]any{
+		"scenes": splitScenes(scenes),
+		"tasks": []map[string]any{
+			{"content": text},
+		},
+	})
+	if err != nil {
+		return false, nil, err
+	}
+	return c.postScan(ctx, "/green/text/scan", body)
 }
 
-// AuditImage calls Aliyun image sync scan API (stub).
 func (c *HTTPClient) AuditImage(ctx context.Context, objectKey, scenes string) (bool, []string, error) {
-	_ = ctx
-	_ = objectKey
-	_ = scenes
-	return false, nil, errLiveClientStub
+	if scenes == "" {
+		scenes = c.ImageScenes
+	}
+	body, err := json.Marshal(map[string]any{
+		"scenes": splitScenes(scenes),
+		"tasks": []map[string]any{
+			{"url": objectURL(c.ObjectURLPrefix, objectKey)},
+		},
+	})
+	if err != nil {
+		return false, nil, err
+	}
+	return c.postScan(ctx, "/green/image/scan", body)
 }
 
-// AuditVideo calls Aliyun video frame sampling API (stub).
 func (c *HTTPClient) AuditVideo(ctx context.Context, objectKey, scenes string) (bool, []string, error) {
-	_ = ctx
-	_ = objectKey
-	_ = scenes
-	return false, nil, errLiveClientStub
+	if scenes == "" {
+		scenes = c.ImageScenes
+	}
+	body, err := json.Marshal(map[string]any{
+		"scenes": splitScenes(scenes),
+		"tasks": []map[string]any{
+			{"url": objectURL(c.ObjectURLPrefix, objectKey)},
+		},
+	})
+	if err != nil {
+		return false, nil, err
+	}
+	// mock-audit exposes /green/video/scan; live Green uses /green/video/syncscan via SDK.
+	return c.postScan(ctx, "/green/video/scan", body)
+}
+
+func (c *HTTPClient) postScan(ctx context.Context, path string, body []byte) (bool, []string, error) {
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.endpoint()+path, bytes.NewReader(body))
+	if err != nil {
+		return false, nil, err
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := c.httpClient().Do(req)
+	if err != nil {
+		return false, nil, fmt.Errorf("green http: %w", err)
+	}
+	defer resp.Body.Close()
+
+	raw, err := io.ReadAll(io.LimitReader(resp.Body, 1<<20))
+	if err != nil {
+		return false, nil, err
+	}
+	if resp.StatusCode != http.StatusOK {
+		return false, nil, fmt.Errorf("green http status %d: %s", resp.StatusCode, string(raw))
+	}
+	return parseScanResponse(raw)
 }

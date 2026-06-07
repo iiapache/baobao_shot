@@ -202,6 +202,44 @@ final class SubscriptionStoreTests: XCTestCase {
         XCTAssertFalse(store.shouldShowAds)
     }
 
+    func testPurchaseVerifyAndFinish() async throws {
+        let transaction = IAPVerifiedTransaction.fixture(
+            transactionID: "2000000987654321",
+            productID: SubscriptionProductID.monthly,
+            signedTransaction: StubIAPStoreClient.makeMockSignedTransaction(
+                transactionID: "2000000987654321",
+                productID: SubscriptionProductID.monthly
+            ),
+            storeTransactionID: 2_000_000_987_654_321
+        )
+        let storeClient = MockIAPStoreClient()
+        storeClient.purchaseHandler = { _ in transaction }
+
+        var verifyCount = 0
+        MockURLProtocol.register { request in
+            guard request.url?.path == "/v1/subscriptions/iap-verify" else { return nil }
+            verifyCount += 1
+            return MockResponse(statusCode: 200, json: MockServer.subscriptionIAPVerifyJSON())
+        }
+
+        let store = SubscriptionStore(
+            configuration: SubscriptionStoreConfiguration(
+                region: .cn,
+                regionConfig: RegionConfig(region: .cn, appVersion: "1.0.0", deviceId: "test-device"),
+                tokenStore: InMemoryTokenStore(access: "access", refresh: "refresh"),
+                session: MockURLProtocol.makeSession()
+            ),
+            storeClient: storeClient
+        )
+
+        let outcome = try await store.purchase(productID: SubscriptionProductID.monthly)
+
+        XCTAssertEqual(outcome.verifyData.state, "active")
+        XCTAssertEqual(verifyCount, 1)
+        XCTAssertEqual(storeClient.finishedTransactionIDs, [transaction.storeTransactionID])
+        XCTAssertTrue(store.isEntitled)
+    }
+
     func testSubscriptionStateMachineEntitlementFlags() {
         XCTAssertTrue(SubscriptionState.trial.isEntitled)
         XCTAssertTrue(SubscriptionState.active.isEntitled)

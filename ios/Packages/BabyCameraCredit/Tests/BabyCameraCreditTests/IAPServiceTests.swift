@@ -153,6 +153,24 @@ final class IAPServiceTests: XCTestCase {
         XCTAssertTrue(pendingStore.loadAll().isEmpty)
     }
 
+    func testStubClientPurchaseVerifyAndFinish() async throws {
+        let stub = StubIAPStoreClient(transactionIDFactory: { "2000000123456789" })
+        MockURLProtocol.register { request in
+            XCTAssertEqual(request.url?.path, "/v1/credits/iap-verify")
+            return MockResponse(
+                statusCode: 200,
+                json: MockServer.iapVerifySuccessJSON(transactionId: "2000000123456789")
+            )
+        }
+
+        let service = makeService(store: stub)
+        let outcome = try await service.purchase(productID: CreditIAPProductID.pack330)
+
+        XCTAssertEqual(outcome.verifyData.grantedCredits, 330)
+        let unfinished = await stub.unfinishedTransactions()
+        XCTAssertTrue(unfinished.isEmpty)
+    }
+
     private func makeTokenStore() -> TokenStore {
         let tokenStore = KeychainTokenStore()
         tokenStore.save(TokenPair(accessToken: "access", refreshToken: "refresh"))
@@ -160,7 +178,7 @@ final class IAPServiceTests: XCTestCase {
     }
 
     private func makeService(
-        store: MockIAPStoreClient,
+        store: any IAPStoreClient,
         pendingStore: PendingIAPReceiptStore? = nil
     ) -> IAPService {
         let defaults = UserDefaults(suiteName: "IAPServiceTests.\(UUID().uuidString)")!

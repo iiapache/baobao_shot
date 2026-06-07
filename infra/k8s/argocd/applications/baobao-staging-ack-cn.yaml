@@ -1,0 +1,43 @@
+# ArgoCD Application — baobao-staging 微服务（ACK 中国）
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: baobao-staging-ack-cn
+  namespace: argocd
+  labels:
+    app.kubernetes.io/part-of: baobao
+    baobao.io/cluster: ack-cn
+    baobao.io/environment: staging
+    baobao.io/task: ENV-03
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://gitlab.example.com/baobao/baobao.git
+    targetRevision: main
+    path: infra/k8s/charts/baobao-staging
+    helm:
+      releaseName: baobao-staging
+      valueFiles:
+        - ../../clusters/ack-cn/cluster-values.yaml
+        - ../../clusters/ack-cn/staging-services-values.yaml
+        - ../../../staging/values/ack-cn-outbound.yaml
+        - ../../../staging/values/auth-family-svc.yaml
+        - ../../../staging/values/media-svc.yaml
+        - ../../../staging/values/feed-svc.yaml
+        - ../../../staging/values/audit-svc.yaml
+        - ../../../staging/values/ai-dispatch-svc.yaml
+        - ../../../staging/values/credit-sub-ad-svc.yaml
+  destination:
+    name: ack-cn
+    namespace: staging
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=false
+      - ApplyOutOfSyncOnly=true
+  revisionHistoryLimit: 5

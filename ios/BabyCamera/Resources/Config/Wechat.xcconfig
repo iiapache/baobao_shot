@@ -1,0 +1,4 @@
+// INT-05 微信 OpenSDK 端侧配置（真机 AppID 见 Wechat.Secrets.xcconfig.example）
+WECHAT_APP_ID = wx0000000000000000
+WECHAT_UNIVERSAL_LINK = https:/$()/app.babycamera.cn/wechat/
+WECHAT_USE_OPENSDK = NO

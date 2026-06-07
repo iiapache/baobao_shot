@@ -1,0 +1,42 @@
+# ACK 中国 — staging 微服务 umbrella 覆盖（ENV-03）
+# 合并：cluster-values.yaml + 本文件 + infra/staging/values/*.yaml（deploy-staging.sh 自动合并 outbound）
+
+global:
+  cluster: ack-cn
+  region: cn
+  environment: staging
+
+imageTag: staging
+
+auth-family-svc:
+  image:
+    repository: registry.cn-hangzhou.aliyuncs.com/baobao/auth-family-svc
+  extraEnv:
+    DEPLOY_REGION: cn
+    WECHAT_OPEN_API_BASE: http://mock-wechat.third-party-mocks.svc.cluster.local:8080
+
+media-svc:
+  image:
+    repository: registry.cn-hangzhou.aliyuncs.com/baobao/media-svc
+
+feed-svc:
+  image:
+    repository: registry.cn-hangzhou.aliyuncs.com/baobao/feed-svc
+
+audit-svc:
+  image:
+    repository: registry.cn-hangzhou.aliyuncs.com/baobao/audit-svc
+  extraEnv:
+    DEPLOY_REGION: cn
+
+ai-dispatch-svc:
+  image:
+    repository: registry.cn-hangzhou.aliyuncs.com/baobao/ai-dispatch-svc
+
+credit-sub-ad-svc:
+  image:
+    repository: registry.cn-hangzhou.aliyuncs.com/baobao/credit-sub-ad-svc
+
+notification-svc:
+  image:
+    repository: registry.cn-hangzhou.aliyuncs.com/baobao/notification-svc

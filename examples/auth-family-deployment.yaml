@@ -75,6 +75,14 @@ spec:
               value: "http://vault.vault-dev.svc.cluster.local:8200"
             - name: APP_ENV
               value: "dev"
+            # Staging 真机 / QA 联调：mock 短信（tests/accounts/test-accounts.yaml）
+            # - name: SMS_PROVIDER
+            #   value: mock
+            # - name: MOCK_SMS_FIXED_CODE
+            #   value: "123456"
+            # 切阿里云：SMS_PROVIDER=aliyun + Vault aliyun-sms + SMS_TEST_PHONES
+            # - name: ENVIRONMENT
+            #   value: staging
           command:
             - /bin/sh
             - -c

@@ -6,6 +6,47 @@ public enum ICloudProviderError: Error, Sendable, Equatable {
     case cloudKit(CloudKitPrivateDatabaseError)
 }
 
+extension ICloudProviderError: LocalizedError {
+    public var errorDescription: String? {
+        switch self {
+        case let .iCloudUnavailable(status):
+            return Self.message(for: status)
+        case let .localFileNotFound(path):
+            return "待备份文件不存在：\(path)"
+        case let .cloudKit(error):
+            return Self.message(for: error)
+        }
+    }
+
+    private static func message(for status: CloudKitAccountStatus) -> String {
+        switch status {
+        case .noAccount:
+            return "未登录 iCloud。请在「设置 → Apple ID → iCloud」中登录后再试。"
+        case .restricted:
+            return "iCloud 访问受限，请检查屏幕使用时间或设备管理策略。"
+        case .couldNotDetermine:
+            return "无法确定 iCloud 状态，请稍后重试。"
+        case .temporarilyUnavailable:
+            return "iCloud 暂时不可用，请检查网络后重试。"
+        case .available:
+            return "iCloud 可用"
+        }
+    }
+
+    private static func message(for error: CloudKitPrivateDatabaseError) -> String {
+        switch error {
+        case .accountStatusUnavailable:
+            return "无法获取 iCloud 账户状态，请稍后重试。"
+        case let .saveFailed(reason):
+            return "iCloud 备份写入失败：\(reason)"
+        case let .fetchFailed(reason):
+            return "iCloud 备份读取失败：\(reason)"
+        case let .deleteFailed(reason):
+            return "iCloud 备份清理失败：\(reason)"
+        }
+    }
+}
+
 /// iCloud 备份 Provider：走 CloudKit Private Database，不占用 iCloud Drive 用户可见目录。
 public struct ICloudProvider: BackupProvider, Sendable {
     public let kind: BackupKind = .iCloud

@@ -39,9 +39,16 @@ deploy job 当前为 **manual + 占位**。启用自动部署时追加：
 | 变量 | 说明 |
 | --- | --- |
 | `MATCH_PASSWORD` | fastlane match 加密密码（Masked） |
-| `APP_STORE_CONNECT_API_KEY` | ASC API Key JSON（File/Variable） |
+| `MATCH_GIT_URL` | 证书 Git 仓库 URL |
+| `MATCH_GIT_BRANCH` | match 分支（默认 `master`） |
+| `FASTLANE_TEAM_ID` | Apple Developer Team ID |
+| `FASTLANE_USER` | Apple ID（match 初始化） |
+| `APP_STORE_CONNECT_API_KEY_PATH` | ASC API Key `.p8` 路径 |
+| `APP_STORE_CONNECT_API_KEY_ID` | API Key ID |
+| `APP_STORE_CONNECT_API_ISSUER_ID` | API Key Issuer UUID |
+| `APP_STORE_CONNECT_API_KEY` | API Key 内容（Variable，可选） |
 
-MR 触发 `test:ios` 使用 Linux 占位；正式单测需 macOS runner 或 Xcode Cloud workflow。
+构建检查清单见 [docs/qa/TESTFLIGHT_BUILD_CHECKLIST.md](../../docs/qa/TESTFLIGHT_BUILD_CHECKLIST.md)。
 
 ## 本地验证 docker-build.sh
 

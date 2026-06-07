@@ -2,7 +2,10 @@ package aliyun
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
+	"net/http"
+	"net/http/httptest"
 	"testing"
 	"time"
 )
@@ -131,5 +134,31 @@ func TestAudit_NonCNRegionPasses(t *testing.T) {
 	}
 	if !passed || len(reasons) != 0 {
 		t.Fatalf("non-cn region should bypass cn vendor: passed=%v reasons=%+v", passed, reasons)
+	}
+}
+
+func TestAudit_HTTPClientPass(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_ = json.NewEncoder(w).Encode(map[string]any{
+			"code": 200,
+			"data": []map[string]any{
+				{"code": 200, "results": []map[string]any{{"scene": "antispam", "suggestion": "pass"}}},
+			},
+		})
+	}))
+	defer srv.Close()
+
+	adapter := NewContentSecurityAdapter(Config{
+		MockMode: false,
+		Endpoint: srv.URL,
+	})
+	passed, reasons, err := adapter.Audit(context.Background(), Request{
+		Kind: "ugc", Region: "cn", MediaType: "text", Text: "hello",
+	})
+	if err != nil {
+		t.Fatalf("Audit() error = %v", err)
+	}
+	if !passed || len(reasons) != 0 {
+		t.Fatalf("passed=%v reasons=%v", passed, reasons)
 	}
 }

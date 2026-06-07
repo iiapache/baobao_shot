@@ -14,7 +14,7 @@ enum UITestBootstrap {
 
     static func configureIfNeeded() {
         guard isEnabled else { return }
-        MockURLProtocol.register(handler: MockServer.p1E2EHandler())
+        MockURLProtocol.register(handler: MockServer.uitestMainAppHandler())
         resetPersistedState()
     }
 

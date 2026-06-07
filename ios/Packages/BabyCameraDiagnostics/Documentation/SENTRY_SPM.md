@@ -1,7 +1,8 @@
-# Sentry SPM 依赖占位（T7.7）
+# Sentry SPM 依赖（T7.7 / UX-05）
 
-> 当前使用 **stub 实现**，不引入 `sentry-cocoa`，保证本地与 CI 可无密钥编译。  
-> 完整接入步骤见 [infra/observability/sentry/ios-integration.md](../../../../infra/observability/sentry/ios-integration.md)。
+> Adapter 已实现：`SentryReporting` → `SentryReportingLive`（`canImport(Sentry)`）/ `SentryNoopBackend`（CI、Debug）。  
+> 默认不链接 `sentry-cocoa`；设置 `BABYCAMERA_CRASH_SDKS=1` 后解析 SPM 即可启用 Live。  
+> 完整步骤见 [infra/observability/sentry/ios-integration.md](../../../../infra/observability/sentry/ios-integration.md)。
 
 ## 1. Xcode 添加远程包（BabyCamera Target）
 
@@ -13,27 +14,15 @@ https://github.com/getsentry/sentry-cocoa.git
 
 ## 2. 启用 Package.swift 依赖
 
-在 `Packages/BabyCameraDiagnostics/Package.swift` 中取消注释：
-
-```swift
-.package(url: "https://github.com/getsentry/sentry-cocoa", from: "8.36.0"),
-// target dependencies:
-.product(name: "Sentry", package: "sentry-cocoa"),
+```bash
+./scripts/enable-crash-sdks.sh
 ```
 
-## 3. 替换 Stub
+脚本会取消 `Package.swift` 内 `SENTRY_SPM_*` 注释块，链接 `sentry-cocoa`。
 
-将 `SentryReportingStub.swift` 中的占位逻辑替换为：
+## 3. Live 实现
 
-```swift
-import Sentry
-
-SentrySDK.start { options in
-    options.dsn = dsn
-    options.environment = configuration.environment
-    // ...
-}
-```
+逻辑位于 `SentryReportingLive.swift`（`#if canImport(Sentry)`），由 `SentryReporting` 门面在 Staging/Release 非 Debug 构建时自动选用。
 
 ## 4. DSN 配置
 

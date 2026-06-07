@@ -26,7 +26,7 @@ final class ComplianceConfigResolverTests: XCTestCase {
 
         let config = ComplianceConfigResolver.resolve(features: features, region: .cn)
 
-        XCTAssertNil(config.icpNumber)
+        XCTAssertEqual(config.icpNumber, ComplianceConfig.defaults(for: .cn).icpNumber)
     }
 
     func testResolveAlgorithmFilingSummary() {
@@ -139,8 +139,10 @@ final class ComplianceConfigResolverTests: XCTestCase {
 
     func testResolveFallsBackToRegionDefaults() {
         let config = ComplianceConfigResolver.resolve(features: [:], region: .cn)
+        let defaults = ComplianceConfig.defaults(for: .cn)
 
-        XCTAssertNil(config.icpNumber)
+        XCTAssertEqual(config.icpNumber, defaults.icpNumber)
+        XCTAssertEqual(config.algorithmFilingSummary, defaults.algorithmFilingSummary)
         XCTAssertEqual(config.icpQueryURL?.absoluteString, "https://beian.miit.gov.cn/")
         XCTAssertEqual(
             config.privacyPolicyURL?.absoluteString,
@@ -182,6 +184,33 @@ final class ComplianceConfigResolverTests: XCTestCase {
         XCTAssertEqual(config.supportEmail, "support@babycamera.app")
     }
 
+    func testDefaultsUsesExplicitLegalBaseURL() {
+        let config = ComplianceConfig.defaults(
+            for: .cn,
+            legalBaseURL: ComplianceConfig.debugLegalBaseURL
+        )
+
+        XCTAssertEqual(
+            config.termsURL?.absoluteString,
+            "http://localhost:8765/compliance/legal/terms-of-service"
+        )
+        XCTAssertEqual(
+            config.privacyPolicyURL?.absoluteString,
+            "http://localhost:8765/compliance/legal/privacy-policy-cn"
+        )
+        XCTAssertEqual(
+            config.deepSynthesisURL?.absoluteString,
+            "http://localhost:8765/compliance/legal/deep-synthesis-notice"
+        )
+    }
+
+    func testLegalBaseURLReadsFromInfoDictionary() {
+        let resolved = ComplianceConfig.legalBaseURL(from: [
+            "LegalBaseURL": "http://localhost:8765/compliance/legal",
+        ])
+        XCTAssertEqual(resolved, "http://localhost:8765/compliance/legal")
+    }
+
     func testResolveIgnoresDisabledFlags() {
         let features: [String: FeatureFlagResult] = [
             ComplianceConfigResolver.icpNumberKey: FeatureFlagResult(
@@ -196,7 +225,7 @@ final class ComplianceConfigResolverTests: XCTestCase {
 
         let config = ComplianceConfigResolver.resolve(features: features, region: .cn)
 
-        XCTAssertNil(config.icpNumber)
+        XCTAssertEqual(config.icpNumber, ComplianceConfig.defaults(for: .cn).icpNumber)
         XCTAssertEqual(config.termsVersion, ComplianceConfig.defaultPolicyVersion)
     }
 }

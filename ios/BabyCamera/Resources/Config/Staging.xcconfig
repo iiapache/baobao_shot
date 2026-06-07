@@ -1,0 +1,30 @@
+// Staging：联调 / TestFlight 内测集群（见 tests/staging/README.md）
+#include "CrashReporting.xcconfig"
+#include "CertificatePinning.xcconfig"
+#include "AppAttest.xcconfig"
+#include "Wechat.xcconfig"
+// 真机分享联调：复制 Wechat.Secrets.xcconfig.example 并取消下行注释
+// #include "Wechat.Secrets.xcconfig"
+#include "BaiduPan.xcconfig"
+#include "DeviceLocalBackup.xcconfig"
+// 真机百度网盘 OAuth：复制 BaiduPan.Secrets.xcconfig.example 并取消下行注释
+// #include "BaiduPan.Secrets.xcconfig"
+#include "Ads.xcconfig"
+
+API_BASE_URL_CN = https:/$()/staging-api-cn.example.com
+API_BASE_URL_OS = https:/$()/staging-api-os.example.com
+WS_BASE_URL_CN = wss:/$()/staging-ws-cn.example.com
+WS_BASE_URL_OS = wss:/$()/staging-ws-os.example.com
+APP_ENVIRONMENT = staging
+// Staging 默认关闭；联调生产证书时可改为 YES 并配置 CERT_PIN_HASHES_*
+CERT_PINNING_ENABLED = NO
+IAP_USE_STOREKIT = YES
+ADS_USE_LIVE_SDK = YES
+ATS_ALLOWS_LOCAL_NETWORKING = NO
+LEGAL_BASE_URL = https:/$()/www.babycamera.app/legal
+CRASH_REPORTING_ENABLED = YES
+WECHAT_UNIVERSAL_LINK = https:/$()/staging-api-cn.example.com/wechat/
+WECHAT_USE_OPENSDK = YES
+BAIDU_PAN_USE_LIVE_OAUTH = YES
+ICLOUD_USE_LIVE_BACKUP = YES
+PHOTOS_USE_LIVE_BACKUP = YES

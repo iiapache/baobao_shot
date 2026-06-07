@@ -1,0 +1,17 @@
+# EKS 新加坡 staging — 三方 Mock 基址
+
+global:
+  environment: staging
+  region: os
+  cluster: eks-os
+
+outbound:
+  mockNamespace: staging
+  mockRelease: third-party-mocks
+  mockPort: 8080
+  urls:
+    appleIap: http://mock-iap.third-party-mocks.svc.cluster.local:8080
+    wechatOpen: http://mock-wechat.third-party-mocks.svc.cluster.local:8080
+    adSsv: http://mock-ad.third-party-mocks.svc.cluster.local:8080
+    auditGreen: http://mock-audit.third-party-mocks.svc.cluster.local:8080
+    aiModels: http://mock-ai.third-party-mocks.svc.cluster.local:8080

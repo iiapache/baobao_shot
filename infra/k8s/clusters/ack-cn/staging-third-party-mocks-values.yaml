@@ -1,0 +1,10 @@
+# ACK 中国 — staging 三方 Mock WireMock
+
+global:
+  cluster: ack-cn
+  region: cn
+  environment: staging
+
+commonLabels:
+  baobao.io/team: qa
+  baobao.io/tier: mocks

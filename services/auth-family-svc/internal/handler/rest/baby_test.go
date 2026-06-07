@@ -2,10 +2,12 @@ package rest
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
+	"github.com/baobao/auth-family-svc/internal/baby"
 	"github.com/baobao/auth-family-svc/internal/config"
 	"github.com/baobao/auth-family-svc/internal/model"
 	"github.com/baobao/auth-family-svc/internal/store"
@@ -126,6 +128,36 @@ func TestBabyMultipleProfiles(t *testing.T) {
 	_ = json.Unmarshal(listData, &list)
 	if len(list.Items) != 2 {
 		t.Fatalf("items = %d, want 2", len(list.Items))
+	}
+}
+
+func TestBabyLimitReached(t *testing.T) {
+	router, mem := newTestRouter(t)
+	userID := "usr_baby_limit"
+	seedUser(t, mem, userID)
+	familyID := createFamilyAndConsent(t, router, userID)
+
+	for i := 0; i < baby.MaxBabiesPerFamily; i++ {
+		body, _ := json.Marshal(map[string]any{
+			"name":     fmt.Sprintf("宝宝%d", i+1),
+			"birthday": "2026-01-01",
+		})
+		rec := httptest.NewRecorder()
+		router.ServeHTTP(rec, authRequest(http.MethodPost, "/v1/families/"+familyID+"/babies", body, userID))
+		if rec.Code != http.StatusOK {
+			t.Fatalf("create #%d status = %d, body=%s", i+1, rec.Code, rec.Body.String())
+		}
+	}
+
+	body, _ := json.Marshal(map[string]any{"name": "宝宝超额", "birthday": "2026-01-01"})
+	rec := httptest.NewRecorder()
+	router.ServeHTTP(rec, authRequest(http.MethodPost, "/v1/families/"+familyID+"/babies", body, userID))
+	if rec.Code != http.StatusConflict {
+		t.Fatalf("status = %d, want 409; body=%s", rec.Code, rec.Body.String())
+	}
+	resp, _ := decodeAPIResponse(rec.Body.Bytes())
+	if resp.Code != "BABY_LIMIT" {
+		t.Fatalf("code = %q, want BABY_LIMIT", resp.Code)
 	}
 }
 

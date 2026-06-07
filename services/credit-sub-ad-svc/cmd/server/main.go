@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/baobao/credit-sub-ad-svc/internal/adreward"
+	"github.com/baobao/credit-sub-ad-svc/internal/appattest"
 	"github.com/baobao/credit-sub-ad-svc/internal/config"
 	"github.com/baobao/credit-sub-ad-svc/internal/credit"
 	grpchandler "github.com/baobao/credit-sub-ad-svc/internal/handler/grpc"
@@ -121,6 +122,7 @@ func run() error {
 		Query:        querySvc,
 		SignIn:       signInSvc,
 		AdReward:     adRewardSvc,
+		AppAttest:    appattest.NewVerifier(cfg.AppAttestEnabled, cfg.AppAttestMock),
 	})
 	httpServer := &http.Server{
 		Addr:              cfg.HTTPAddr(),

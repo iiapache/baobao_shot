@@ -69,6 +69,47 @@ public struct AdUnitIDs: Sendable, Equatable {
             )
         }
     }
+
+    /// Staging / 真机联调广告位（xcconfig → Info.plist 注入；缺省为各联盟测试位）。
+    public static func fromInfoPlist(bundle: Bundle = .main, region: AppRegion) -> AdUnitIDs {
+        func text(_ key: String, fallback: String) -> String {
+            guard let raw = bundle.infoDictionary?[key] as? String else { return fallback }
+            let trimmed = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+            if trimmed.isEmpty || trimmed.hasPrefix("$(") {
+                return fallback
+            }
+            return trimmed
+        }
+
+        switch region {
+        case .cn:
+            return AdUnitIDs(
+                splash: AdPlacementConfig(
+                    placementID: text("AdsPangleSplashUnitID", fallback: "887367774")
+                ),
+                interstitial: AdPlacementConfig(
+                    placementID: text("AdsPangleInterstitialUnitID", fallback: "945494753")
+                ),
+                rewarded: AdPlacementConfig(
+                    placementID: text("AdsPangleRewardedUnitID", fallback: "945494739")
+                )
+            )
+        case .os:
+            let rewarded = text(
+                "AdsAdMobRewardedUnitID",
+                fallback: "ca-app-pub-3940256099942544/1712485313"
+            )
+            return AdUnitIDs(
+                splash: AdPlacementConfig(
+                    placementID: text("AdsAdMobSplashUnitID", fallback: "ca-app-pub-3940256099942544/5662855259")
+                ),
+                interstitial: AdPlacementConfig(
+                    placementID: text("AdsAdMobInterstitialUnitID", fallback: "ca-app-pub-3940256099942544/4411468910")
+                ),
+                rewarded: AdPlacementConfig(placementID: rewarded)
+            )
+        }
+    }
 }
 
 /// SDK 加载后的可展示素材句柄。

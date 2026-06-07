@@ -9,14 +9,17 @@ public enum WechatShareError: Error, Equatable, Sendable {
 }
 
 public struct WechatShareConfiguration: Sendable, Equatable {
+    public let appID: String
     public let universalLink: String
 
-    public init(universalLink: String) {
+    public init(appID: String, universalLink: String) {
+        self.appID = appID
         self.universalLink = universalLink
     }
 
-    /// 与微信开放平台登记一致的 Universal Link 占位；宿主 App 应从配置注入产线值。
+    /// 与微信开放平台登记一致的占位；宿主 App 通过 xcconfig → Info.plist 注入产线值。
     public static let `default` = WechatShareConfiguration(
+        appID: "wx0000000000000000",
         universalLink: "https://app.babycamera.cn/wechat/"
     )
 }

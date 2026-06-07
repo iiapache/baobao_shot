@@ -21,9 +21,13 @@ type Config struct {
 	Environment    string
 	StorageBackend string
 	DatabaseURL    string
-	APNSSandbox    bool
-	APNSTopic      string
-	DebugEndpoints bool
+	APNSMock          bool
+	APNSSandbox       bool
+	APNSTopic         string
+	APNSKeyID         string
+	APNSTeamID        string
+	APNSPrivateKeyPEM string
+	DebugEndpoints    bool
 	KafkaBrokers   string
 	KafkaGroupID   string
 }
@@ -44,6 +48,7 @@ func Load() (*Config, error) {
 		return nil, fmt.Errorf("STORAGE_BACKEND: unsupported backend %q", backend)
 	}
 
+	apnsMock := resolveAPNSMock()
 	sandbox := strings.EqualFold(getEnv("APNS_SANDBOX", "true"), "true")
 	debug := strings.EqualFold(getEnv("DEBUG_ENDPOINTS", "true"), "true")
 	if getEnv("ENVIRONMENT", "dev") == "prod" {
@@ -51,16 +56,20 @@ func Load() (*Config, error) {
 	}
 
 	return &Config{
-		ServiceName:    getEnv("SERVICE_NAME", "notification-svc"),
-		HTTPPort:       httpPort,
-		GRPCPort:       grpcPort,
-		OTelEndpoint:   getEnv("OTEL_EXPORTER_OTLP_ENDPOINT", ""),
-		Environment:    getEnv("ENVIRONMENT", "dev"),
-		StorageBackend: backend,
-		DatabaseURL:    getEnv("DATABASE_URL", ""),
-		APNSSandbox:    sandbox,
-		APNSTopic:      getEnv("APNS_TOPIC", "app.babycamera"),
-		DebugEndpoints: debug,
+		ServiceName:       getEnv("SERVICE_NAME", "notification-svc"),
+		HTTPPort:          httpPort,
+		GRPCPort:          grpcPort,
+		OTelEndpoint:      getEnv("OTEL_EXPORTER_OTLP_ENDPOINT", ""),
+		Environment:       getEnv("ENVIRONMENT", "dev"),
+		StorageBackend:    backend,
+		DatabaseURL:       getEnv("DATABASE_URL", ""),
+		APNSMock:          apnsMock,
+		APNSSandbox:       sandbox,
+		APNSTopic:         getEnv("APNS_TOPIC", "app.babycamera"),
+		APNSKeyID:         getEnv("APNS_KEY_ID", ""),
+		APNSTeamID:        getEnv("APNS_TEAM_ID", ""),
+		APNSPrivateKeyPEM: getEnv("APNS_PRIVATE_KEY_PEM", ""),
+		DebugEndpoints:    debug,
 		KafkaBrokers:   getEnv("KAFKA_BROKERS", ""),
 		KafkaGroupID:   getEnv("KAFKA_GROUP_ID", "notification-svc"),
 	}, nil
@@ -76,6 +85,15 @@ func getEnv(key, fallback string) string {
 		return v
 	}
 	return fallback
+}
+
+// resolveAPNSMock defaults to true in dev/staging and false in production.
+func resolveAPNSMock() bool {
+	if v := os.Getenv("APNS_MOCK"); v != "" {
+		return strings.EqualFold(v, "true")
+	}
+	env := strings.ToLower(getEnv("ENVIRONMENT", "dev"))
+	return env != "prod" && env != "production"
 }
 
 // HTTPAddr returns the HTTP listen address.

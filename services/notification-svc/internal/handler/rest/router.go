@@ -51,7 +51,7 @@ func NewRouter(cfg *config.Config, st store.Store, apnsClient *apns.Client) http
 	r.Post("/v1/internal/notifications/tokens/cleanup", devices.CleanupInvalidToken)
 
 	if cfg.DebugEndpoints && apnsClient != nil {
-		debug := NewDebugHandler(apnsClient)
+		debug := NewDebugHandler(apnsClient, cfg.APNSMock)
 		r.Post("/v1/debug/apns-ping", debug.APNsPing)
 	}
 

@@ -1,0 +1,47 @@
+# ai-dispatch-svc — staging AI 模型 outbound
+# 默认走 mock-ai WireMock；启用真厂商见 infra/staging/README.md §4.2
+
+extraEnv:
+  ENVIRONMENT: staging
+  AUDIT_SVC_URL: http://audit-svc.staging.svc.cluster.local:8005
+  ALGORITHM_FILING_PATH: /etc/baobao/compliance/algorithm-filing/filings.yaml
+  # CN：CN_ADAPTER_MOCK_MODE=false 时 HTTP 调 mock-ai（或真 DashScope / 火山）
+  CN_ADAPTER_MOCK_MODE: "false"
+  DASHSCOPE_ENDPOINT: http://mock-ai.third-party-mocks.svc.cluster.local:8080
+  DASHSCOPE_API_KEY: mock-staging-dashscope-key
+  BYTEDANCE_ENDPOINT: http://mock-ai.third-party-mocks.svc.cluster.local:8080
+  BYTEDANCE_API_KEY: mock-staging-bytedance-key
+  BYTEDANCE_API_SECRET: mock-staging-bytedance-secret
+  # OS：OS_ADAPTER_MOCK_MODE=false 时 HTTP 调 mock-ai（或真 OpenAI / Vertex）
+  OPENAI_API_BASE: http://mock-ai.third-party-mocks.svc.cluster.local:8080/v1
+  OPENAI_BASE_URL: http://mock-ai.third-party-mocks.svc.cluster.local:8080/v1
+  OPENAI_API_KEY: mock-staging-openai-key
+  OS_ADAPTER_MOCK_MODE: "false"
+
+env:
+  - name: ENVIRONMENT
+    value: staging
+  - name: AUDIT_SVC_URL
+    value: http://audit-svc.staging.svc.cluster.local:8005
+  - name: ALGORITHM_FILING_PATH
+    value: /etc/baobao/compliance/algorithm-filing/filings.yaml
+  - name: CN_ADAPTER_MOCK_MODE
+    value: "false"
+  - name: DASHSCOPE_ENDPOINT
+    value: http://mock-ai.third-party-mocks.svc.cluster.local:8080
+  - name: DASHSCOPE_API_KEY
+    value: mock-staging-dashscope-key
+  - name: BYTEDANCE_ENDPOINT
+    value: http://mock-ai.third-party-mocks.svc.cluster.local:8080
+  - name: BYTEDANCE_API_KEY
+    value: mock-staging-bytedance-key
+  - name: BYTEDANCE_API_SECRET
+    value: mock-staging-bytedance-secret
+  - name: OPENAI_API_BASE
+    value: http://mock-ai.third-party-mocks.svc.cluster.local:8080/v1
+  - name: OPENAI_BASE_URL
+    value: http://mock-ai.third-party-mocks.svc.cluster.local:8080/v1
+  - name: OPENAI_API_KEY
+    value: mock-staging-openai-key
+  - name: OS_ADAPTER_MOCK_MODE
+    value: "false"

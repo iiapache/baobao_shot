@@ -47,7 +47,15 @@ func run() error {
 		defer db.Close()
 	}
 
-	auditSvc := audit.NewService(st, audit.NewVendorFromConfig(cfg))
+	vendor := audit.NewVendorFromConfig(cfg)
+	auditSvc := audit.NewService(st, vendor)
+	if cfg.AliyunGreenMockMode {
+		slog.Info("aliyun green mock mode enabled")
+	} else if cfg.AliyunGreenEndpoint != "" {
+		slog.Info("aliyun green http client enabled", "endpoint", cfg.AliyunGreenEndpoint)
+	} else {
+		slog.Info("aliyun green sdk client enabled", "region", cfg.AliyunGreenRegion)
+	}
 	consumer := kafka.NewConsumer(cfg, auditSvc)
 
 	shutdownTracing, err := middleware.InitTracing(ctx, cfg)
@@ -72,7 +80,7 @@ func run() error {
 		}
 	}()
 
-	handler := rest.NewRouter(cfg, st)
+	handler := rest.NewRouter(cfg, st, auditSvc)
 	httpServer := &http.Server{
 		Addr:              cfg.HTTPAddr(),
 		Handler:           handler,

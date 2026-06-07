@@ -1,0 +1,4 @@
+// OPT-04：iCloud / 系统相册备份 stub ↔ live 切换（CloudKit Private DB + PhotoKit addOnly）
+ICLOUD_USE_LIVE_BACKUP = NO
+PHOTOS_USE_LIVE_BACKUP = NO
+ICLOUD_BACKUP_CONTAINER_ID = iCloud.app.babycamera

@@ -1,0 +1,20 @@
+# audit-svc — staging 内容审核 outbound
+# 默认：进程内 mock（ALIYUN_GREEN_MOCK_MODE=true）
+# 方案 B：连 mock-audit WireMock（MOCK_MODE=false + ENDPOINT）
+# 方案 C：真厂商 SDK（MOCK_MODE=false + AK/SK，见 infra/staging/README.md §4.3）
+
+extraEnv:
+  ENVIRONMENT: staging
+  DEPLOY_REGION: cn
+  ALIYUN_GREEN_MOCK_MODE: "true"
+  ALIYUN_GREEN_ENDPOINT: http://mock-audit.third-party-mocks.svc.cluster.local:8080
+
+env:
+  - name: ENVIRONMENT
+    value: staging
+  - name: DEPLOY_REGION
+    value: cn
+  - name: ALIYUN_GREEN_MOCK_MODE
+    value: "true"
+  - name: ALIYUN_GREEN_ENDPOINT
+    value: http://mock-audit.third-party-mocks.svc.cluster.local:8080

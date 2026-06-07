@@ -33,7 +33,8 @@ let package = Package(
                 "Database",
                 "BabyCameraImageKit",
                 "BabyCameraBackup",
-            ]
+            ],
+            resources: [.process("Resources")]
         ),
         .testTarget(
             name: "BabyCameraSettingsTests",
@@ -47,7 +48,8 @@ let package = Package(
                 "Database",
                 "BabyCameraImageKit",
                 "BabyCameraBackup",
-            ]
+            ],
+            resources: [.copy("Resources")]
         ),
     ]
 )

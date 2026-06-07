@@ -1,7 +1,7 @@
 # 合规政策文档（T7.2）
 
 > **任务**：T7.2 ICP 备案 + 隐私政策 + 用户协议 + 深度合成说明 + 第三方 SDK 清单  
-> **托管**：staging 占位 `https://www.babycamera.app/legal/...`（由 INFRA 部署静态页或 MD→HTML 流水线）  
+> **托管**：`docs/compliance/legal/`（`./scripts/generate-compliance-docs.sh` 生成 HTML）→ 生产 `https://www.babycamera.app/legal/...`  
 > **关联**：`compliance/icp-filing/APP_STORE_METADATA_PLACEHOLDER.md`、`services/config-svc`
 
 ## 文档清单

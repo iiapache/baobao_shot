@@ -43,3 +43,18 @@ func TestLoadPostgresBackend(t *testing.T) {
 		t.Fatalf("StorageBackend = %q, want postgres", cfg.StorageBackend)
 	}
 }
+
+func TestLoadAppAttestFlags(t *testing.T) {
+	t.Setenv("APP_ATTEST_ENABLED", "true")
+	t.Setenv("APP_ATTEST_MOCK", "false")
+	cfg, err := Load()
+	if err != nil {
+		t.Fatalf("Load() error = %v", err)
+	}
+	if !cfg.AppAttestEnabled {
+		t.Fatal("AppAttestEnabled = false, want true")
+	}
+	if cfg.AppAttestMock {
+		t.Fatal("AppAttestMock = true, want false")
+	}
+}

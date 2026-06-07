@@ -1,8 +1,8 @@
 package adreward
 
 const (
-	// DefaultCreditsPerReward is the PRD §4.11.3 grant per incentivized view.
+	// DefaultCreditsPerReward — docs/product-config.yaml credits.ad_reward_per_view
 	DefaultCreditsPerReward int64 = 5
-	// DefaultDailyLimit is the PRD §4.11.3 daily cap per user.
+	// DefaultDailyLimit — docs/product-config.yaml credits.ad_reward_daily_limit
 	DefaultDailyLimit = 5
 )

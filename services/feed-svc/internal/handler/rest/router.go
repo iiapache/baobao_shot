@@ -23,7 +23,8 @@ import (
 
 // RouterDeps wires optional runtime collaborators into the HTTP router.
 type RouterDeps struct {
-	MediaStub mediaclient.Client
+	MediaStub   mediaclient.Client
+	AuditClient auditclient.Client
 }
 
 // NewRouter builds the REST API router with health probes and feed WebSocket stub.
@@ -38,16 +39,20 @@ func NewRouter(cfg *config.Config, st store.Store, deps RouterDeps) http.Handler
 	if media == nil {
 		media = mediaclient.NewStub()
 	}
+	audit := deps.AuditClient
+	if audit == nil {
+		audit = auditclient.NewStub()
+	}
 
 	hub := wspush.NewHub(wspush.DefaultConfig())
 	go hub.Run(context.Background())
 
 	health := NewHealthHandler(cfg.ServiceName)
-	postSvc := post.NewService(st, auditclient.NewStub(), ratelimit.NewSlidingWindow(), media)
+	postSvc := post.NewService(st, audit, ratelimit.NewSlidingWindow(), media)
 	postHandler := NewPostHandler(postSvc)
 	feedSvc := feed.NewService(st, cache.New(cfg.RedisURL), familyauth.NewStub())
 	feedHandler := NewFeedHandler(feedSvc)
-	engagementSvc := engagement.NewService(st, auditclient.NewStub(), familyauth.NewStub(), hub)
+	engagementSvc := engagement.NewService(st, audit, familyauth.NewStub(), hub)
 	engagementHandler := NewEngagementHandler(engagementSvc)
 	wsHandler := wshandler.NewFeedHandler(hub)
 

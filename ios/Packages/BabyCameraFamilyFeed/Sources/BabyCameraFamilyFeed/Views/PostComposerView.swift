@@ -11,9 +11,14 @@ public struct PostComposerView: View {
     @State private var selectedPhotoItems: [PhotosPickerItem] = []
     @State private var selectedVideoItem: PhotosPickerItem?
     @Environment(\.dismiss) private var dismiss
+    private let onBeforePublish: ((PostComposerViewModel) async throws -> Void)?
 
-    public init(viewModel: PostComposerViewModel) {
+    public init(
+        viewModel: PostComposerViewModel,
+        onBeforePublish: ((PostComposerViewModel) async throws -> Void)? = nil
+    ) {
         self.viewModel = viewModel
+        self.onBeforePublish = onBeforePublish
     }
 
     public var body: some View {
@@ -80,6 +85,7 @@ public struct PostComposerView: View {
             ) {
                 Task { await publishAndDismissIfNeeded() }
             }
+            .accessibilityIdentifier("feedPublishButton")
             .padding(DSSpacing.md)
         }
         .onChange(of: viewModel.caption) { _ in
@@ -185,6 +191,14 @@ public struct PostComposerView: View {
     }
 
     private func publishAndDismissIfNeeded() async {
+        if let onBeforePublish {
+            do {
+                try await onBeforePublish(viewModel)
+            } catch {
+                viewModel.reportExternalFailure(error.localizedDescription)
+                return
+            }
+        }
         await viewModel.publish()
         if case .published = viewModel.phase {
             dismiss()

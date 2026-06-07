@@ -26,6 +26,8 @@ type Config struct {
 	AccessKeyID     string
 	AccessKeySecret string
 	Region          string
+	Endpoint        string
+	ObjectURLPrefix string
 	ImageScenes     string
 	TextScenes      string
 	MockDelay       time.Duration
@@ -56,13 +58,26 @@ func (c Config) client() Client {
 	if c.MockMode {
 		return nil
 	}
-	return &HTTPClient{
-		AccessKeyID:     c.AccessKeyID,
-		AccessKeySecret: c.AccessKeySecret,
-		Region:          c.Region,
-		ImageScenes:     c.ImageScenes,
-		TextScenes:      c.TextScenes,
+	if strings.TrimSpace(c.Endpoint) != "" {
+		return &HTTPClient{
+			Endpoint:        c.Endpoint,
+			ObjectURLPrefix: c.ObjectURLPrefix,
+			ImageScenes:     c.ImageScenes,
+			TextScenes:      c.TextScenes,
+		}
 	}
+	sdk, err := NewSDKClient(
+		c.Region,
+		c.AccessKeyID,
+		c.AccessKeySecret,
+		c.ObjectURLPrefix,
+		c.ImageScenes,
+		c.TextScenes,
+	)
+	if err != nil {
+		return brokenClient{err: err}
+	}
+	return sdk
 }
 
 // Name returns the persisted vendor identifier.
@@ -84,6 +99,9 @@ func (a *ContentSecurityAdapter) Audit(ctx context.Context, req Request) (bool, 
 	}
 	if a.client == nil {
 		return false, nil, errors.New("aliyun green client not configured")
+	}
+	if broken, ok := a.client.(brokenClient); ok {
+		return false, nil, broken.err
 	}
 
 	switch normalizeMediaType(req) {

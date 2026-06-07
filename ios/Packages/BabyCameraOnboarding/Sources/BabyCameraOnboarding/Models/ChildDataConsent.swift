@@ -23,11 +23,16 @@ public enum ChildDataConsent {
     }
 }
 
-public enum RestrictedFeature: Sendable, CaseIterable {
+public enum RestrictedFeature: Sendable, CaseIterable, Identifiable {
     case camera
     case photoImport
     case babyCreate
     case familyCreate
+    case feedPublish
+    case feedEngagement
+    case aiSubmit
+
+    public var id: Self { self }
 
     public var restrictionMessage: String {
         switch self {
@@ -39,6 +44,12 @@ public enum RestrictedFeature: Sendable, CaseIterable {
             L10n.string("onboarding.consent.restricted.baby")
         case .familyCreate:
             L10n.string("onboarding.consent.restricted.family")
+        case .feedPublish:
+            L10n.string("onboarding.consent.restricted.feed_publish")
+        case .feedEngagement:
+            L10n.string("onboarding.consent.restricted.feed_engagement")
+        case .aiSubmit:
+            L10n.string("onboarding.consent.restricted.ai_submit")
         }
     }
 }
@@ -50,7 +61,8 @@ public enum ChildDataConsentGate {
         userId: String? = nil
     ) -> Bool {
         switch feature {
-        case .camera, .photoImport, .babyCreate, .familyCreate:
+        case .camera, .photoImport, .babyCreate, .familyCreate,
+             .feedPublish, .feedEngagement, .aiSubmit:
             if let userId {
                 return ConsentVersionChecker.hasValidConsent(userId: userId, profile: profile)
             }

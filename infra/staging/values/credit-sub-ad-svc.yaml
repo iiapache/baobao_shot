@@ -1,0 +1,21 @@
+# credit-sub-ad-svc — staging outbound / 验签注入
+# IAP：当前使用 JWS stub；live Server API 就绪后设置 APPLE_IAP_SERVER_API_BASE
+
+extraEnv:
+  ENVIRONMENT: staging
+  APPLE_IAP_SERVER_API_BASE: http://mock-iap.third-party-mocks.svc.cluster.local:8080
+  APPLE_IAP_VERIFY_URL: http://mock-iap.third-party-mocks.svc.cluster.local:8080/verifyReceipt
+  PANGLE_SECURITY_KEY: staging-mock-pangle-secret
+  GDT_SECRET_KEY: staging-mock-gdt-secret
+
+env:
+  - name: ENVIRONMENT
+    value: staging
+  - name: APPLE_IAP_SERVER_API_BASE
+    value: http://mock-iap.third-party-mocks.svc.cluster.local:8080
+  - name: APPLE_IAP_VERIFY_URL
+    value: http://mock-iap.third-party-mocks.svc.cluster.local:8080/verifyReceipt
+  - name: PANGLE_SECURITY_KEY
+    value: staging-mock-pangle-secret
+  - name: GDT_SECRET_KEY
+    value: staging-mock-gdt-secret

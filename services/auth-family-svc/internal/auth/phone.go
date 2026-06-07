@@ -7,9 +7,7 @@ import (
 	"fmt"
 	"log/slog"
 	"math/big"
-	"os"
 	"regexp"
-	"strings"
 	"time"
 
 	"github.com/baobao/auth-family-svc/internal/model"
@@ -63,13 +61,17 @@ type PhoneAuthService struct {
 	loginLimiter *SlidingWindowLimiter
 	sms          SMSSender
 	tokens       *TokenService
+	codeResolver *CodeResolver
 	now          func() time.Time
 }
 
 // NewPhoneAuthService wires dependencies with sensible defaults.
-func NewPhoneAuthService(users store.UserStore, verification store.VerificationStore, sms SMSSender, tokens *TokenService) *PhoneAuthService {
+func NewPhoneAuthService(users store.UserStore, verification store.VerificationStore, sms SMSSender, tokens *TokenService, resolver *CodeResolver) *PhoneAuthService {
 	if sms == nil {
 		sms = MockSMSSender{}
+	}
+	if resolver == nil {
+		resolver = &CodeResolver{provider: "mock"}
 	}
 	return &PhoneAuthService{
 		users:        users,
@@ -78,6 +80,7 @@ func NewPhoneAuthService(users store.UserStore, verification store.VerificationS
 		loginLimiter: NewSlidingWindowLimiter(),
 		sms:          sms,
 		tokens:       tokens,
+		codeResolver: resolver,
 		now:          time.Now,
 	}
 }
@@ -105,7 +108,7 @@ func (s *PhoneAuthService) SendCode(ctx context.Context, phone, clientIP string)
 		return ErrRateLimited
 	}
 
-	code, err := resolveVerificationCode(codeDigits)
+	code, err := s.codeResolver.Resolve(phone)
 	if err != nil {
 		return fmt.Errorf("generate code: %w", err)
 	}
@@ -192,13 +195,6 @@ func (s *PhoneAuthService) Login(ctx context.Context, phone, code, clientIP, dev
 // ValidateCNPhone checks mainland China mobile format.
 func ValidateCNPhone(phone string) bool {
 	return cnPhonePattern.MatchString(phone)
-}
-
-func resolveVerificationCode(length int) (string, error) {
-	if fixed := strings.TrimSpace(os.Getenv("MOCK_SMS_FIXED_CODE")); len(fixed) == length {
-		return fixed, nil
-	}
-	return generateNumericCode(length)
 }
 
 func generateNumericCode(length int) (string, error) {

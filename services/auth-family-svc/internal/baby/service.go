@@ -56,6 +56,13 @@ func (s *Service) Create(ctx context.Context, in CreateInput) (*model.Baby, erro
 	if err := s.requireMember(ctx, in.FamilyID, in.UserID); err != nil {
 		return nil, err
 	}
+	babies, err := s.store.ListBabiesByFamily(ctx, in.FamilyID)
+	if err != nil {
+		return nil, err
+	}
+	if len(babies) >= MaxBabiesPerFamily {
+		return nil, ErrBabyLimit
+	}
 
 	name := strings.TrimSpace(in.Name)
 	if name == "" {

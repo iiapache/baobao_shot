@@ -1,0 +1,11 @@
+// OPT-01 证书绑定（SPKI SHA-256 Base64）。运维轮换见 CertificatePinning.Secrets.xcconfig.example
+// 提取：ios/scripts/extract-spki-pin.sh api-cn.babygrowth.app
+
+// 默认关闭；Release.xcconfig 覆盖为 YES
+CERT_PINNING_ENABLED = NO
+
+// 逗号分隔，支持备份 pin（证书轮换）
+CERT_PIN_HASHES_API_CN =
+CERT_PIN_HASHES_API_OS =
+CERT_PIN_HASHES_WS_CN =
+CERT_PIN_HASHES_WS_OS =

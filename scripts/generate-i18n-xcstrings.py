@@ -101,6 +101,8 @@ TRANSLATIONS: dict[str, str] = {
     "settings.about.deep_synthesis": "深度合成说明",
     "settings.about.third_party_sdk": "第三方 SDK 清单",
     "settings.about.icp": "ICP备案号",
+    "ai.compliance.algorithm_filing": "算法备案号",
+    "ai.compliance.deep_synthesis": "深度合成说明",
     "settings.about.algorithm_filing": "算法备案号",
     "settings.about.contact_support": "联系客服",
     "settings.about.contact_support.subtitle": "提交反馈并附带脱敏日志",

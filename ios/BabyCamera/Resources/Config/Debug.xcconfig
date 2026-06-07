@@ -1,0 +1,20 @@
+// Debug：本地 Mock API（tests/mocks/api，默认端口 18080）
+#include "CrashReporting.xcconfig"
+#include "CertificatePinning.xcconfig"
+#include "AppAttest.xcconfig"
+#include "Wechat.xcconfig"
+#include "BaiduPan.xcconfig"
+#include "DeviceLocalBackup.xcconfig"
+#include "Ads.xcconfig"
+
+CERT_PINNING_ENABLED = NO
+
+API_BASE_URL_CN = http:/$()/localhost:18080
+API_BASE_URL_OS = http:/$()/localhost:18080
+WS_BASE_URL_CN = ws:/$()/localhost:18080
+WS_BASE_URL_OS = ws:/$()/localhost:18080
+APP_ENVIRONMENT = dev
+// Debug 默认 stub IAP（mock JWS + 本地 Mock API）；真机 StoreKit 沙盒联调改为 YES 后 Clean Build
+IAP_USE_STOREKIT = NO
+ATS_ALLOWS_LOCAL_NETWORKING = YES
+LEGAL_BASE_URL = http:/$()/localhost:8765/compliance/legal

@@ -1,0 +1,18 @@
+{{- range .Values.mocks }}
+{{- $glob := printf "bundled-mappings/%s/*" .mappingsDir }}
+{{- $files := $.Files.Glob $glob }}
+{{- if $files }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "third-party-mocks.mockFullname" (dict "root" $ "name" .name) }}-mappings
+  labels:
+    {{- include "third-party-mocks.mockLabels" (dict "root" $ "name" .name) | nindent 4 }}
+data:
+{{- range $path, $_ := $files }}
+  {{ base $path }}: |
+{{ $.Files.Get $path | indent 4 }}
+{{- end }}
+{{- end }}
+{{- end }}

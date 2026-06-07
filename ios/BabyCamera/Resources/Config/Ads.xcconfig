@@ -1,0 +1,16 @@
+// 广告联盟配置（INT-04）：xcconfig → Info.plist → AdSDKClientFactory
+// 穿山甲测试位见 https://www.pangleglobal.com/integration/verify-ios-overview
+// AdMob 测试位见 https://developers.google.com/admob/ios/test-ads
+
+ADS_USE_LIVE_SDK = NO
+
+// CN — 穿山甲（瀑布首选）/ 优量汇（回退）
+ADS_PANGLE_SPLASH_UNIT_ID = 887367774
+ADS_PANGLE_INTERSTITIAL_UNIT_ID = 945494753
+ADS_PANGLE_REWARDED_UNIT_ID = 945494739
+ADS_GDT_REWARDED_UNIT_ID = 9000000000000000
+
+// OS — AdMob Google 官方测试位
+ADS_ADMOB_SPLASH_UNIT_ID = ca-app-pub-3940256099942544/5662855259
+ADS_ADMOB_INTERSTITIAL_UNIT_ID = ca-app-pub-3940256099942544/4411468910
+ADS_ADMOB_REWARDED_UNIT_ID = ca-app-pub-3940256099942544/1712485313

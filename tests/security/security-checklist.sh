@@ -87,29 +87,49 @@ else
   pass '无 ATS 不安全 HTTP 例外'
 fi
 
-log "── Cert Pinning stub ──"
+log "── Cert Pinning ──"
 
 grep_file \
-  'CertificatePinningConfiguration' \
-  "${IOS_ROOT}/Packages/BabyCameraNetwork/Sources/BabyCameraNetwork/Security/CertificatePinning.swift" \
-  'CertificatePinningConfiguration 存在'
+  'CertificatePinningConfigurationFactory' \
+  "${IOS_ROOT}/Packages/BabyCameraNetwork/Sources/BabyCameraNetwork/Security/CertificatePinningConfigurationFactory.swift" \
+  'CertificatePinningConfigurationFactory 存在'
+
+grep_file \
+  'CERT_PINNING_ENABLED = YES' \
+  "${IOS_ROOT}/BabyCamera/Resources/Config/Release.xcconfig" \
+  'Release 默认开启 Cert Pinning'
 
 grep_file \
   'isEnabled' \
   "${IOS_ROOT}/Packages/BabyCameraNetwork/Sources/BabyCameraNetwork/Security/CertificatePinning.swift" \
   'Cert Pinning 可配置开关 isEnabled'
 
-log "── App Attest stub ──"
+log "── App Attest（OPT-02）──"
 
 grep_file \
-  'AppAttestService' \
-  "${IOS_ROOT}/Packages/BabyCameraAccount/Sources/BabyCameraAccount/Security/AppAttestService.swift" \
-  'AppAttestService 存在'
+  'AppAttestConfigurationFactory' \
+  "${IOS_ROOT}/Packages/BabyCameraAccount/Sources/BabyCameraAccount/Security/AppAttestConfigurationFactory.swift" \
+  'AppAttestConfigurationFactory 存在'
 
 grep_file \
-  '@available\(iOS 14' \
-  "${IOS_ROOT}/Packages/BabyCameraAccount/Sources/BabyCameraAccount/Security/AppAttestService.swift" \
-  'App Attest iOS 14+ 编译守卫'
+  'LiveAppAttestService' \
+  "${IOS_ROOT}/Packages/BabyCameraAccount/Sources/BabyCameraAccount/Security/LiveAppAttestService.swift" \
+  'LiveAppAttestService 真实实现'
+
+grep_file \
+  'StubAppAttestService' \
+  "${IOS_ROOT}/Packages/BabyCameraAccount/Sources/BabyCameraAccount/Security/StubAppAttestService.swift" \
+  'StubAppAttestService stub 路径'
+
+grep_file \
+  'APP_ATTEST_ENABLED = YES' \
+  "${IOS_ROOT}/BabyCamera/Resources/Config/Release.xcconfig" \
+  'Release 默认开启 App Attest'
+
+grep_file \
+  'AppAttestPayload' \
+  "${IOS_ROOT}/Packages/BabyCameraNetwork/Sources/BabyCameraNetwork/Security/AppAttestPayload.swift" \
+  'IAP 请求 AppAttestPayload'
 
 log "── 日志脱敏 ──"
 

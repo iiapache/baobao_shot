@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="index,follow" />
+  <title>深度合成服务说明 · 宝宝成长相机</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #faf9f7;
+      --surface: #ffffff;
+      --text: #1a1a1a;
+      --muted: #5c5c5c;
+      --accent: #c45c4a;
+      --border: #e8e4df;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+      font-size: 16px;
+    }
+    main {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 2rem 1.25rem 3rem;
+      background: var(--surface);
+      min-height: 100vh;
+      box-shadow: 0 0 0 1px var(--border);
+    }
+    .doc-meta {
+      margin: 0 0 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+    h1 { font-size: 1.75rem; margin: 0 0 1rem; line-height: 1.3; }
+    h2 { font-size: 1.2rem; margin: 1.75rem 0 0.75rem; color: var(--accent); }
+    h3 { font-size: 1.05rem; margin: 1.25rem 0 0.5rem; }
+    p { margin: 0.75rem 0; }
+    ul, ol { margin: 0.75rem 0; padding-left: 1.4rem; }
+    li { margin: 0.35rem 0; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+      font-size: 0.9rem;
+    }
+    th, td {
+      border: 1px solid var(--border);
+      padding: 0.5rem 0.65rem;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { background: #f5f2ef; font-weight: 600; }
+    a { color: var(--accent); }
+    hr { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
+    footer {
+      margin-top: 2rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <p class="doc-meta">版本 v1.0.0 · 生效 2026-06-06</p>
+    <h1>深度合成服务说明</h1>
+<p><strong>版本</strong>：v1.0.0</p>
+<p><strong>生效日期</strong>：2026 年 6 月 6 日</p>
+<p><strong>适用产品</strong>：宝宝成长相机</p>
+<h2>摘要</h2>
+<p>本 App 部分功能使用深度合成技术（AI 图像/视频生成、风格化、修复、智能配文等）。根据《互联网信息服务深度合成管理规定》，我们向您说明以下事项。</p>
+<h2>一、深度合成能力范围</h2>
+<table><thead><tr>
+<th>功能类型</th>
+<th>说明</th>
+<th>是否默认开启</th>
+</tr></thead><tbody>
+<tr>
+<td>图像风格化 / 卡通化</td>
+<td>基于您上传的宝宝照片生成艺术风格图像</td>
+<td>需监护人同意 + 玩法可见</td>
+</tr>
+<tr>
+<td>照片修复 / 增强</td>
+<td>对历史照片进行清晰度优化</td>
+<td>同上</td>
+</tr>
+<tr>
+<td>视频类玩法</td>
+<td>图生视频、成长回顾等</td>
+<td>同上，耗时较长</td>
+</tr>
+<tr>
+<td>智能配文</td>
+<td>为分享生成文案建议</td>
+<td>可单独关闭</td>
+</tr>
+</tbody></table>
+<p>具体玩法以 App 内展示及远端配置为准；未备案模型不会对中国区用户开放（见算法备案摘要）。</p>
+<h2>二、标识与告知</h2>
+<ul>
+<li>AI 生成内容在 App 内以「AI 共创」等等标识提示；</li>
+<li>分享至第三方平台时，建议在文案中注明 AI 辅助生成（产品内提供默认提示）；</li>
+<li>我们不会将深度合成结果用于冒充真人身份或误导性宣传。</li>
+</ul>
+<h2>三、您的权利与义务</h2>
+<ul>
+<li>您应确保上传照片已获得合法授权，不得生成违法违规内容；</li>
+<li>您对生成结果的使用承担相应责任；</li>
+<li>可通过「设置 → 关于」查看算法备案摘要及本说明全文。</li>
+</ul>
+<h2>四、模型与备案</h2>
+<p>中国区调用的生成式模型须已完成算法备案；备案号展示于 App「设置 → 关于 → 算法备案号」。模型清单与备案绑定关系由 `ai-dispatch-svc` 校验（T7.1）。</p>
+<h2>五、投诉与申诉</h2>
+<p>如对生成内容审核结果有异议，可通过玩法内申诉入口或客服 {{SUPPORT_EMAIL}} 联系我们，我们将在承诺 SLA 内处理。</p>
+<h2>六、更新</h2>
+<p>本说明版本：<strong>v1.0.0</strong>。重大变更将同步更新隐私政策并 App 内提示。</p>
+<hr />
+<p><em>本文档为 T7.2 结构占位，提审前须法务终稿。</em></p>
+    <footer>
+      <p>宝宝成长相机 · 合规文档（v1.0.0）</p>
+      <p>正式域名：<a href="https://www.babycamera.app/legal/">www.babycamera.app/legal</a></p>
+    </footer>
+  </main>
+</body>
+</html>

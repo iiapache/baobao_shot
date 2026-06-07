@@ -1,4 +1,5 @@
 import BabyCameraAccount
+import BabyCameraBackup
 import BabyCameraFamily
 import BabyCameraNetwork
 import BabyCameraNotification
@@ -13,7 +14,8 @@ public enum SettingsIntegrationContextFactory {
         accountCoordinator: AccountCoordinator,
         appDatabase: AppDatabase,
         familyId: String? = nil,
-        region: AppRegion = .cn
+        region: AppRegion = .cn,
+        forceStubBackupOAuth: Bool = false
     ) -> SettingsIntegrationContext {
         let tokenStore = accountCoordinator.authService.tokenStore
         let regionConfig = RegionConfig(
@@ -47,7 +49,11 @@ public enum SettingsIntegrationContextFactory {
                 )
             ),
             complianceService: ComplianceConfigService(client: client, region: region),
-            permissionManager: DefaultPermissionManager()
+            permissionManager: DefaultPermissionManager(),
+            backupTargetsService: BackupTargetsService(
+                api: BackupAPI(client: client),
+                forceStubOAuth: forceStubBackupOAuth
+            )
         )
     }
 

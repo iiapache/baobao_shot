@@ -145,26 +145,33 @@ test:ios:
   image: alpine:3.20
   extends: .ios_changes_rules
   script:
-    - echo ">>> test:ios — iOS 单测占位"
+    - echo ">>> test:ios — iOS 脚本与 fastlane 骨架检查（Linux runner，不执行 xcodebuild）"
     - test -d ios
+    - test -x ios/scripts/verify-xcode-env.sh
+    - test -x ios/scripts/build-babycamera.sh
+    - bash -n ios/scripts/verify-xcode-env.sh
+    - bash -n ios/scripts/build-babycamera.sh
     - |
       if [ -f ios/fastlane/Fastfile ]; then
-        echo ">>> fastlane 骨架已就绪；MR 环境无 macOS/Xcode，跳过 xcodebuild"
-        echo ">>> 本地验证: cd ios && bundle exec fastlane test"
-        echo ">>> CI 正式路径: macOS runner + xcodebuild test 或 Xcode Cloud"
+        echo ">>> fastlane 骨架已就绪"
         grep -E "lane :test" ios/fastlane/Fastfile && echo ">>> Fastfile test lane 存在"
       else
         echo ">>> 待 ios/fastlane/ 创建后接入"
         exit 1
       fi
-    - echo ">>> iOS 单测占位通过"
+    - echo ">>> 本地 / macOS runner 验证:"
+    - echo ">>>   ./ios/scripts/verify-xcode-env.sh"
+    - echo ">>>   ./ios/scripts/build-babycamera.sh"
+    - echo ">>> iOS 脚本检查通过"
 
-# macOS runner 正式 job（注释模板，启用时在 GitLab 配置 macos tag）
+# macOS runner 正式 job（启用时在 GitLab Runner 配置 tags: macos, xcode）
 # test:ios:xcodebuild:
 #   stage: test
 #   tags: [macos, xcode]
 #   extends: .ios_changes_rules
 #   script:
+#     - ./ios/scripts/verify-xcode-env.sh
+#     - ./ios/scripts/build-babycamera.sh
 #     - cd ios && bundle exec fastlane test
 
 # ── build ────────────────────────────────────────────────
@@ -192,9 +199,21 @@ build:ios:
   image: alpine:3.20
   extends: .ios_changes_rules
   script:
-    - echo ">>> build:ios — iOS 构建（占位，T0.13 / fastlane 后启用）"
-    - echo ">>> 正式路径: fastlane beta 或 Xcode Cloud workflow"
+    - echo ">>> build:ios — iOS 构建脚本检查（Linux runner，不执行 xcodebuild）"
+    - test -x ios/scripts/verify-xcode-env.sh
+    - test -x ios/scripts/build-babycamera.sh
     - test -d ios/fastlane
+    - echo ">>> ENV-01 本地验收: ./ios/scripts/build-babycamera.sh"
+    - echo ">>> 正式路径: macOS runner / fastlane beta / Xcode Cloud"
+
+# build:ios:xcodebuild:
+#   stage: build
+#   tags: [macos, xcode]
+#   extends: .ios_changes_rules
+#   script:
+#     - ./ios/scripts/verify-xcode-env.sh
+#     - ./ios/scripts/build-babycamera.sh
+#     - cd ios && bundle exec fastlane beta
 
 # ── docker：服务镜像 build + push ─────────────────────────
 docker:hello:

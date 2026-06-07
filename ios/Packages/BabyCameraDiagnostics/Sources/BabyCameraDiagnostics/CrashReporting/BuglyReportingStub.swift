@@ -1,8 +1,8 @@
 import Foundation
 
-/// Bugly SDK 占位：无腾讯 SDK 依赖，不阻塞编译；AppID 就绪后可替换为 `Bugly.start(withAppId:)`.
-public enum BuglyReportingStub {
-    public static func bootstrap(configuration: CrashReportingConfiguration) {
+/// Bugly SDK 占位：无腾讯 SDK 依赖时不阻塞编译；CI 与 Debug 默认走此路径。
+enum BuglyNoopBackend: CrashReportingBackend {
+    static func bootstrap(configuration: CrashReportingConfiguration) {
         guard configuration.hasBuglyAppID, let appID = configuration.buglyAppID else { return }
 
         #if DEBUG
@@ -13,12 +13,10 @@ public enum BuglyReportingStub {
         )
         #endif
 
-        // 真实接入：import Bugly → Bugly.start(withAppId:appID, ...)
         _ = appID
     }
 
-    /// TestFlight / staging 手动触发测试崩溃（接入 SDK 后调用 Bugly 测试接口）。
-    public static func captureSmokeTestError(message: String = "T7.7 iOS bugly smoke test") {
+    static func captureSmokeTestError(message: String) {
         #if DEBUG
         print("[CrashReporting] Bugly smoke (stub): \(message)")
         #endif

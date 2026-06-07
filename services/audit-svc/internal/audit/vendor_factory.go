@@ -28,6 +28,8 @@ func NewCNVendor(cfg *config.Config) Vendor {
 		AccessKeyID:     cfg.AliyunGreenAccessKeyID,
 		AccessKeySecret: cfg.AliyunGreenAccessKeySecret,
 		Region:          cfg.AliyunGreenRegion,
+		Endpoint:        cfg.AliyunGreenEndpoint,
+		ObjectURLPrefix: cfg.AliyunGreenObjectURLPrefix,
 		ImageScenes:     cfg.AliyunGreenImageScenes,
 		TextScenes:      cfg.AliyunGreenTextScenes,
 	})

@@ -1,0 +1,24 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPathPattern": "/api/v1/tasks/.*"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "output": {
+        "task_id": "ai_mock_dashscope_i2i_001",
+        "task_status": "SUCCEEDED",
+        "results": [
+          {
+            "url": "https://example.com/mock-dashscope-i2i-output.png"
+          }
+        ]
+      },
+      "request_id": "ai_mock_req_i2i_poll_001"
+    }
+  }
+}

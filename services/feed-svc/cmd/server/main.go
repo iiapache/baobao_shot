@@ -10,6 +10,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/baobao/feed-svc/internal/auditclient"
 	"github.com/baobao/feed-svc/internal/config"
 	grpchandler "github.com/baobao/feed-svc/internal/handler/grpc"
 	"github.com/baobao/feed-svc/internal/handler/rest"
@@ -55,6 +56,12 @@ func run() error {
 	mediaStub := mediaclient.NewStub()
 	rest.StartBackgroundJobs(ctx, cfg, mediaStub)
 
+	var auditClient auditclient.Client = auditclient.NewStub()
+	if cfg.AuditSvcURL != "" {
+		auditClient = auditclient.NewHTTPClient(cfg.AuditSvcURL)
+		slog.Info("audit-svc client enabled", "url", cfg.AuditSvcURL)
+	}
+
 	grpcCtx, cancelGRPC := context.WithCancel(ctx)
 	defer cancelGRPC()
 	go func() {
@@ -63,7 +70,10 @@ func run() error {
 		}
 	}()
 
-	handler := rest.NewRouter(cfg, st, rest.RouterDeps{MediaStub: mediaStub})
+	handler := rest.NewRouter(cfg, st, rest.RouterDeps{
+		MediaStub:   mediaStub,
+		AuditClient: auditClient,
+	})
 	httpServer := &http.Server{
 		Addr:              cfg.HTTPAddr(),
 		Handler:           handler,

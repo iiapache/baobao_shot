@@ -1,27 +1,37 @@
 import BabyCameraBaby
+import BabyCameraNetwork
 import DesignSystem
 import SwiftUI
 
 /// 家庭圈 Feed 列表（T5.11 分页缓存 + T5.12 双击点赞 / 长按评论 / 未读红点）。
 public struct FeedListView: View {
+    @EnvironmentObject private var networkReachability: NetworkReachability
     @ObservedObject private var viewModel: FeedListViewModel
     @ObservedObject private var currentBabyEnvironment: CurrentBabyEnvironment
+    @State private var networkWasOffline = false
+    @State private var reconnectHandlerId: UUID?
+    private let isEngagementAllowed: Bool
+    private let onEngagementBlocked: (() -> Void)?
 
     public init(
         viewModel: FeedListViewModel,
-        currentBabyEnvironment: CurrentBabyEnvironment
+        currentBabyEnvironment: CurrentBabyEnvironment,
+        isEngagementAllowed: Bool = true,
+        onEngagementBlocked: (() -> Void)? = nil
     ) {
         self.viewModel = viewModel
         self.currentBabyEnvironment = currentBabyEnvironment
+        self.isEngagementAllowed = isEngagementAllowed
+        self.onEngagementBlocked = onEngagementBlocked
     }
 
     public var body: some View {
         Group {
             if viewModel.isLoading && viewModel.posts.isEmpty {
-                DSLoadingView(message: "加载动态…")
+                DSLoadingView(message: "加载动态…", style: .fullScreen)
             } else if viewModel.posts.isEmpty, let errorMessage = viewModel.errorMessage {
-                DSEmptyState(
-                    systemImage: "wifi.slash",
+                DSErrorView(
+                    kind: .network,
                     title: "无法加载动态",
                     message: errorMessage,
                     actionTitle: "重试"
@@ -38,6 +48,7 @@ public struct FeedListView: View {
                 listContent
             }
         }
+        .accessibilityIdentifier("feedListView")
         .navigationTitle("家庭圈")
         .toolbar {
             if viewModel.totalUnreadCount > 0 {
@@ -47,22 +58,36 @@ public struct FeedListView: View {
             }
         }
         .overlay(alignment: .top) {
-            if viewModel.isOffline {
-                offlineBanner
+            if showsOfflineBanner {
+                DSOfflineBanner(message: offlineBannerMessage)
             }
         }
         .task {
             await viewModel.onAppear()
         }
+        .onAppear {
+            reconnectHandlerId = networkReachability.onReconnect { [viewModel] in
+                Task { await viewModel.reload() }
+            }
+        }
         .onDisappear {
             viewModel.onDisappear()
+            if let reconnectHandlerId {
+                networkReachability.removeReconnectHandler(reconnectHandlerId)
+            }
+        }
+        .onChange(of: networkReachability.isOnline) { isOnline in
+            if isOnline, networkWasOffline {
+                Task { await viewModel.reload() }
+            }
+            networkWasOffline = !isOnline
         }
         .onChange(of: currentBabyEnvironment.currentBabyId) { _ in
             Task { await viewModel.applyBabyFilter() }
         }
         .sheet(
             isPresented: Binding(
-                get: { viewModel.commentComposerPostId != nil },
+                get: { isEngagementAllowed && viewModel.commentComposerPostId != nil },
                 set: { isPresented in
                     if !isPresented {
                         viewModel.cancelComment()
@@ -83,6 +108,17 @@ public struct FeedListView: View {
         }
     }
 
+    private var showsOfflineBanner: Bool {
+        viewModel.isOffline || !networkReachability.isOnline
+    }
+
+    private var offlineBannerMessage: String {
+        if viewModel.isOffline {
+            return "离线模式 · 显示最近缓存"
+        }
+        return "当前无网络 · 显示最近缓存"
+    }
+
     private var listContent: some View {
         List {
             ForEach(viewModel.posts) { post in
@@ -92,15 +128,24 @@ public struct FeedListView: View {
                     mediaCount: post.mediaItems.count,
                     hasVideo: post.mediaItems.contains { $0.kind == "video" },
                     engagement: viewModel.engagement(for: post.postId),
-                    showLikeAnimation: viewModel.showLikeAnimationPostId == post.postId
+                    showLikeAnimation: viewModel.showLikeAnimationPostId == post.postId,
+                    isEngagementAllowed: isEngagementAllowed
                 )
                 .listRowSeparator(.hidden)
                 .listRowInsets(EdgeInsets(top: DSSpacing.xs, leading: DSSpacing.md, bottom: DSSpacing.xs, trailing: DSSpacing.md))
                 .contentShape(Rectangle())
                 .onTapGesture(count: 2) {
+                    guard isEngagementAllowed else {
+                        onEngagementBlocked?()
+                        return
+                    }
                     Task { await viewModel.doubleTapLike(post: post) }
                 }
                 .onLongPressGesture(minimumDuration: 0.45) {
+                    guard isEngagementAllowed else {
+                        onEngagementBlocked?()
+                        return
+                    }
                     viewModel.beginComment(on: post)
                 }
                 .onAppear {
@@ -121,17 +166,6 @@ public struct FeedListView: View {
         .refreshable {
             await viewModel.reload()
         }
-    }
-
-    private var offlineBanner: some View {
-        Text("离线模式 · 显示最近缓存")
-            .font(DSTypography.caption)
-            .foregroundStyle(DSColors.textOnPrimary)
-            .padding(.horizontal, DSSpacing.sm)
-            .padding(.vertical, DSSpacing.xxs)
-            .background(DSColors.warning)
-            .clipShape(Capsule())
-            .padding(.top, DSSpacing.xs)
     }
 }
 
@@ -162,6 +196,7 @@ private struct FeedPostRow: View {
     let hasVideo: Bool
     let engagement: FeedEngagementState
     let showLikeAnimation: Bool
+    let isEngagementAllowed: Bool
 
     var body: some View {
         ZStack(alignment: .center) {
@@ -194,9 +229,11 @@ private struct FeedPostRow: View {
                         .font(DSTypography.caption)
                         .foregroundStyle(DSColors.textSecondary)
                     Spacer()
-                    Text("双击点赞 · 长按评论")
-                        .font(DSTypography.caption)
-                        .foregroundStyle(DSColors.textSecondary.opacity(0.7))
+                    if isEngagementAllowed {
+                        Text("双击点赞 · 长按评论")
+                            .font(DSTypography.caption)
+                            .foregroundStyle(DSColors.textSecondary.opacity(0.7))
+                    }
                 }
             }
             .padding(DSSpacing.sm)

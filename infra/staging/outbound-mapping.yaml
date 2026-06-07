@@ -1,0 +1,132 @@
+# Staging 三方 outbound 映射 — ENV-06 / T0.20
+# 消费方微服务通过 Helm values 或 Vault 注入下列地址，指向 Mock 或沙盒三方。
+#
+# 本地 docker-compose：host 端口 1808x（tests/mocks/docker-compose.yaml）
+# K8s staging 命名空间：ClusterIP :8080（infra/k8s/charts/third-party-mocks）
+
+version: v1
+
+# 集群内 Mock Service DNS（Helm release 名 third-party-mocks，namespace staging）
+k8s:
+  namespace: staging
+  release: third-party-mocks
+  port: 8080
+  hosts:
+    mock-api: mock-api.third-party-mocks.svc.cluster.local
+    mock-iap: mock-iap.third-party-mocks.svc.cluster.local
+    mock-wechat: mock-wechat.third-party-mocks.svc.cluster.local
+    mock-ad: mock-ad.third-party-mocks.svc.cluster.local
+    mock-audit: mock-audit.third-party-mocks.svc.cluster.local
+    mock-ai: mock-ai.third-party-mocks.svc.cluster.local
+
+# 本地 / CI 宿主机端口（docker compose）
+local:
+  mock-api: http://localhost:18080
+  mock-iap: http://localhost:18081
+  mock-wechat: http://localhost:18082
+  mock-ad: http://localhost:18083
+  mock-audit: http://localhost:18084
+  mock-ai: http://localhost:18085
+
+# 三方 → Mock → 消费方
+outbound:
+  - id: apple-iap
+    third_party: Apple IAP / StoreKit Server API
+    mock_service: mock-iap
+    local_port: 18081
+    k8s_url: http://mock-iap.third-party-mocks.svc.cluster.local:8080
+    consumers:
+      - credit-sub-ad-svc
+      - iap-callback-svc
+    wiremock_paths:
+      - POST /verifyReceipt
+      - GET /inApps/v1/transactions/{id}
+    env:
+      # 服务实现 live client 后注入；当前 staging 使用 JWS stub + MOCK 验签
+      - APPLE_IAP_VERIFY_URL
+      - APPLE_IAP_SERVER_API_BASE
+
+  - id: wechat-open
+    third_party: 微信开放平台 Open API
+    mock_service: mock-wechat
+    local_port: 18082
+    k8s_url: http://mock-wechat.third-party-mocks.svc.cluster.local:8080
+    consumers:
+      - auth-family-svc
+    wiremock_paths:
+      - GET /sns/oauth2/access_token
+      - GET /sns/userinfo
+    env:
+      - WECHAT_OPEN_API_BASE
+
+  - id: ad-ssv
+    third_party: 穿山甲 / 优量汇 / AdMob SSV
+    mock_service: mock-ad
+    local_port: 18083
+    k8s_url: http://mock-ad.third-party-mocks.svc.cluster.local:8080
+    consumers:
+      - credit-sub-ad-svc
+    wiremock_paths:
+      - POST /api/ad/ssv/pangle
+      - POST /api/ad/ssv/gdt
+      - POST /api/ad/ssv/admob
+    env:
+      # 联盟回调为入站；staging 用固定验签密钥配合 mock 脚本
+      - PANGLE_SECURITY_KEY
+      - GDT_SECRET_KEY
+
+  - id: content-audit
+    third_party: 阿里云内容安全 Green
+    mock_service: mock-audit
+    local_port: 18084
+    k8s_url: http://mock-audit.third-party-mocks.svc.cluster.local:8080
+    consumers:
+      - audit-svc
+      - feed-svc
+      - ai-dispatch-svc
+    wiremock_paths:
+      - POST /green/text/scan
+      - POST /green/image/scan
+      - POST /green/video/scan
+    env:
+      - ALIYUN_GREEN_ENDPOINT
+      - ALIYUN_GREEN_MOCK_MODE
+      - AUDIT_SVC_URL
+
+  - id: ai-models
+    third_party: DashScope / OpenAI / 火山引擎
+    mock_service: mock-ai
+    local_port: 18085
+    k8s_url: http://mock-ai.third-party-mocks.svc.cluster.local:8080
+    consumers:
+      - ai-dispatch-svc
+    wiremock_paths:
+      - POST /api/v1/services/aigc/text2image/image-synthesis
+      - POST /api/v1/services/aigc/image2image/image-synthesis
+      - GET /api/v1/tasks/*
+      - POST ?Action=CVProcess
+      - POST /v1/images/generations
+    env:
+      - DASHSCOPE_ENDPOINT
+      - DASHSCOPE_API_KEY
+      - BYTEDANCE_ENDPOINT
+      - BYTEDANCE_API_KEY
+      - BYTEDANCE_API_SECRET
+      - CN_ADAPTER_MOCK_MODE
+      - OPENAI_API_BASE
+      - OPENAI_BASE_URL
+      - OS_ADAPTER_MOCK_MODE
+
+  - id: apns
+    third_party: Apple Push Notification service
+    mock_service: n/a
+    consumers:
+      - notification-svc
+    env:
+      - APNS_MOCK
+      - APNS_SANDBOX
+      - APNS_TOPIC
+      - APNS_KEY_ID
+      - APNS_TEAM_ID
+      - APNS_PRIVATE_KEY_PEM
+    notes: Staging 默认 APNS_MOCK=true；真机推送需 Vault 注入 .p8 并设 APNS_MOCK=false

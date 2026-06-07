@@ -32,7 +32,7 @@ public struct APIClientConfiguration: Sendable {
         regionConfig: RegionConfig,
         loggingInterceptor: LoggingInterceptor? = nil,
         refreshHandler: TokenRefreshHandler? = nil,
-        certificatePinning: CertificatePinningConfiguration = .default
+        certificatePinning: CertificatePinningConfiguration? = nil
     ) -> APIClientConfiguration {
         var responseInterceptors: [ResponseInterceptor] = []
         if let loggingInterceptor {
@@ -47,7 +47,7 @@ public struct APIClientConfiguration: Sendable {
             ],
             responseInterceptors: responseInterceptors,
             refreshHandler: refreshHandler,
-            certificatePinning: certificatePinning
+            certificatePinning: certificatePinning ?? CertificatePinningConfigurationFactory.resolve()
         )
     }
 }

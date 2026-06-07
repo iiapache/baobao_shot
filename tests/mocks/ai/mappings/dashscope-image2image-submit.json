@@ -1,0 +1,19 @@
+{
+  "request": {
+    "method": "POST",
+    "urlPath": "/api/v1/services/aigc/image2image/image-synthesis"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "output": {
+        "task_id": "ai_mock_dashscope_i2i_001",
+        "task_status": "PENDING"
+      },
+      "request_id": "ai_mock_req_i2i_001"
+    }
+  }
+}

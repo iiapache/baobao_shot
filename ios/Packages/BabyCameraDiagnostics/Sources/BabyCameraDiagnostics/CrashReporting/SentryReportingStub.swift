@@ -1,8 +1,8 @@
 import Foundation
 
-/// Sentry SDK 占位：无 `import Sentry`，不阻塞编译；DSN 就绪后可替换为真实 SDK。
-public enum SentryReportingStub {
-    public static func bootstrap(configuration: CrashReportingConfiguration) {
+/// Sentry SDK 占位：无 `import Sentry` 时不阻塞编译；CI 与 Debug 默认走此路径。
+enum SentryNoopBackend: CrashReportingBackend {
+    static func bootstrap(configuration: CrashReportingConfiguration) {
         guard configuration.hasSentryDSN, let dsn = configuration.sentryDSN else { return }
 
         #if DEBUG
@@ -13,13 +13,10 @@ public enum SentryReportingStub {
         )
         #endif
 
-        // 真实接入：import Sentry → SentrySDK.start { options in ... }
-        // 见 Packages/BabyCameraDiagnostics/Documentation/SENTRY_SPM.md
         _ = dsn
     }
 
-    /// T0.8 / T7.7 smoke test 占位；接入 SDK 后改为 `SentrySDK.capture(error:)`.
-    public static func captureSmokeTestError(message: String = "T7.7 iOS sentry smoke test") {
+    static func captureSmokeTestError(message: String) {
         #if DEBUG
         print("[CrashReporting] Sentry smoke (stub): \(message)")
         #endif

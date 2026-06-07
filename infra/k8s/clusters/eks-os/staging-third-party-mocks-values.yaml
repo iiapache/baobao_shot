@@ -1,0 +1,10 @@
+# EKS 新加坡 — staging 三方 Mock WireMock
+
+global:
+  cluster: eks-os
+  region: os
+  environment: staging
+
+commonLabels:
+  baobao.io/team: qa
+  baobao.io/tier: mocks

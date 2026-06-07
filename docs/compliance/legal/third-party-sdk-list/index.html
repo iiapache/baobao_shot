@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="index,follow" />
+  <title>第三方 SDK 清单 · 宝宝成长相机</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #faf9f7;
+      --surface: #ffffff;
+      --text: #1a1a1a;
+      --muted: #5c5c5c;
+      --accent: #c45c4a;
+      --border: #e8e4df;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+      font-size: 16px;
+    }
+    main {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 2rem 1.25rem 3rem;
+      background: var(--surface);
+      min-height: 100vh;
+      box-shadow: 0 0 0 1px var(--border);
+    }
+    .doc-meta {
+      margin: 0 0 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+    h1 { font-size: 1.75rem; margin: 0 0 1rem; line-height: 1.3; }
+    h2 { font-size: 1.2rem; margin: 1.75rem 0 0.75rem; color: var(--accent); }
+    h3 { font-size: 1.05rem; margin: 1.25rem 0 0.5rem; }
+    p { margin: 0.75rem 0; }
+    ul, ol { margin: 0.75rem 0; padding-left: 1.4rem; }
+    li { margin: 0.35rem 0; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+      font-size: 0.9rem;
+    }
+    th, td {
+      border: 1px solid var(--border);
+      padding: 0.5rem 0.65rem;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { background: #f5f2ef; font-weight: 600; }
+    a { color: var(--accent); }
+    hr { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
+    footer {
+      margin-top: 2rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <p class="doc-meta">版本 v1.0.0 · 生效 2026-06-06</p>
+    <h1>第三方 SDK 清单</h1>
+<p><strong>版本</strong>：v1.0.0</p>
+<p><strong>生效日期</strong>：2026 年 6 月 6 日</p>
+<h2>摘要</h2>
+<p>下列 SDK 可能随 App 版本与区域（CN / OS）不同而有所差异。我们仅接入提供服务所必需的 SDK，并在隐私政策中说明数据用途。儿童相关页面加载前，广告类 SDK 按设计规范延迟初始化。</p>
+<h2>清单（占位）</h2>
+<table><thead><tr>
+<th>SDK 名称</th>
+<th>提供方</th>
+<th>主要功能</th>
+<th>可能收集的信息</th>
+<th>适用区域</th>
+<th>隐私政策链接</th>
+</tr></thead><tbody>
+<tr>
+<td>微信 OpenSDK</td>
+<td>腾讯</td>
+<td>分享至朋友圈/好友</td>
+<td>设备信息、分享元数据</td>
+<td>CN</td>
+<td>腾讯隐私政策（占位 URL）</td>
+</tr>
+<tr>
+<td>穿山甲 / 优量汇</td>
+<td>字节 / 腾讯</td>
+<td>广告展示</td>
+<td>广告标识符、设备信息</td>
+<td>CN</td>
+<td>各平台隐私说明（占位）</td>
+</tr>
+<tr>
+<td>AdMob</td>
+<td>Google</td>
+<td>广告展示</td>
+<td>广告标识符</td>
+<td>OS</td>
+<td>https://policies.google.com/privacy</td>
+</tr>
+<tr>
+<td>APNs</td>
+<td>Apple</td>
+<td>推送通知</td>
+<td>设备 Token</td>
+<td>CN / OS</td>
+<td>Apple 隐私政策</td>
+</tr>
+<tr>
+<td>Bugly</td>
+<td>腾讯</td>
+<td>崩溃统计</td>
+<td>崩溃堆栈、设备型号（脱敏）</td>
+<td>CN</td>
+<td>占位</td>
+</tr>
+<tr>
+<td>Sentry</td>
+<td>Functional Software</td>
+<td>错误监控</td>
+<td>崩溃事件、版本号</td>
+<td>CN / OS</td>
+<td>https://sentry.io/privacy/</td>
+</tr>
+<tr>
+<td>百度网盘 OpenAPI</td>
+<td>百度</td>
+<td>云备份</td>
+<td>授权 Token、文件元数据</td>
+<td>CN</td>
+<td>百度隐私政策（占位）</td>
+</tr>
+<tr>
+<td>StoreKit 2</td>
+<td>Apple</td>
+<td>内购订阅</td>
+<td>交易凭证</td>
+<td>CN / OS</td>
+<td>Apple 隐私政策</td>
+</tr>
+</tbody></table>
+<h2>退出与限制</h2>
+<ul>
+<li><strong>广告</strong>：订阅用户自动去广告；可在系统设置中限制广告跟踪（OS ATT 说明见 T7.13）；</li>
+<li><strong>推送</strong>：可在 App「设置 → 通知」关闭；</li>
+<li><strong>备份</strong>：可在「设置 → 数据」解除第三方云盘授权；</li>
+<li><strong>分享</strong>：微信分享失败时可使用系统分享兜底。</li>
+</ul>
+<h2>更新</h2>
+<p>SDK 版本升级或增删时，我们将更新本清单版本号并同步 config-svc `compliance.policy_versions.third_party_sdk`。当前版本：<strong>v1.0.0</strong>。</p>
+<hr />
+<p><em>本文档为 T7.2 结构占位；正式提审前须核对各 SDK 厂商最新隐私条款。</em></p>
+    <footer>
+      <p>宝宝成长相机 · 合规文档（v1.0.0）</p>
+      <p>正式域名：<a href="https://www.babycamera.app/legal/">www.babycamera.app/legal</a></p>
+    </footer>
+  </main>
+</body>
+</html>

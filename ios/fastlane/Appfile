@@ -1,8 +1,13 @@
-# Fastlane 配置
-# 正式 Apple Team ID / Bundle ID 在 T0.12 / T0.13 后填入
+# Fastlane Appfile — 宝宝成长相机
+# 敏感项通过环境变量注入，勿提交真实 Team ID / Apple ID
 
-# app_identifier("app.babycamera")       # 占位，上架前替换
-# apple_id("dev@example.com")            # Apple ID（可选）
-# team_id("XXXXXXXXXX")                  # Apple Developer Team ID
+app_identifier(ENV.fetch("FASTLANE_APP_IDENTIFIER", "com.babycamera.app"))
 
-# 中国区 / 海外区如需分包，使用 scheme 或 .env 区分
+# Apple Developer Portal 登录邮箱（match 初始化时使用）
+# apple_id(ENV["FASTLANE_USER"])
+
+# Apple Developer Team ID（10 位字母数字）
+team_id(ENV.fetch("FASTLANE_TEAM_ID", "YOUR_TEAM_ID"))
+
+# App Store Connect Team ID（多团队账号时填写，通常与 team_id 相同）
+# itc_team_id(ENV.fetch("FASTLANE_ITC_TEAM_ID", ENV["FASTLANE_TEAM_ID"]))

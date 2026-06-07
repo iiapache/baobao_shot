@@ -145,7 +145,7 @@ final class WechatShareAdapterTests: XCTestCase {
             appliedBrandWatermark: false
         )
         let adapter = WechatShareAdapter(
-            configuration: WechatShareConfiguration(universalLink: "http://bad-link")
+            configuration: WechatShareConfiguration(appID: "wxtest", universalLink: "http://bad-link")
         )
 
         do {

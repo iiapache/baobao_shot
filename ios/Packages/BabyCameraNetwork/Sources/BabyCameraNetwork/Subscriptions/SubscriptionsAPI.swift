@@ -59,11 +59,18 @@ public struct SubscriptionIAPVerifyRequest: Encodable, Sendable, Equatable {
     public let transactionId: String
     public let signedTransaction: String
     public let productId: String
+    public let appAttest: AppAttestPayload?
 
-    public init(transactionId: String, signedTransaction: String, productId: String) {
+    public init(
+        transactionId: String,
+        signedTransaction: String,
+        productId: String,
+        appAttest: AppAttestPayload? = nil
+    ) {
         self.transactionId = transactionId
         self.signedTransaction = signedTransaction
         self.productId = productId
+        self.appAttest = appAttest
     }
 }
 

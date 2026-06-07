@@ -1,0 +1,2 @@
+# 映射由 sync-mock-mappings.sh 生成；打包前须已同步
+# bundled-mappings/ 不在 ignore 中，以便 helm package 包含 ConfigMap 数据

@@ -7,17 +7,113 @@
 		<key>NSAllowsArbitraryLoads</key>
 		<false/>
 		<key>NSAllowsLocalNetworking</key>
-		<false/>
+		<string>$(ATS_ALLOWS_LOCAL_NETWORKING)</string>
 	</dict>
+	<key>APIBaseURLCN</key>
+	<string>$(API_BASE_URL_CN)</string>
+	<key>APIBaseURLOS</key>
+	<string>$(API_BASE_URL_OS)</string>
+	<key>WebSocketBaseURLCN</key>
+	<string>$(WS_BASE_URL_CN)</string>
+	<key>WebSocketBaseURLOS</key>
+	<string>$(WS_BASE_URL_OS)</string>
 	<key>AppAttestEnabled</key>
-	<false/>
+	<string>$(APP_ATTEST_ENABLED)</string>
+	<key>CertificatePinningEnabled</key>
+	<string>$(CERT_PINNING_ENABLED)</string>
+	<key>CertificatePinHashesAPICN</key>
+	<string>$(CERT_PIN_HASHES_API_CN)</string>
+	<key>CertificatePinHashesAPIOS</key>
+	<string>$(CERT_PIN_HASHES_API_OS)</string>
+	<key>CertificatePinHashesWSCN</key>
+	<string>$(CERT_PIN_HASHES_WS_CN)</string>
+	<key>CertificatePinHashesWSOS</key>
+	<string>$(CERT_PIN_HASHES_WS_OS)</string>
 	<key>SentryDSN</key>
 	<string>$(SENTRY_DSN)</string>
 	<key>BuglyAppID</key>
 	<string>$(BUGLY_APP_ID)</string>
 	<key>AppEnvironment</key>
 	<string>$(APP_ENVIRONMENT)</string>
+	<key>IAPUseStoreKit</key>
+	<string>$(IAP_USE_STOREKIT)</string>
+	<key>AdsUseLiveSDK</key>
+	<string>$(ADS_USE_LIVE_SDK)</string>
+	<key>AdsPangleSplashUnitID</key>
+	<string>$(ADS_PANGLE_SPLASH_UNIT_ID)</string>
+	<key>AdsPangleInterstitialUnitID</key>
+	<string>$(ADS_PANGLE_INTERSTITIAL_UNIT_ID)</string>
+	<key>AdsPangleRewardedUnitID</key>
+	<string>$(ADS_PANGLE_REWARDED_UNIT_ID)</string>
+	<key>AdsGdtRewardedUnitID</key>
+	<string>$(ADS_GDT_REWARDED_UNIT_ID)</string>
+	<key>AdsAdMobSplashUnitID</key>
+	<string>$(ADS_ADMOB_SPLASH_UNIT_ID)</string>
+	<key>AdsAdMobInterstitialUnitID</key>
+	<string>$(ADS_ADMOB_INTERSTITIAL_UNIT_ID)</string>
+	<key>AdsAdMobRewardedUnitID</key>
+	<string>$(ADS_ADMOB_REWARDED_UNIT_ID)</string>
+	<key>LegalBaseURL</key>
+	<string>$(LEGAL_BASE_URL)</string>
 	<key>CrashReportingEnabled</key>
 	<string>$(CRASH_REPORTING_ENABLED)</string>
+	<key>NSCameraUsageDescription</key>
+	<string>需要使用相机拍摄宝宝成长照片</string>
+	<key>WechatAppID</key>
+	<string>$(WECHAT_APP_ID)</string>
+	<key>WechatUniversalLink</key>
+	<string>$(WECHAT_UNIVERSAL_LINK)</string>
+	<key>WechatUseOpenSDK</key>
+	<string>$(WECHAT_USE_OPENSDK)</string>
+	<key>BaiduPanUseLiveOAuth</key>
+	<string>$(BAIDU_PAN_USE_LIVE_OAUTH)</string>
+	<key>BaiduPanClientID</key>
+	<string>$(BAIDU_PAN_CLIENT_ID)</string>
+	<key>BaiduPanRedirectURI</key>
+	<string>$(BAIDU_PAN_REDIRECT_URI)</string>
+	<key>BaiduPanClientSecret</key>
+	<string>$(BAIDU_PAN_CLIENT_SECRET)</string>
+	<key>UseLiveICloudBackup</key>
+	<string>$(ICLOUD_USE_LIVE_BACKUP)</string>
+	<key>UseLivePhotosBackup</key>
+	<string>$(PHOTOS_USE_LIVE_BACKUP)</string>
+	<key>ICloudBackupContainerIdentifier</key>
+	<string>$(ICLOUD_BACKUP_CONTAINER_ID)</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>备份照片到系统相册时需要「添加照片」权限，不会读取您的其他照片</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>weixin</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>$(WECHAT_APP_ID)</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>com.babycamera.oauth.baidu</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>babycamera</string>
+			</array>
+		</dict>
+	</array>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>weixin</string>
+		<string>weixinULAPI</string>
+		<string>weixinURLParamsAPI</string>
+	</array>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>remote-notification</string>
+		<string>fetch</string>
+	</array>
+	<key>BGTaskSchedulerPermittedIdentifiers</key>
+	<array>
+		<string>com.babycamera.background.ai-result-download</string>
+	</array>
 </dict>
 </plist>

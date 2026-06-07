@@ -291,6 +291,7 @@ public enum MockServer {
 
     public static func babyListSuccessJSON(
         babyId: String = "bb_test001",
+        familyId: String = "fam_test001",
         name: String = "豆豆"
     ) -> String {
         """
@@ -549,7 +550,10 @@ public enum MockServer {
         """
     }
 
-    public static func familyListJSON() -> String {
+    public static func familyListJSON(
+        familyId: String = "fam_test_001",
+        name: String = "豆豆的家"
+    ) -> String {
         """
         {
           "code": "OK",
@@ -558,8 +562,8 @@ public enum MockServer {
           "data": {
             "items": [
               {
-                "familyId": "fam_test_001",
-                "name": "豆豆的家",
+                "familyId": "\(familyId)",
+                "name": "\(name)",
                 "role": "admin"
               }
             ]
@@ -1458,6 +1462,58 @@ public enum MockServer {
         }
     }
 
+    /// UITest 主 App Tab 壳：P1 引导 + 家庭圈 Feed + AI 玩法 Mock。
+    public static func uitestMainAppHandler(
+        familyId: String = "fam_e2e_001",
+        babyId: String = "bb_e2e_001",
+        userId: String = "usr_e2e_uitest"
+    ) -> MockRequestHandler {
+        let feedState = UITestFeedMockState(
+            familyId: familyId,
+            babyId: babyId,
+            userId: userId
+        )
+        let aiState = UITestAIMockState(userId: userId)
+        let creditSubscription = uitestCreditSubscriptionHandler()
+        let p1 = p1E2EHandler(familyId: familyId, babyId: babyId)
+        return { request in
+            if let response = feedState.handle(request) {
+                return response
+            }
+            if let response = aiState.handle(request) {
+                return response
+            }
+            if let response = creditSubscription(request) {
+                return response
+            }
+            return p1(request)
+        }
+    }
+
+    private static func uitestCreditSubscriptionHandler() -> MockRequestHandler {
+        { request in
+            guard let path = request.url?.path else { return nil }
+            let method = request.httpMethod ?? "GET"
+
+            if method == "GET", path == "/v1/credits/balance" {
+                return MockResponse(statusCode: 200, json: creditBalanceJSON())
+            }
+            if method == "GET", path == "/v1/credits/transactions" {
+                return MockResponse(statusCode: 200, json: creditTransactionsJSON())
+            }
+            if method == "POST", path == "/v1/credits/sign-in" {
+                return MockResponse(statusCode: 200, json: creditSignInJSON())
+            }
+            if method == "GET", path == "/v1/subscriptions/me" {
+                return MockResponse(statusCode: 200, json: subscriptionMeJSON())
+            }
+            if method == "GET", path == "/v1/subscriptions/products" {
+                return MockResponse(statusCode: 200, json: subscriptionProductsJSON())
+            }
+            return nil
+        }
+    }
+
     private static func extractJSONString(from request: URLRequest, key: String) -> String? {
         guard let body = request.httpBody,
               let json = try? JSONSerialization.jsonObject(with: body) as? [String: Any],
@@ -1466,4 +1522,302 @@ public enum MockServer {
         }
         return value
     }
+}
+
+// MARK: - UITest Feed state
+
+private final class UITestFeedMockState: @unchecked Sendable {
+    let familyId: String
+    let babyId: String
+    let userId: String
+
+    private var publishedPosts: [PublishedPost] = []
+    private var postCounter = 0
+    private let lock = NSLock()
+
+    private struct PublishedPost: Sendable {
+        let postId: String
+        let caption: String
+        var likeCount: Int
+        var commentCount: Int
+        var likedByCurrentUser: Bool
+        var withdrawn: Bool
+    }
+
+    init(familyId: String, babyId: String, userId: String) {
+        self.familyId = familyId
+        self.babyId = babyId
+        self.userId = userId
+    }
+
+    func handle(_ request: URLRequest) -> MockResponse? {
+        let path = request.url?.path ?? ""
+        let method = request.httpMethod ?? "GET"
+
+        if method == "GET", path == "/v1/families" {
+            return MockResponse(
+                statusCode: 200,
+                json: MockServer.familyListJSON(familyId: familyId, name: "E2E家庭")
+            )
+        }
+
+        if method == "GET", path == "/v1/families/\(familyId)" {
+            return MockResponse(statusCode: 200, json: MockServer.familyDetailJSON(familyId: familyId))
+        }
+
+        if method == "GET", path == "/v1/families/\(familyId)/babies" {
+            return MockResponse(
+                statusCode: 200,
+                json: MockServer.babyListSuccessJSON(babyId: babyId, familyId: familyId, name: "E2E宝宝")
+            )
+        }
+
+        if method == "POST", path == "/v1/uploads/init" {
+            return MockResponse(statusCode: 200, json: MockServer.uploadInitSuccessJSON())
+        }
+
+        if method == "POST", path == "/v1/uploads/complete" {
+            return MockResponse(statusCode: 200, json: MockServer.uploadCompleteSuccessJSON())
+        }
+
+        if method == "PUT", path.contains("mock-oss") {
+            return MockResponse(statusCode: 200, body: Data("OK".utf8))
+        }
+
+        if method == "POST", path == "/v1/posts" {
+            let caption = extractMockJSONString(from: request, key: "caption") ?? "家庭圈动态"
+            lock.lock()
+            postCounter += 1
+            let postId = "pst_uitest_\(postCounter)"
+            publishedPosts.append(
+                PublishedPost(
+                    postId: postId,
+                    caption: caption,
+                    likeCount: 0,
+                    commentCount: 0,
+                    likedByCurrentUser: false,
+                    withdrawn: false
+                )
+            )
+            lock.unlock()
+            return MockResponse(
+                statusCode: 200,
+                json: MockServer.postCreateSuccessJSON(postId: postId)
+            )
+        }
+
+        if method == "GET", path == "/v1/feeds/family" {
+            lock.lock()
+            let items = publishedPosts.filter { !$0.withdrawn }
+            lock.unlock()
+
+            let itemsJSON: String
+            if items.isEmpty {
+                itemsJSON = ""
+            } else {
+                itemsJSON = items.map { post in
+                    """
+                          {
+                            "postId": "\(post.postId)",
+                            "familyId": "\(familyId)",
+                            "ownerUserId": "\(userId)",
+                            "babyIds": ["\(babyId)"],
+                            "caption": "\(post.caption)",
+                            "visibility": "family",
+                            "status": "published",
+                            "createdAt": "2026-06-06T10:00:00Z",
+                            "items": [
+                              {
+                                "itemId": "pi_\(post.postId)",
+                                "kind": "image",
+                                "objectKey": "family/\(familyId)/post/\(post.postId).heic",
+                                "width": 1024,
+                                "height": 1024,
+                                "deepSynth": false
+                              }
+                            ]
+                          }
+                    """
+                }.joined(separator: ",\n")
+            }
+
+            return MockResponse(
+                statusCode: 200,
+                json: MockServer.familyFeedListJSON(items: itemsJSON)
+            )
+        }
+
+        if method == "POST", path.hasSuffix("/likes") {
+            let postId = path.split(separator: "/").dropLast().last.map(String.init) ?? ""
+            lock.lock()
+            if let index = publishedPosts.firstIndex(where: { $0.postId == postId }) {
+                publishedPosts[index].likedByCurrentUser = true
+                publishedPosts[index].likeCount = 1
+            }
+            lock.unlock()
+            return MockResponse(
+                statusCode: 200,
+                json: """
+                {
+                  "postId": "\(postId)",
+                  "userId": "\(userId)",
+                  "likedAt": "2026-06-06T10:01:00Z"
+                }
+                """
+            )
+        }
+
+        if method == "DELETE", path.hasSuffix("/likes") {
+            let postId = path.split(separator: "/").dropLast().last.map(String.init) ?? ""
+            lock.lock()
+            if let index = publishedPosts.firstIndex(where: { $0.postId == postId }) {
+                publishedPosts[index].likedByCurrentUser = false
+                publishedPosts[index].likeCount = 0
+            }
+            lock.unlock()
+            return MockResponse(statusCode: 200, json: MockServer.emptySuccessJSON(requestId: "req_unlike"))
+        }
+
+        if method == "POST", path.contains("/comments") {
+            let components = path.split(separator: "/")
+            let postId = components.count >= 4 ? String(components[3]) : ""
+            lock.lock()
+            if let index = publishedPosts.firstIndex(where: { $0.postId == postId }) {
+                publishedPosts[index].commentCount += 1
+            }
+            lock.unlock()
+            return MockResponse(
+                statusCode: 200,
+                json: """
+                {
+                  "commentId": "cmt_uitest_001",
+                  "postId": "\(postId)",
+                  "userId": "\(userId)",
+                  "text": "好可爱呀",
+                  "createdAt": "2026-06-06T10:02:00Z"
+                }
+                """
+            )
+        }
+
+        if method == "DELETE", path.hasPrefix("/v1/posts/"), !path.hasSuffix("/likes") {
+            let postId = path.split(separator: "/").last.map(String.init) ?? ""
+            lock.lock()
+            if let index = publishedPosts.firstIndex(where: { $0.postId == postId }) {
+                publishedPosts[index].withdrawn = true
+            }
+            lock.unlock()
+            return MockResponse(
+                statusCode: 200,
+                json: MockServer.postDeleteSuccessJSON(postId: postId)
+            )
+        }
+
+        return nil
+    }
+}
+
+// MARK: - UITest AI state
+
+private final class UITestAIMockState: @unchecked Sendable {
+    let userId: String
+    private var tasks: [String: UITestAITaskRecord] = [:]
+    private var taskCounter = 0
+    private let lock = NSLock()
+
+    private struct UITestAITaskRecord: Sendable {
+        var polls: Int
+        let play: String
+        let costCredits: Int
+        let balanceAfter: Int
+    }
+
+    init(userId: String) {
+        self.userId = userId
+    }
+
+    func handle(_ request: URLRequest) -> MockResponse? {
+        let path = request.url?.path ?? ""
+        let method = request.httpMethod ?? "GET"
+
+        if method == "GET", path == "/v1/ai/plays" {
+            return MockResponse(statusCode: 200, json: MockServer.aiPlaysCatalogJSON())
+        }
+
+        if method == "GET", path == "/v1/credits/balance" {
+            return MockResponse(statusCode: 200, json: MockServer.creditBalanceJSON(balance: 100))
+        }
+
+        if method == "GET", path == "/v1/credits/rates" {
+            return MockResponse(statusCode: 200, json: MockServer.creditRatesJSON())
+        }
+
+        if method == "POST", path == "/v1/ai/tasks" {
+            let play = extractMockJSONString(from: request, key: "play") ?? "ghibli_kid"
+            lock.lock()
+            taskCounter += 1
+            let taskId = "tsk_uitest_\(taskCounter)"
+            tasks[taskId] = UITestAITaskRecord(
+                polls: 0,
+                play: play,
+                costCredits: 8,
+                balanceAfter: 92
+            )
+            lock.unlock()
+            return MockResponse(
+                statusCode: 200,
+                json: MockServer.aiTaskCreatedJSON(
+                    taskId: taskId,
+                    costCredits: 8,
+                    balanceAfter: 92
+                )
+            )
+        }
+
+        if method == "GET", path.hasPrefix("/v1/ai/tasks/"), path.count("/") == 4 {
+            let taskId = path.split(separator: "/").last.map(String.init) ?? ""
+            lock.lock()
+            guard var task = tasks[taskId] else {
+                lock.unlock()
+                return MockResponse(
+                    statusCode: 200,
+                    json: MockServer.aiTaskDetailJSON(taskId: taskId, state: "running")
+                )
+            }
+            task.polls += 1
+            tasks[taskId] = task
+            let polls = task.polls
+            lock.unlock()
+
+            if polls < 2 {
+                return MockResponse(
+                    statusCode: 200,
+                    json: MockServer.aiTaskDetailJSON(taskId: taskId, state: "running")
+                )
+            }
+            return MockResponse(
+                statusCode: 200,
+                json: MockServer.aiTaskDetailJSON(
+                    taskId: taskId,
+                    state: "succeeded",
+                    resultUrl: "http://127.0.0.1/mock-ai/result/\(taskId).heic"
+                )
+            )
+        }
+
+        if method == "GET", path.hasPrefix("/mock-ai/result/") {
+            return MockResponse(statusCode: 200, body: Data("MOCK_AI_RESULT".utf8))
+        }
+
+        return nil
+    }
+}
+
+private func extractMockJSONString(from request: URLRequest, key: String) -> String? {
+    guard let body = request.httpBody,
+          let json = try? JSONSerialization.jsonObject(with: body) as? [String: Any],
+          let value = json[key] as? String else {
+        return nil
+    }
+    return value
 }

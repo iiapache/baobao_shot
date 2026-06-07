@@ -3,8 +3,8 @@ import DesignSystem
 import SwiftUI
 
 /// 编辑器 Shell：滤镜选择 + 保存（T2.15 EditorRenderer 导出）。
-struct PhotoEditorFlowView: View {
-    @ObservedObject var store: P2E2EFlowStore
+struct PhotoEditorFlowView<Store: PhotoEditorFlowManaging & ObservableObject>: View {
+    @ObservedObject var store: Store
     let photoId: String
     let isReEdit: Bool
 
@@ -76,7 +76,7 @@ struct PhotoEditorFlowView: View {
                 Button {
                     Task { await store.finishReEditAndReturnToCamera(photoId: photoId) }
                 } label: {
-                    Label("保存并返回相机", systemImage: "checkmark.circle")
+                    Label(store.reEditCompleteButtonTitle, systemImage: "checkmark.circle")
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.borderedProminent)

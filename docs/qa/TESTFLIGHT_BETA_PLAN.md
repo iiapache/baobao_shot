@@ -11,6 +11,7 @@
 | --- | --- |
 | 构建渠道 | TestFlight External Testing（外部测试组） |
 | 上传入口 | `cd ios && bundle exec fastlane beta`（见 [Fastfile](../../ios/fastlane/Fastfile)） |
+| 构建检查清单 | [TESTFLIGHT_BUILD_CHECKLIST.md](./TESTFLIGHT_BUILD_CHECKLIST.md)（ENV-02） |
 | 冒烟门禁 | `tests/e2e/smoke-critical-path.sh` 全绿后方可邀请内测 |
 | Bug Bash | 见 [BUG_BASH_CHECKLIST.md](./BUG_BASH_CHECKLIST.md) |
 | 崩溃采集 | Bugly + Sentry 双通道（见 [CRASH_MEMORY_SIZE_REPORT_TEMPLATE.md](./CRASH_MEMORY_SIZE_REPORT_TEMPLATE.md)） |

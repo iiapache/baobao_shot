@@ -113,8 +113,12 @@ public enum AnalyticsFeatureTracks {
 
     // MARK: - 相机
 
-    public static func trackCameraOpen() {
-        AnalyticsService.track(AnalyticsEventCatalog.Camera.open)
+    public static func trackCameraOpen(elapsedMs: Int? = nil) {
+        var parameters: [String: String] = [:]
+        if let elapsedMs {
+            parameters["elapsedMs"] = String(elapsedMs)
+        }
+        AnalyticsService.track(AnalyticsEventCatalog.Camera.open, parameters: parameters)
     }
 
     public static func trackCameraCapture(mediaType: String) {

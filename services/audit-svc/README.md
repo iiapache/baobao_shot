@@ -33,10 +33,12 @@
 | `KAFKA_BROKERS` | （空） | 非空时启用 consumer stub |
 | `KAFKA_TOPIC` | `feed.events` | 消费 topic |
 | `KAFKA_GROUP_ID` | `audit-svc` | consumer group |
-| `ALIYUN_GREEN_MOCK_MODE` | `true`（无 AK 时） | CN 内容安全 mock 模式 |
-| `ALIYUN_GREEN_ACCESS_KEY_ID` | （空） | 阿里云 Green AK |
+| `ALIYUN_GREEN_MOCK_MODE` | `true`（无 AK/Endpoint 时） | CN 内容安全 mock 模式（进程内规则） |
+| `ALIYUN_GREEN_ENDPOINT` | （空） | 非 mock 时指向 mock-audit 或 Green 代理 URL |
+| `ALIYUN_GREEN_ACCESS_KEY_ID` | （空） | 阿里云 Green AK（真厂商 SDK） |
 | `ALIYUN_GREEN_ACCESS_KEY_SECRET` | （空） | 阿里云 Green SK |
-| `ALIYUN_GREEN_REGION` | `cn-shanghai` | Green 区域 |
+| `ALIYUN_GREEN_REGION` | `cn-shanghai` | Green 区域（SDK 模式） |
+| `ALIYUN_GREEN_OBJECT_URL_PREFIX` | `https://oss-mock.example.com` | 图像/视频 OSS 公网 URL 前缀 |
 | `ALIYUN_GREEN_IMAGE_SCENE` | `porn,terrorism,ad,qrcode,live` | 图像审核场景 |
 | `ALIYUN_GREEN_TEXT_SCENE` | `antispam` | 文字审核场景 |
 

@@ -924,6 +924,8 @@ NextBatch: <下一批次号或 "wait until verified">
 
 ## 15. 待二次确认事项（与 PRD §12.1 同步）
 
+> **2026-06-07（OPT-05）**：已按 PRD 草案基线拍板并写入 [product-config.yaml](./product-config.yaml) · [PRD-决策记录.md §D10–D25](./PRD-决策记录.md)。下列条目保留追溯，实施以 product-config 为准。
+
 下列事项不阻塞计划生效，但在对应阶段实施前必须由产品负责人书面确认：
 
 1. 订阅价格 / 积分单价 / AI 单次扣减表（影响 P4 充值档位与 P3 玩法配置）

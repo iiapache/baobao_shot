@@ -50,3 +50,6 @@ contracts/protobuf/gen/
 # Generated API docs (T7.18 — run scripts/generate-api-docs.sh)
 docs/site/api/*
 !docs/site/api/.gitkeep
+
+# third-party-mocks Helm bundle（运行 infra/staging/scripts/sync-mock-mappings.sh 生成）
+infra/k8s/charts/third-party-mocks/bundled-mappings/

@@ -1,0 +1,57 @@
+# Staging API 健康检查路由 — ENV-03
+#
+# 验收: curl https://staging-api-cn.example.com/health → 200
+#       curl https://staging-api-os.example.com/health → 200
+#
+# kubectl apply -f infra/gateway/routes/staging-api-health.yaml -n staging
+
+---
+apiVersion: apisix.apache.org/v2
+kind: ApisixRoute
+metadata:
+  name: staging-api-health-cn
+  labels:
+    app.kubernetes.io/part-of: baobao
+    app.kubernetes.io/component: gateway-route
+    baobao.io/environment: staging
+    baobao.io/region: cn
+    baobao.io/upstream: auth-family-svc
+spec:
+  ingressClassName: apisix
+  http:
+    - name: staging-health-cn
+      priority: 100
+      match:
+        hosts:
+          - staging-api-cn.example.com
+        paths:
+          - /health
+          - /health/*
+      backends:
+        - serviceName: auth-family-svc
+          servicePort: 80
+
+---
+apiVersion: apisix.apache.org/v2
+kind: ApisixRoute
+metadata:
+  name: staging-api-health-os
+  labels:
+    app.kubernetes.io/part-of: baobao
+    baobao.io/environment: staging
+    baobao.io/region: os
+    baobao.io/upstream: auth-family-svc
+spec:
+  ingressClassName: apisix
+  http:
+    - name: staging-health-os
+      priority: 100
+      match:
+        hosts:
+          - staging-api-os.example.com
+        paths:
+          - /health
+          - /health/*
+      backends:
+        - serviceName: auth-family-svc
+          servicePort: 80

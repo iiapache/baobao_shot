@@ -51,8 +51,23 @@ func run() error {
 	}
 
 	deviceSvc := device.NewService(st)
+	senderCfg := apns.SenderConfig{
+		Mock:          cfg.APNSMock,
+		KeyID:         cfg.APNSKeyID,
+		TeamID:        cfg.APNSTeamID,
+		PrivateKeyPEM: cfg.APNSPrivateKeyPEM,
+		DefaultTopic:  cfg.APNSTopic,
+	}
+	if err := apns.ValidateSenderConfig(senderCfg); err != nil {
+		return fmt.Errorf("apns config: %w", err)
+	}
+	sender, err := apns.NewSender(senderCfg)
+	if err != nil {
+		return fmt.Errorf("init apns sender: %w", err)
+	}
 	apnsClient, err := apns.NewClient(apns.Config{
 		Sandbox: cfg.APNSSandbox,
+		Sender:  sender,
 		Cleaner: deviceSvc,
 	})
 	if err != nil {

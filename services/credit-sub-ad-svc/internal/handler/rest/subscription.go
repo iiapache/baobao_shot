@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/baobao/credit-sub-ad-svc/internal/appattest"
 	"github.com/baobao/credit-sub-ad-svc/internal/middleware"
 	"github.com/baobao/credit-sub-ad-svc/internal/model"
 	"github.com/baobao/credit-sub-ad-svc/internal/subscription"
@@ -15,12 +16,16 @@ import (
 
 // SubscriptionHandler serves subscription REST endpoints.
 type SubscriptionHandler struct {
-	svc *subscription.Service
+	svc       *subscription.Service
+	appAttest appattest.Verifier
 }
 
 // NewSubscriptionHandler creates subscription REST handlers.
-func NewSubscriptionHandler(svc *subscription.Service) *SubscriptionHandler {
-	return &SubscriptionHandler{svc: svc}
+func NewSubscriptionHandler(svc *subscription.Service, verifier appattest.Verifier) *SubscriptionHandler {
+	if verifier == nil {
+		verifier = appattest.DisabledVerifier{}
+	}
+	return &SubscriptionHandler{svc: svc, appAttest: verifier}
 }
 
 type subscriptionIAPVerifyRequest struct {
@@ -103,8 +108,16 @@ func (h *SubscriptionHandler) Verify(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var req subscriptionIAPVerifyRequest
-	if err := decodeSubscriptionIAPVerifyRequest(r, &req); err != nil {
+	body, err := readIAPVerifyBody(r)
+	if err != nil {
 		writeError(w, http.StatusBadRequest, "COMMON_BAD_PARAM", "invalid json", r)
+		return
+	}
+	if err := json.Unmarshal(body, &req); err != nil {
+		writeError(w, http.StatusBadRequest, "COMMON_BAD_PARAM", "invalid json", r)
+		return
+	}
+	if !verifyAppAttest(w, r, h.appAttest, req.TransactionID, req.ProductID, body) {
 		return
 	}
 

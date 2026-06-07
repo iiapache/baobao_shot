@@ -175,3 +175,7 @@ final class P2E2EFlowStore: ObservableObject {
 enum P2E2EFlowError: Error {
     case missingBaseImage
 }
+
+extension P2E2EFlowStore: PhotoEditorFlowManaging {
+    var reEditCompleteButtonTitle: String { "保存并返回相机" }
+}

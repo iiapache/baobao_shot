@@ -1,0 +1,42 @@
+apiVersion: v2
+name: baobao-staging
+description: Baobao staging 微服务 umbrella chart（ENV-03）
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
+dependencies:
+  - name: microservice
+    version: 0.1.0
+    repository: file://../microservice
+    alias: auth-family-svc
+    condition: auth-family-svc.enabled
+  - name: microservice
+    version: 0.1.0
+    repository: file://../microservice
+    alias: media-svc
+    condition: media-svc.enabled
+  - name: microservice
+    version: 0.1.0
+    repository: file://../microservice
+    alias: feed-svc
+    condition: feed-svc.enabled
+  - name: microservice
+    version: 0.1.0
+    repository: file://../microservice
+    alias: audit-svc
+    condition: audit-svc.enabled
+  - name: microservice
+    version: 0.1.0
+    repository: file://../microservice
+    alias: ai-dispatch-svc
+    condition: ai-dispatch-svc.enabled
+  - name: microservice
+    version: 0.1.0
+    repository: file://../microservice
+    alias: credit-sub-ad-svc
+    condition: credit-sub-ad-svc.enabled
+  - name: microservice
+    version: 0.1.0
+    repository: file://../microservice
+    alias: notification-svc
+    condition: notification-svc.enabled

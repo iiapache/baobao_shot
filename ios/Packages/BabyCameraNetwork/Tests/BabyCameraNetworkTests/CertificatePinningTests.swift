@@ -1,3 +1,4 @@
+import Security
 import XCTest
 @testable import BabyCameraNetwork
 
@@ -10,6 +11,11 @@ final class CertificatePinningTests: XCTestCase {
         let session = CertificatePinningSessionFactory.makeSession(
             configuration: .default
         )
+        XCTAssertNil(session.delegate)
+    }
+
+    func testForceStubPathUsesPlainSession() {
+        let session = NetworkSessionFactory.makeSession(forceStub: true)
         XCTAssertNil(session.delegate)
     }
 
@@ -33,5 +39,16 @@ final class CertificatePinningTests: XCTestCase {
         )
         XCTAssertEqual(config.pinnedHashes(for: "api-cn.babygrowth.app"), ["pin-a"])
         XCTAssertEqual(config.pinnedHashes(for: "unknown.host"), [])
+    }
+
+    func testRSASPkiPrefixLength() {
+        XCTAssertEqual(CertificatePinningValidator.spkiPrefix(forKeyType: kSecAttrKeyTypeRSA as String, keySizeInBits: 2_048)?.count, 24)
+    }
+
+    func testECP256SpkiPrefixLength() {
+        XCTAssertEqual(
+            CertificatePinningValidator.spkiPrefix(forKeyType: kSecAttrKeyTypeECSECPrimeRandom as String, keySizeInBits: 256)?.count,
+            26
+        )
     }
 }

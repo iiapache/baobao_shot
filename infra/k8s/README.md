@@ -14,7 +14,10 @@ infra/k8s/
 │   └── values.yaml       # Helm/ArgoCD 参考
 ├── charts/
 │   ├── common/           # library chart：labels / annotations / naming
-│   └── hello/            # 最小 hello-world 服务
+│   ├── hello/            # 最小 hello-world 服务
+│   ├── microservice/     # Go 微服务通用 chart（ENV-03）
+│   ├── baobao-staging/   # staging umbrella chart（ENV-03）
+│   └── third-party-mocks/ # staging 三方 WireMock（ENV-06）
 ├── clusters/
 │   ├── ack-cn/           # 阿里云 ACK 中国 cluster values
 │   └── eks-os/           # AWS EKS 新加坡 cluster values
@@ -219,6 +222,26 @@ helm template hello . -n dev \
 
 hello 等服务流量改由 APISIX 网关入口，关闭 chart 内 nginx Ingress 后应用 `infra/gateway/routes/`。  
 完整部署顺序、TLS 1.3 / HTTP/2 验收见 [infra/gateway/README.md](../gateway/README.md)。
+
+## Staging 三方 Mock（ENV-06）
+
+```bash
+./infra/staging/scripts/sync-mock-mappings.sh
+helm upgrade --install third-party-mocks infra/k8s/charts/third-party-mocks \
+  -n staging -f infra/k8s/clusters/ack-cn/staging-third-party-mocks-values.yaml
+tests/staging/verify-outbound.sh --k8s -n staging
+```
+
+Outbound 注入 values：`infra/staging/values/` · 映射表：`infra/staging/outbound-mapping.yaml`
+
+## Staging 微服务（ENV-03）
+
+```bash
+./infra/staging/scripts/deploy-staging.sh --cluster ack-cn
+tests/staging/smoke-staging.sh --cluster ack-cn --resolve <APISIX-LB-IP>
+```
+
+Umbrella chart：`infra/k8s/charts/baobao-staging/` · ArgoCD：`infra/k8s/argocd/applications/baobao-staging-*.yaml`
 
 ## 后续任务
 

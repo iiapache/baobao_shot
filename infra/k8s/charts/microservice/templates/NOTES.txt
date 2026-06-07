@@ -1,0 +1,7 @@
+Baobao microservice {{ include "baobao.fullname" . }} deployed.
+
+ClusterIP: {{ include "baobao.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.service.port }}
+
+Health (in-cluster):
+  kubectl port-forward -n {{ .Release.Namespace }} svc/{{ include "baobao.fullname" . }} 8080:{{ .Values.service.port }}
+  curl http://127.0.0.1:8080/health

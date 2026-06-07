@@ -29,6 +29,8 @@ type Config struct {
 	OSSReconcileCronEnabled  bool
 	OSSReconcileCronInterval time.Duration
 	OSSReconcileStaleAfter   time.Duration
+
+	AuditSvcURL string
 }
 
 // Load reads configuration from environment with sensible defaults.
@@ -75,6 +77,7 @@ func Load() (*Config, error) {
 		OSSReconcileCronEnabled:  strings.ToLower(getEnv("OSS_RECONCILE_CRON_ENABLED", "true")) == "true",
 		OSSReconcileCronInterval: time.Duration(reconcileMinutes) * time.Minute,
 		OSSReconcileStaleAfter:   time.Duration(reconcileStaleHours) * time.Hour,
+		AuditSvcURL:              getEnv("AUDIT_SVC_URL", ""),
 	}, nil
 }
 

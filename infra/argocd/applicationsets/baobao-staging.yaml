@@ -1,4 +1,4 @@
-# ApplicationSet — staging 环境多集群 hello 部署
+# ApplicationSet — staging 环境多集群微服务部署（ENV-03）
 # 使用前替换 spec.generators[].matrix.generators[].git.repoURL
 ---
 apiVersion: argoproj.io/v1alpha1
@@ -9,34 +9,35 @@ metadata:
   labels:
     app.kubernetes.io/part-of: baobao
     baobao.io/environment: staging
+    baobao.io/task: ENV-03
 spec:
   goTemplate: true
   goTemplateOptions: ["missingkey=error"]
   generators:
     - matrix:
         generators:
-          # 集群维度
           - list:
               elements:
                 - cluster: ack-cn
                   region: cn
+                  outboundValues: ../../../staging/values/ack-cn-outbound.yaml
                 - cluster: eks-os
                   region: os
-          # 服务维度（后续扩展 auth-family-svc 等）
+                  outboundValues: ../../../staging/values/eks-os-outbound.yaml
           - list:
               elements:
-                - service: hello
-                  chartPath: infra/k8s/charts/hello
+                - release: baobao-staging
+                  chartPath: infra/k8s/charts/baobao-staging
                   namespace: staging
   template:
     metadata:
-      name: "{{ .service }}-staging-{{ .cluster }}"
+      name: "{{ .release }}-{{ .cluster }}"
       labels:
         app.kubernetes.io/part-of: baobao
         baobao.io/cluster: "{{ .cluster }}"
         baobao.io/region: "{{ .region }}"
         baobao.io/environment: staging
-        baobao.io/service: "{{ .service }}"
+        baobao.io/release: "{{ .release }}"
       finalizers:
         - resources-finalizer.argocd.argoproj.io
     spec:
@@ -46,12 +47,17 @@ spec:
         targetRevision: main
         path: "{{ .chartPath }}"
         helm:
-          releaseName: "{{ .service }}"
+          releaseName: "{{ .release }}"
           valueFiles:
             - "../../clusters/{{ .cluster }}/cluster-values.yaml"
-            - "../../clusters/{{ .cluster }}/staging-{{ .service }}-values.yaml"
-            # 蓝绿覆盖（启用 Rollouts 或双 Deployment 时取消注释）
-            # - "../../../argocd/values/blue-green-hello.yaml"
+            - "../../clusters/{{ .cluster }}/staging-services-values.yaml"
+            - "{{ .outboundValues }}"
+            - "../../../staging/values/auth-family-svc.yaml"
+            - "../../../staging/values/media-svc.yaml"
+            - "../../../staging/values/feed-svc.yaml"
+            - "../../../staging/values/audit-svc.yaml"
+            - "../../../staging/values/ai-dispatch-svc.yaml"
+            - "../../../staging/values/credit-sub-ad-svc.yaml"
       destination:
         name: "{{ .cluster }}"
         namespace: "{{ .namespace }}"

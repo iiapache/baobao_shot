@@ -8,6 +8,7 @@ public struct IAPServiceConfiguration: Sendable {
     public let session: URLSession
     public let maxVerifyRetries: Int
     public let retryBaseDelay: TimeInterval
+    public let appAttestAttachmentProvider: AppAttestAttachmentProvider?
 
     public init(
         region: AppRegion = .cn,
@@ -15,7 +16,8 @@ public struct IAPServiceConfiguration: Sendable {
         tokenStore: TokenStore = KeychainTokenStore(),
         session: URLSession = .shared,
         maxVerifyRetries: Int = 3,
-        retryBaseDelay: TimeInterval = 0.5
+        retryBaseDelay: TimeInterval = 0.5,
+        appAttestAttachmentProvider: AppAttestAttachmentProvider? = nil
     ) {
         self.region = region
         self.regionConfig = regionConfig ?? RegionConfig(
@@ -27,6 +29,7 @@ public struct IAPServiceConfiguration: Sendable {
         self.session = session
         self.maxVerifyRetries = max(1, maxVerifyRetries)
         self.retryBaseDelay = retryBaseDelay
+        self.appAttestAttachmentProvider = appAttestAttachmentProvider
     }
 
     private static func resolveDeviceId() -> String {
@@ -175,11 +178,16 @@ public final class IAPService: @unchecked Sendable {
 
         let api = CreditsAPI(client: clientFactory(configuration.tokenStore))
         do {
+            let appAttest = await resolveAppAttestPayload(
+                transactionId: transaction.transactionID,
+                productId: transaction.productID
+            )
             return try await api.iapVerify(
                 IAPVerifyRequest(
                     transactionId: transaction.transactionID,
                     signedTransaction: transaction.signedTransaction,
-                    productId: transaction.productID
+                    productId: transaction.productID,
+                    appAttest: appAttest
                 )
             )
         } catch let error as APIError {
@@ -222,5 +230,18 @@ public final class IAPService: @unchecked Sendable {
         processingLock.lock()
         defer { processingLock.unlock() }
         inFlightTransactionIDs.remove(transactionID)
+    }
+
+    private func resolveAppAttestPayload(
+        transactionId: String,
+        productId: String
+    ) async -> AppAttestPayload? {
+        guard let provider = configuration.appAttestAttachmentProvider else {
+            return nil
+        }
+        guard let attachment = await provider(transactionId, productId) else {
+            return nil
+        }
+        return AppAttestPayload(attachment: attachment)
     }
 }

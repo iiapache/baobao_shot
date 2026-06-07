@@ -11,16 +11,18 @@ import (
 )
 
 // NewRouter builds the REST API router with health probes and audit routes.
-func NewRouter(cfg *config.Config, st store.Store) http.Handler {
+func NewRouter(cfg *config.Config, st store.Store, auditSvc *audit.Service) http.Handler {
 	if cfg == nil {
 		cfg = &config.Config{ServiceName: "audit-svc"}
 	}
 	if st == nil {
 		st = store.NewMemoryStore()
 	}
+	if auditSvc == nil {
+		auditSvc = audit.NewService(st, audit.NewVendorFromConfig(cfg))
+	}
 
 	health := NewHealthHandler(cfg.ServiceName)
-	auditSvc := audit.NewService(st, nil)
 	auditHandler := NewAuditHandler(auditSvc)
 
 	r := chi.NewRouter()

@@ -10,6 +10,10 @@ var (
 	ErrInvalidName   = errors.New("invalid baby name")
 	ErrInvalidGender = errors.New("invalid gender")
 	ErrInvalidBirth  = errors.New("invalid birth date")
+	ErrBabyLimit     = errors.New("baby limit reached")
 )
 
-const MaxAvatarBytes = 5 << 20 // 5 MiB
+const (
+	MaxAvatarBytes     = 5 << 20 // 5 MiB
+	MaxBabiesPerFamily = 5       // product-config.yaml family.max_babies
+)

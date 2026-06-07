@@ -82,9 +82,10 @@ public struct PhotosProvider: BackupProvider, Sendable {
 
 #if canImport(Photos)
 extension PhotosProvider {
+    /// 真机 PhotoKit + addOnly 权限；写入器与台账由 `PhotosProviderFactory` 按编译配置注入。
     public static func live(
-        writer: any PhotosLibraryWriting = StubPhotosLibraryWriter(),
-        ledger: any PhotosWriteLedger = InMemoryPhotosWriteLedger(),
+        writer: any PhotosLibraryWriting = LivePhotosLibraryWriter(),
+        ledger: any PhotosWriteLedger = UserDefaultsPhotosWriteLedger(),
         albumTitle: String = PhotosProvider.defaultAlbumTitle
     ) -> PhotosProvider {
         PhotosProvider(

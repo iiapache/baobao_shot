@@ -1,0 +1,30 @@
+# 端侧合规配置单一数据源（COMP-01）
+# staging：管局/网信办正式号获批前使用；结构完整，获批后仅替换字段值。
+# 同步：python3 scripts/sync-compliance-config.py
+version: "20250607001"
+status: staging # staging | production
+
+icp:
+  number: "京ICP备00000000号-9S"
+  query_url: "https://beian.miit.gov.cn/"
+
+algorithm_filing:
+  # App「设置 → 关于」与 AI Tab 页脚展示摘要（获批后整段替换）
+  summary: "Seedream：网信算备11000000000001号；通义万相：网信算备11000000000002号；即梦：网信算备11000000000003号；Seedance：网信算备11000000000004号"
+  models:
+    SeedreamAdapter:
+      display_name: Seedream
+      gen_ai_filing_no: "网信算备11000000000001号"
+      deep_synth_filing_no: "网信算备11000000000011号"
+    TongyiWanxiangAdapter:
+      display_name: 通义万相
+      gen_ai_filing_no: "网信算备11000000000002号"
+      deep_synth_filing_no: "网信算备11000000000012号"
+    JimengAdapter:
+      display_name: 即梦
+      gen_ai_filing_no: "网信算备11000000000003号"
+      deep_synth_filing_no: "网信算备11000000000013号"
+    SeedanceAdapter:
+      display_name: Seedance
+      gen_ai_filing_no: "网信算备11000000000004号"
+      deep_synth_filing_no: "网信算备11000000000014号"

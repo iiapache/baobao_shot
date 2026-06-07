@@ -1,0 +1,220 @@
+# auth-family-svc Staging 网关路由 — ENV-03
+#
+# kubectl apply -f infra/gateway/routes/staging-auth-family-api.yaml -n staging
+
+---
+apiVersion: apisix.apache.org/v2
+kind: ApisixRoute
+metadata:
+  name: staging-auth-family-api
+  labels:
+    app.kubernetes.io/part-of: baobao
+    app.kubernetes.io/component: gateway-route
+    baobao.io/upstream: auth-family-svc
+    baobao.io/task: ENV-03
+spec:
+  ingressClassName: apisix
+  http:
+    # --- 公开：刷新 Token（无需 Access Token）---
+    - name: staging-auth-refresh
+      priority: 96
+      match:
+        hosts:
+          - staging-api-cn.example.com
+        paths:
+          - /v1/auth/refresh
+        methods:
+          - POST
+      backends:
+        - serviceName: auth-family-svc
+          servicePort: 80
+
+    # --- 公开：短信验证码（限流 60s/3 + 1h/10，维度 手机号+IP）---
+    - name: staging-auth-phone-code
+      priority: 96
+      match:
+        hosts:
+          - staging-api-cn.example.com
+        paths:
+          - /v1/auth/phone/code
+        methods:
+          - POST
+      backends:
+        - serviceName: auth-family-svc
+          servicePort: 80
+      plugins:
+        - name: serverless-pre-function
+          enable: true
+          config:
+            phase: rewrite
+            functions:
+              - |
+                return function(conf, ctx)
+                  local core = require("apisix.core")
+                  local cjson = require("cjson.safe")
+                  local body = core.request.get_body()
+                  if body then
+                    local data = cjson.decode(body)
+                    if data and data.phone then
+                      core.request.set_header("X-Baobao-Rate-Phone", tostring(data.phone))
+                    end
+                  end
+                end
+        - name: limit-count
+          enable: true
+          config:
+            count: 3
+            time_window: 60
+            key_type: var_combination
+            key: "$http_x_baobao_rate_phone $remote_addr"
+            rejected_code: 429
+            rejected_msg: '{"code":"COMMON_RATE_LIMIT","message":"rate limit exceeded"}'
+            policy: local
+        - name: limit-count
+          enable: true
+          config:
+            count: 10
+            time_window: 3600
+            key_type: var_combination
+            key: "$http_x_baobao_rate_phone $remote_addr"
+            rejected_code: 429
+            rejected_msg: '{"code":"COMMON_RATE_LIMIT","message":"rate limit exceeded"}'
+            policy: local
+
+    # --- 公开：手机号登录（限流 60s/5，维度 手机号+IP）---
+    - name: staging-auth-phone-login
+      priority: 96
+      match:
+        hosts:
+          - staging-api-cn.example.com
+        paths:
+          - /v1/auth/phone/login
+        methods:
+          - POST
+      backends:
+        - serviceName: auth-family-svc
+          servicePort: 80
+      plugins:
+        - name: serverless-pre-function
+          enable: true
+          config:
+            phase: rewrite
+            functions:
+              - |
+                return function(conf, ctx)
+                  local core = require("apisix.core")
+                  local cjson = require("cjson.safe")
+                  local body = core.request.get_body()
+                  if body then
+                    local data = cjson.decode(body)
+                    if data and data.phone then
+                      core.request.set_header("X-Baobao-Rate-Phone", tostring(data.phone))
+                    end
+                  end
+                end
+        - name: limit-count
+          enable: true
+          config:
+            count: 5
+            time_window: 60
+            key_type: var_combination
+            key: "$http_x_baobao_rate_phone $remote_addr"
+            rejected_code: 429
+            rejected_msg: '{"code":"COMMON_RATE_LIMIT","message":"rate limit exceeded"}'
+            policy: local
+
+    # --- 公开：Apple 登录 ---
+    - name: staging-auth-apple
+      priority: 96
+      match:
+        hosts:
+          - staging-api-cn.example.com
+        paths:
+          - /v1/auth/apple
+        methods:
+          - POST
+      backends:
+        - serviceName: auth-family-svc
+          servicePort: 80
+
+    # --- 受保护：账号 ---
+    - name: staging-auth-account-protected
+      priority: 85
+      match:
+        hosts:
+          - staging-api-cn.example.com
+        paths:
+          - /v1/account/*
+      backends:
+        - serviceName: auth-family-svc
+          servicePort: 80
+      plugins:
+        - name: forward-auth
+          enable: true
+          config:
+            uri: "http://auth-family-svc:80/internal/verify"
+            request_headers:
+              - Authorization
+              - X-Request-Id
+              - X-Trace-Id
+            upstream_headers:
+              - X-User-Id
+              - X-Token-Jti
+            client_headers:
+              - X-User-Id
+            status_on_error: 401
+
+    # --- 受保护：家庭 ---
+    - name: staging-auth-families-protected
+      priority: 85
+      match:
+        hosts:
+          - staging-api-cn.example.com
+        paths:
+          - /v1/families
+          - /v1/families/*
+      backends:
+        - serviceName: auth-family-svc
+          servicePort: 80
+      plugins:
+        - name: forward-auth
+          enable: true
+          config:
+            uri: "http://auth-family-svc:80/internal/verify"
+            request_headers:
+              - Authorization
+              - X-Request-Id
+              - X-Trace-Id
+            upstream_headers:
+              - X-User-Id
+              - X-Token-Jti
+            client_headers:
+              - X-User-Id
+            status_on_error: 401
+
+    # --- 受保护：邀请加入 ---
+    - name: staging-auth-invitations-protected
+      priority: 85
+      match:
+        hosts:
+          - staging-api-cn.example.com
+        paths:
+          - /v1/invitations/*
+      backends:
+        - serviceName: auth-family-svc
+          servicePort: 80
+      plugins:
+        - name: forward-auth
+          enable: true
+          config:
+            uri: "http://auth-family-svc:80/internal/verify"
+            request_headers:
+              - Authorization
+              - X-Request-Id
+              - X-Trace-Id
+            upstream_headers:
+              - X-User-Id
+              - X-Token-Jti
+            client_headers:
+              - X-User-Id
+            status_on_error: 401

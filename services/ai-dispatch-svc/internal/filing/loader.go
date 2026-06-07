@@ -24,10 +24,10 @@ type LoadOptions struct {
 // DevBindings returns placeholder filing numbers for local worker runs.
 func DevBindings() Bindings {
 	return Bindings{
-		"SeedreamAdapter":       {GenAIFilingNo: "GAI-DEV-1", DeepSynthFilingNo: "DS-DEV-1"},
-		"TongyiWanxiangAdapter": {GenAIFilingNo: "GAI-DEV-2", DeepSynthFilingNo: "DS-DEV-2"},
-		"JimengAdapter":         {GenAIFilingNo: "GAI-DEV-3", DeepSynthFilingNo: "DS-DEV-3"},
-		"SeedanceAdapter":       {GenAIFilingNo: "GAI-DEV-4", DeepSynthFilingNo: "DS-DEV-4"},
+		"SeedreamAdapter":       {GenAIFilingNo: "网信算备11000000000001号", DeepSynthFilingNo: "网信算备11000000000011号"},
+		"TongyiWanxiangAdapter": {GenAIFilingNo: "网信算备11000000000002号", DeepSynthFilingNo: "网信算备11000000000012号"},
+		"JimengAdapter":         {GenAIFilingNo: "网信算备11000000000003号", DeepSynthFilingNo: "网信算备11000000000013号"},
+		"SeedanceAdapter":       {GenAIFilingNo: "网信算备11000000000004号", DeepSynthFilingNo: "网信算备11000000000014号"},
 	}
 }
 

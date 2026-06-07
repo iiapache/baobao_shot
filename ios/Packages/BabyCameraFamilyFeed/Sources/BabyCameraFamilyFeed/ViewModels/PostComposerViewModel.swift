@@ -236,6 +236,10 @@ public final class PostComposerViewModel: ObservableObject {
         }
     }
 
+    public func reportExternalFailure(_ message: String) {
+        phase = .failed(message)
+    }
+
     public func publish() async {
         let validation = PostComposerValidator.validate(
             caption: caption,

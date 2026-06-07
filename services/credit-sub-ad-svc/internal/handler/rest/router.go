@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/baobao/credit-sub-ad-svc/internal/adreward"
+	"github.com/baobao/credit-sub-ad-svc/internal/appattest"
 	"github.com/baobao/credit-sub-ad-svc/internal/config"
 	"github.com/baobao/credit-sub-ad-svc/internal/iap"
 	"github.com/baobao/credit-sub-ad-svc/internal/middleware"
@@ -21,6 +22,7 @@ type RouterDeps struct {
 	Query        *query.Service
 	SignIn       *signin.Service
 	AdReward     *adreward.Service
+	AppAttest    appattest.Verifier
 }
 
 // NewRouter builds the REST API router with health probes.
@@ -43,11 +45,11 @@ func NewRouter(cfg *config.Config, st store.Store, deps RouterDeps) http.Handler
 	r.Get("/ready", health.Ready)
 
 	if deps.IAPVerify != nil {
-		iapHandler := NewIAPVerifyHandler(deps.IAPVerify)
+		iapHandler := NewIAPVerifyHandler(deps.IAPVerify, deps.AppAttest)
 		r.Post("/v1/credits/iap-verify", iapHandler.Verify)
 	}
 	if deps.Subscription != nil {
-		subHandler := NewSubscriptionHandler(deps.Subscription)
+		subHandler := NewSubscriptionHandler(deps.Subscription, deps.AppAttest)
 		r.Get("/v1/subscriptions/me", subHandler.GetMe)
 		r.Post("/v1/subscriptions/iap-verify", subHandler.Verify)
 	}

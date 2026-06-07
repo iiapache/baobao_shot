@@ -1,0 +1,44 @@
+# 默认 values — staging 请叠加 clusters/*/staging-third-party-mocks-values.yaml
+
+global:
+  cluster: local
+  region: cn
+  environment: staging
+
+commonLabels:
+  baobao.io/component: third-party-mocks
+  baobao.io/tier: qa
+
+image:
+  repository: wiremock/wiremock
+  tag: "3.9.1"
+  pullPolicy: IfNotPresent
+
+wiremock:
+  command:
+    - "--global-response-templating"
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+
+# 各 Mock 服务；映射文件来自 bundled-mappings/（sync-mock-mappings.sh 同步）
+mocks:
+  - name: mock-iap
+    port: 8080
+    mappingsDir: iap
+  - name: mock-wechat
+    port: 8080
+    mappingsDir: wechat
+  - name: mock-ad
+    port: 8080
+    mappingsDir: ad
+  - name: mock-audit
+    port: 8080
+    mappingsDir: audit
+  - name: mock-ai
+    port: 8080
+    mappingsDir: ai

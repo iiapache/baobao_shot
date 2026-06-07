@@ -1,0 +1,11 @@
+# feed-svc — staging outbound / 审核依赖
+
+extraEnv:
+  ENVIRONMENT: staging
+  AUDIT_SVC_URL: http://audit-svc.staging.svc.cluster.local:80
+
+env:
+  - name: ENVIRONMENT
+    value: staging
+  - name: AUDIT_SVC_URL
+    value: http://audit-svc.staging.svc.cluster.local:80

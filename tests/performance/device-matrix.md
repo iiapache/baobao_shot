@@ -26,8 +26,8 @@ P0 起纳入 QA 资产池；P7 性能压测以这两台为 **primary baseline**�
 
 | 指标 | 预算 | 测量方式 | 基线机型 |
 | --- | --- | --- | --- |
-| 相机冷启动 | ≤ 800 ms | Instruments Time Profiler | iPhone 12 |
-| 编辑器打开 | ≤ 500 ms | 端侧埋点 `editor_open_ms` | iPhone 12 |
+| 相机冷启动 | ≤ 800 ms | `PerformanceTracker` 日志 / Instruments Time Profiler | iPhone 12 |
+| 编辑器打开 | ≤ 500 ms | `PerformanceTracker` 日志 · `editor_open` 埋点 | iPhone 12 |
 | Feed 首屏 P95 | ≤ 500 ms（缓存命中） | staging API + 端侧 | iPhone 12 / 16 |
 | AI 任务 P95（图） | ≤ 60 s | ai-dispatch 链路 | iPhone 16 |
 | AI 任务 P95（视频） | ≤ 5 min | ai-dispatch 链路 | iPhone 16 |

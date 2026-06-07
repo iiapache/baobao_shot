@@ -11,6 +11,7 @@ let package = Package(
         .package(path: "../BabyCameraPermissions"),
         .package(path: "../BabyCameraImageKit"),
         .package(path: "../BabyCameraBaby"),
+        .package(path: "../BabyCameraDiagnostics"),
         .package(path: "../Database"),
     ],
     targets: [
@@ -20,6 +21,7 @@ let package = Package(
                 "BabyCameraPermissions",
                 "BabyCameraImageKit",
                 "BabyCameraBaby",
+                "BabyCameraDiagnostics",
                 "Database",
             ]
         ),

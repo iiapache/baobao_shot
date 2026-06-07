@@ -46,6 +46,8 @@ public struct DesignSystemCatalogView: View {
             listsSection
         case .emptyStates:
             emptyStatesSection
+        case .errors:
+            errorStatesSection
         case .loading:
             loadingSection
         }
@@ -255,6 +257,26 @@ public struct DesignSystemCatalogView: View {
         }
     }
 
+    private var errorStatesSection: some View {
+        Group {
+            Section("DSErrorView · Full Screen") {
+                DSErrorView(kind: .network, action: {})
+                    .frame(height: 280)
+                    .listRowInsets(EdgeInsets())
+                    .listRowBackground(Color.clear)
+                DSErrorView(kind: .insufficientCredit, actionTitle: "去充值", secondaryActionTitle: "去签到", action: {}, secondaryAction: {})
+                    .frame(height: 280)
+                    .listRowInsets(EdgeInsets())
+                    .listRowBackground(Color.clear)
+            }
+            Section("DSErrorView · Banner") {
+                DSErrorView(kind: .auditRejected, style: .banner)
+                    .listRowInsets(EdgeInsets())
+                    .listRowBackground(Color.clear)
+            }
+        }
+    }
+
     private var loadingSection: some View {
         Group {
             Section("Inline") {
@@ -287,6 +309,7 @@ private enum CatalogSection: String, CaseIterable, Identifiable {
     case cards
     case lists
     case emptyStates
+    case errors
     case loading
 
     var id: String { rawValue }
@@ -300,6 +323,7 @@ private enum CatalogSection: String, CaseIterable, Identifiable {
         case .cards: "卡片 Card"
         case .lists: "列表 List"
         case .emptyStates: "空态 Empty"
+        case .errors: "错误态 Error"
         case .loading: "Loading"
         }
     }

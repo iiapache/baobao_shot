@@ -1,0 +1,161 @@
+# baobao-staging umbrella — 默认关闭各子 chart，由 clusters/*/staging-services-values.yaml 启用
+
+global:
+  cluster: local
+  region: cn
+  environment: staging
+
+imageTag: staging
+
+auth-family-svc:
+  enabled: true
+  fullnameOverride: auth-family-svc
+  nameOverride: auth-family-svc
+  replicaCount: 2
+  image:
+    repository: registry.example.com/baobao/auth-family-svc
+    tag: staging
+  service:
+    port: 80
+    targetPort: 8001
+  extraEnv:
+    SERVICE_NAME: auth-family-svc
+    HTTP_PORT: "8001"
+    ENVIRONMENT: staging
+    STORAGE_BACKEND: memory
+    MOCK_APPLE_VERIFY: "true"
+    APPLE_AUTH_MOCK: "true"
+    APPLE_BUNDLE_ID: com.babycamera.app
+    SMS_PROVIDER: mock
+    MOCK_SMS_FIXED_CODE: "123456"
+    SMS_TEST_PHONES: "13800138001:123456,13800138002:123456,13800138003:123456"
+    JWT_SIGNING_SECRET: staging-dev-only-change-me
+
+media-svc:
+  enabled: true
+  fullnameOverride: media-svc
+  nameOverride: media-svc
+  replicaCount: 2
+  image:
+    repository: registry.example.com/baobao/media-svc
+    tag: staging
+  service:
+    port: 80
+    targetPort: 8003
+  extraEnv:
+    SERVICE_NAME: media-svc
+    HTTP_PORT: "8003"
+    ENVIRONMENT: staging
+    STORAGE_BACKEND: memory
+    JWT_SIGNING_SECRET: staging-dev-only-change-me
+
+feed-svc:
+  enabled: true
+  fullnameOverride: feed-svc
+  nameOverride: feed-svc
+  replicaCount: 2
+  image:
+    repository: registry.example.com/baobao/feed-svc
+    tag: staging
+  service:
+    port: 80
+    targetPort: 8002
+  extraEnv:
+    SERVICE_NAME: feed-svc
+    HTTP_PORT: "8002"
+    ENVIRONMENT: staging
+    STORAGE_BACKEND: memory
+    AUDIT_SVC_URL: http://audit-svc.staging.svc.cluster.local:80
+
+audit-svc:
+  enabled: true
+  fullnameOverride: audit-svc
+  nameOverride: audit-svc
+  replicaCount: 1
+  image:
+    repository: registry.example.com/baobao/audit-svc
+    tag: staging
+  service:
+    port: 80
+    targetPort: 8005
+  extraEnv:
+    SERVICE_NAME: audit-svc
+    HTTP_PORT: "8005"
+    ENVIRONMENT: staging
+    DEPLOY_REGION: cn
+    ALIYUN_GREEN_MOCK_MODE: "true"
+    ALIYUN_GREEN_ENDPOINT: http://mock-audit.third-party-mocks.svc.cluster.local:8080
+
+ai-dispatch-svc:
+  enabled: true
+  fullnameOverride: ai-dispatch-svc
+  nameOverride: ai-dispatch-svc
+  replicaCount: 2
+  image:
+    repository: registry.example.com/baobao/ai-dispatch-svc
+    tag: staging
+  service:
+    port: 80
+    targetPort: 8004
+  extraEnv:
+    SERVICE_NAME: ai-dispatch-svc
+    HTTP_PORT: "8004"
+    ENVIRONMENT: staging
+    STORAGE_BACKEND: memory
+    AUDIT_SVC_URL: http://audit-svc.staging.svc.cluster.local:80
+    DASHSCOPE_ENDPOINT: http://mock-ai.third-party-mocks.svc.cluster.local:8080
+    DASHSCOPE_API_KEY: mock-staging-dashscope-key
+    BYTEDANCE_ENDPOINT: http://mock-ai.third-party-mocks.svc.cluster.local:8080
+    BYTEDANCE_API_KEY: mock-staging-bytedance-key
+    BYTEDANCE_API_SECRET: mock-staging-bytedance-secret
+    CN_ADAPTER_MOCK_MODE: "false"
+    OPENAI_API_BASE: http://mock-ai.third-party-mocks.svc.cluster.local:8080/v1
+    OPENAI_BASE_URL: http://mock-ai.third-party-mocks.svc.cluster.local:8080/v1
+    OPENAI_API_KEY: mock-staging-openai-key
+    BYTEDANCE_ENDPOINT: http://mock-ai.third-party-mocks.svc.cluster.local:8080
+    OS_ADAPTER_MOCK_MODE: "false"
+
+credit-sub-ad-svc:
+  enabled: true
+  fullnameOverride: credit-sub-ad-svc
+  nameOverride: credit-sub-ad-svc
+  replicaCount: 2
+  image:
+    repository: registry.example.com/baobao/credit-sub-ad-svc
+    tag: staging
+  service:
+    port: 80
+    targetPort: 8006
+  extraEnv:
+    SERVICE_NAME: credit-sub-ad-svc
+    HTTP_PORT: "8006"
+    ENVIRONMENT: staging
+    STORAGE_BACKEND: memory
+    APPLE_IAP_SERVER_API_BASE: http://mock-iap.third-party-mocks.svc.cluster.local:8080
+    APPLE_IAP_VERIFY_URL: http://mock-iap.third-party-mocks.svc.cluster.local:8080/verifyReceipt
+    PANGLE_SECURITY_KEY: staging-mock-pangle-secret
+    GDT_SECRET_KEY: staging-mock-gdt-secret
+
+notification-svc:
+  enabled: true
+  fullnameOverride: notification-svc
+  nameOverride: notification-svc
+  replicaCount: 2
+  image:
+    repository: registry.example.com/baobao/notification-svc
+    tag: staging
+  service:
+    port: 80
+    targetPort: 8008
+  extraEnv:
+    SERVICE_NAME: notification-svc
+    HTTP_PORT: "8008"
+    GRPC_PORT: "9008"
+    ENVIRONMENT: staging
+    STORAGE_BACKEND: memory
+    APNS_MOCK: "true"
+    APNS_SANDBOX: "true"
+    APNS_TOPIC: com.babycamera.app
+    DEBUG_ENDPOINTS: "true"
+    KAFKA_BROKERS: kafka.staging.svc.cluster.local:9092
+    KAFKA_GROUP_ID: notification-svc

@@ -17,15 +17,20 @@ public struct AIPlayGridView: View {
         Group {
             if viewModel.isLoading, viewModel.plays.isEmpty {
                 DSLoadingView(message: "加载玩法中…", style: .fullScreen)
+            } else if viewModel.plays.isEmpty, viewModel.errorMessage != nil {
+                DSErrorView(
+                    kind: .network,
+                    message: viewModel.errorMessage,
+                    actionTitle: "重试"
+                ) {
+                    Task { await viewModel.load(forceRefresh: true) }
+                }
             } else if viewModel.plays.isEmpty {
                 DSEmptyState(
                     systemImage: "sparkles",
                     title: "暂无可用玩法",
-                    message: viewModel.errorMessage ?? "当前区域暂无可用的 AI 玩法，请稍后再试。",
-                    actionTitle: viewModel.errorMessage == nil ? nil : "重试"
-                ) {
-                    Task { await viewModel.load(forceRefresh: true) }
-                }
+                    message: "当前区域暂无可用的 AI 玩法，请稍后再试。"
+                )
             } else {
                 content
             }
@@ -44,11 +49,15 @@ public struct AIPlayGridView: View {
         ScrollView {
             LazyVStack(spacing: DSSpacing.md) {
                 if let error = viewModel.errorMessage {
-                    Text(error)
-                        .font(DSTypography.caption)
-                        .foregroundStyle(DSColors.warning)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.horizontal, DSSpacing.md)
+                    DSErrorView(
+                        kind: .network,
+                        message: error,
+                        actionTitle: "重试",
+                        style: .banner
+                    ) {
+                        Task { await viewModel.load(forceRefresh: true) }
+                    }
+                    .padding(.horizontal, DSSpacing.md)
                 }
 
                 ForEach(viewModel.plays) { play in

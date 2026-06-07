@@ -30,6 +30,8 @@ type Config struct {
 	AliyunGreenAccessKeyID     string
 	AliyunGreenAccessKeySecret string
 	AliyunGreenRegion          string
+	AliyunGreenEndpoint        string
+	AliyunGreenObjectURLPrefix string
 	AliyunGreenImageScenes     string
 	AliyunGreenTextScenes      string
 }
@@ -51,9 +53,13 @@ func Load() (*Config, error) {
 	}
 
 	aliyunAccessKeyID := getEnv("ALIYUN_GREEN_ACCESS_KEY_ID", "")
-	aliyunMockMode, err := getEnvBool("ALIYUN_GREEN_MOCK_MODE", aliyunAccessKeyID == "")
+	aliyunEndpoint := getEnv("ALIYUN_GREEN_ENDPOINT", "")
+	aliyunMockMode, err := getEnvBool("ALIYUN_GREEN_MOCK_MODE", aliyunAccessKeyID == "" && aliyunEndpoint == "")
 	if err != nil {
 		return nil, fmt.Errorf("ALIYUN_GREEN_MOCK_MODE: %w", err)
+	}
+	if !aliyunMockMode && aliyunAccessKeyID == "" && aliyunEndpoint == "" {
+		return nil, fmt.Errorf("ALIYUN_GREEN_MOCK_MODE=false requires ALIYUN_GREEN_ACCESS_KEY_ID or ALIYUN_GREEN_ENDPOINT")
 	}
 
 	deployRegion := strings.ToLower(getEnv("DEPLOY_REGION", "cn"))
@@ -78,6 +84,8 @@ func Load() (*Config, error) {
 		AliyunGreenAccessKeyID:     aliyunAccessKeyID,
 		AliyunGreenAccessKeySecret: getEnv("ALIYUN_GREEN_ACCESS_KEY_SECRET", ""),
 		AliyunGreenRegion:          getEnv("ALIYUN_GREEN_REGION", "cn-shanghai"),
+		AliyunGreenEndpoint:        aliyunEndpoint,
+		AliyunGreenObjectURLPrefix: getEnv("ALIYUN_GREEN_OBJECT_URL_PREFIX", "https://oss-mock.example.com"),
 		AliyunGreenImageScenes:     getEnv("ALIYUN_GREEN_IMAGE_SCENE", "porn,terrorism,ad,qrcode,live"),
 		AliyunGreenTextScenes:      getEnv("ALIYUN_GREEN_TEXT_SCENE", "antispam"),
 	}, nil
@@ -93,7 +101,9 @@ func (c *Config) AliyunGreenEnabled() bool {
 	if c == nil {
 		return false
 	}
-	return c.AliyunGreenMockMode || strings.TrimSpace(c.AliyunGreenAccessKeyID) != ""
+	return c.AliyunGreenMockMode ||
+		strings.TrimSpace(c.AliyunGreenAccessKeyID) != "" ||
+		strings.TrimSpace(c.AliyunGreenEndpoint) != ""
 }
 
 func getEnvBool(key string, fallback bool) (bool, error) {

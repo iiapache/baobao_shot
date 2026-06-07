@@ -5,6 +5,7 @@ import (
 	"time"
 )
 
+// Limits align with docs/product-config.yaml (OPT-05).
 const (
 	MaxFamiliesCreated = 2
 	MaxFamiliesJoined  = 3
@@ -13,9 +14,9 @@ const (
 	InviteTTL          = 24 * time.Hour
 	InviteMaxUses      = 8
 
-	AdminInactiveDays      = 30
-	TakeoverObjectionDays  = 7
-	TakeoverApprovalRatio  = 0.5
+	AdminInactiveDays     = 30
+	TakeoverObjectionDays = 7
+	TakeoverApprovalRatio = 0.5
 )
 
 var (

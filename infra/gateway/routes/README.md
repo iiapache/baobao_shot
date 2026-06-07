@@ -13,6 +13,8 @@
 | `hello-ws.yaml` | hello | WebSocket 占位 |
 | `auth-family-api.yaml` | auth-family-svc | CN：JWT forward-auth + 公开 auth + 限流 |
 | `auth-family-api-os.yaml` | auth-family-svc | OS：同上 |
+| `staging-api-health.yaml` | auth-family-svc | ENV-03：`/health` → staging-api-* |
+| `staging-auth-family-api.yaml` | auth-family-svc | ENV-03：staging auth 路由 |
 
 JWT 鉴权采用 `forward-auth` → `auth-family-svc /internal/verify`（HS256 + Redis 黑名单，与 T1.3 一致）。
 

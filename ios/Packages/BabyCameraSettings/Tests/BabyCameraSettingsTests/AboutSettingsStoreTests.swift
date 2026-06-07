@@ -11,8 +11,12 @@ final class AboutSettingsStoreTests: XCTestCase {
 
         await store.load()
 
-        XCTAssertEqual(store.icpDisplayText, ComplianceConfig.icpPendingText)
-        XCTAssertEqual(store.algorithmFilingDisplayText, ComplianceConfig.algorithmPendingText)
+        let defaults = ComplianceConfig.defaults(for: .cn)
+        XCTAssertEqual(store.icpDisplayText, defaults.icpNumber ?? ComplianceConfig.icpPendingText)
+        XCTAssertEqual(
+            store.algorithmFilingDisplayText,
+            defaults.algorithmFilingSummary ?? ComplianceConfig.algorithmPendingText
+        )
     }
 
     func testDisplayTextShowsRemoteValues() async {

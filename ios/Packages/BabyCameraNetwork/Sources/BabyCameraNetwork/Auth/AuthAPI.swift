@@ -209,7 +209,7 @@ public func makeAuthenticatedClient(
     tokenStore: TokenStore = KeychainTokenStore(),
     regionConfig: RegionConfig? = nil,
     loggingInterceptor: LoggingInterceptor? = nil,
-    session: URLSession = .shared
+    session: URLSession? = nil
 ) -> APIClient {
     let config = regionConfig ?? RegionConfig(region: region, appVersion: "1.0.0", deviceId: "test-device")
     var client: APIClient!
@@ -245,7 +245,7 @@ public func makeAnonymousClient(
     region: AppRegion = .cn,
     regionConfig: RegionConfig? = nil,
     loggingInterceptor: LoggingInterceptor? = nil,
-    session: URLSession = .shared
+    session: URLSession? = nil
 ) -> APIClient {
     let tokenStore = InMemoryTokenStore()
     let config = regionConfig ?? RegionConfig(region: region, appVersion: "1.0.0", deviceId: "test-device")

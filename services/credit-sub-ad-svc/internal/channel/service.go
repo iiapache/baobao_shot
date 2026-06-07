@@ -7,6 +7,7 @@ import (
 	"github.com/baobao/credit-sub-ad-svc/internal/credit"
 )
 
+// Channel grants align with docs/product-config.yaml credits.* (OPT-05).
 const (
 	RefKindSignup          = "signup"
 	RefKindProfileComplete = "profile_complete"

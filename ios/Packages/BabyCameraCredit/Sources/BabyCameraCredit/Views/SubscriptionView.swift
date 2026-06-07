@@ -6,6 +6,7 @@ public struct SubscriptionView: View {
     @State private var products: [SubscriptionListedProduct] = []
     @State private var errorMessage: String?
     @State private var isLoading = false
+    @State private var purchasingProductID: String?
 
     public init(store: SubscriptionStore) {
         self.store = store
@@ -102,21 +103,44 @@ public struct SubscriptionView: View {
     }
 
     private func productRow(_ product: SubscriptionListedProduct) -> some View {
-        HStack {
-            VStack(alignment: .leading, spacing: 4) {
-                Text(product.name)
-                    .font(DSTypography.body)
-                if let bonus = product.bonusCredits, bonus > 0 {
-                    Text("赠 \(bonus) 积分")
-                        .font(DSTypography.caption)
-                        .foregroundStyle(DSColors.textSecondary)
+        Button {
+            Task { await purchase(product) }
+        } label: {
+            HStack {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(product.name)
+                        .font(DSTypography.body)
+                        .foregroundStyle(DSColors.textPrimary)
+                    if let bonus = product.bonusCredits, bonus > 0 {
+                        Text("赠 \(bonus) 积分")
+                            .font(DSTypography.caption)
+                            .foregroundStyle(DSColors.textSecondary)
+                    }
+                }
+                Spacer()
+                if purchasingProductID == product.productId {
+                    ProgressView()
+                } else if let price = product.priceCny, price > 0 {
+                    Text("¥\(price)")
+                        .font(DSTypography.body)
+                        .foregroundStyle(DSColors.primary)
                 }
             }
-            Spacer()
-            if let price = product.priceCny, price > 0 {
-                Text("¥\(price)")
-                    .font(DSTypography.body)
-            }
+        }
+        .buttonStyle(.plain)
+        .disabled(purchasingProductID != nil || store.isEntitled)
+    }
+
+    private func purchase(_ product: SubscriptionListedProduct) async {
+        purchasingProductID = product.productId
+        defer { purchasingProductID = nil }
+
+        do {
+            _ = try await store.purchase(productID: product.productId)
+        } catch IAPServiceError.userCancelled {
+            return
+        } catch {
+            errorMessage = mapPurchaseError(error)
         }
     }
 
@@ -154,5 +178,29 @@ public struct SubscriptionView: View {
             }
         }
         return "加载失败，请稍后重试"
+    }
+
+    private func mapPurchaseError(_ error: Error) -> String {
+        if let iapError = error as? IAPServiceError {
+            switch iapError {
+            case .userCancelled:
+                return ""
+            case .purchasePending:
+                return "购买待处理，请稍后在设置中确认"
+            case .productNotFound:
+                return "商品不可用"
+            default:
+                return "购买失败，请稍后重试"
+            }
+        }
+        if let storeError = error as? SubscriptionStoreError {
+            switch storeError {
+            case .notAuthenticated:
+                return "请先登录"
+            case .verifyFailed, .nonRetriableVerifyFailure:
+                return "订阅校验失败"
+            }
+        }
+        return mapError(error)
     }
 }

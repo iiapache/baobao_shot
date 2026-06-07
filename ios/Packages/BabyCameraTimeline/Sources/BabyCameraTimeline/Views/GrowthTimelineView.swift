@@ -1,4 +1,5 @@
 import BabyCameraBaby
+import BabyCameraNetwork
 import DesignSystem
 import SwiftUI
 
@@ -6,8 +7,11 @@ import SwiftUI
 ///
 /// 命名 `GrowthTimelineView` 以避免与 SwiftUI 内置 `TimelineView` 冲突。
 public struct GrowthTimelineView: View {
+    @EnvironmentObject private var networkReachability: NetworkReachability
     @StateObject private var viewModel: TimelineViewModel
     @StateObject private var thumbnailLoader: TimelineThumbnailLoader
+    @State private var networkWasOffline = false
+    @State private var reconnectHandlerId: UUID?
     private let onPhotoTap: ((TimelinePhotoItem) -> Void)?
 
     public init(
@@ -30,8 +34,32 @@ public struct GrowthTimelineView: View {
         }
         .background(DSColors.background)
         .accessibilityIdentifier("growthTimelineView")
+        .overlay(alignment: .top) {
+            if !networkReachability.isOnline {
+                DSOfflineBanner(message: "离线模式 · 显示本地照片")
+            }
+        }
+        .refreshable {
+            await viewModel.reload()
+        }
         .task {
             await viewModel.reload()
+        }
+        .onAppear {
+            reconnectHandlerId = networkReachability.onReconnect { [viewModel] in
+                Task { await viewModel.reload() }
+            }
+        }
+        .onDisappear {
+            if let reconnectHandlerId {
+                networkReachability.removeReconnectHandler(reconnectHandlerId)
+            }
+        }
+        .onChange(of: networkReachability.isOnline) { isOnline in
+            if isOnline, networkWasOffline {
+                Task { await viewModel.reload() }
+            }
+            networkWasOffline = !isOnline
         }
         .onChange(of: viewModel.scale) { _ in
             thumbnailLoader.cancelAll()
@@ -56,8 +84,8 @@ public struct GrowthTimelineView: View {
         if viewModel.isLoading && viewModel.rows.isEmpty {
             DSLoadingView(message: "加载时间线…", style: .fullScreen)
         } else if let error = viewModel.errorMessage, viewModel.rows.isEmpty {
-            DSEmptyState(
-                systemImage: "exclamationmark.triangle",
+            DSErrorView(
+                kind: .network,
                 title: "无法加载",
                 message: error,
                 actionTitle: "重试"
@@ -149,4 +177,5 @@ public struct GrowthTimelineView: View {
     let source = InMemoryTimelinePhotoSource(photos: [])
     let vm = TimelineViewModel(photoSource: source, currentBabyStore: store)
     return GrowthTimelineView(viewModel: vm)
+        .environmentObject(NetworkReachability())
 }

@@ -30,8 +30,8 @@
 
 | 场景 | 测量方式 | 样本数 | P50 | P95 | Max | 预算 | Pass |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| 相机冷启动 | Time Profiler · viewWillAppear → 首帧预览 | | | | | 800 ms | |
-| 编辑器打开 | 埋点 `editor_open_ms` / XCTest | | | | | 500 ms | |
+| 相机冷启动 | Time Profiler · `PerformanceTracker` 日志 · viewWillAppear → 首帧预览 | | | | | 800 ms | |
+| 编辑器打开 | `PerformanceTracker` 日志 · `editor_open` 埋点 | | | | | 500 ms | |
 | Feed 首屏（端侧） | 本地缓存命中后首帧 | | | | | 500 ms | |
 | 内存峰值（参考 T7.7） | Memory Gauge | | | | | 200 MB | |
 
@@ -46,8 +46,8 @@
 
 | 场景 | 测量方式 | 样本数 | P50 | P95 | Max | 预算 | Pass |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| 相机冷启动 | Time Profiler | | | | | 800 ms | |
-| 编辑器打开 | 埋点 `editor_open_ms` | | | | | 500 ms | |
+| 相机冷启动 | Time Profiler · `PerformanceTracker` 日志 | | | | | 800 ms | |
+| 编辑器打开 | `PerformanceTracker` 日志 · `editor_open` 埋点 | | | | | 500 ms | |
 | Feed 首屏（端侧） | 本地缓存命中后首帧 | | | | | 500 ms | |
 | AI 玩法页打开 | 端侧首屏 | | | | | — | |
 

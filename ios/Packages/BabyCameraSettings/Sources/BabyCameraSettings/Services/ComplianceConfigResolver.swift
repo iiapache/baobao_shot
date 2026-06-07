@@ -27,9 +27,10 @@ public enum ComplianceConfigResolver {
         let privacyVersionKey = region == .cn ? privacyPolicyVersionCNKey : privacyPolicyVersionOSKey
 
         return ComplianceConfig(
-            icpNumber: resolvedText(features[icpNumberKey]),
+            icpNumber: resolvedText(features[icpNumberKey]) ?? defaults.icpNumber,
             icpQueryURL: resolvedURL(features[icpQueryURLKey]) ?? defaults.icpQueryURL,
-            algorithmFilingSummary: resolvedText(features[algorithmFilingSummaryKey]),
+            algorithmFilingSummary: resolvedText(features[algorithmFilingSummaryKey])
+                ?? defaults.algorithmFilingSummary,
             privacyPolicyURL: resolvedURL(features[privacyURLKey]) ?? defaults.privacyPolicyURL,
             termsURL: resolvedURL(features[termsURLKey]) ?? defaults.termsURL,
             deepSynthesisURL: resolvedURL(features[deepSynthesisURLKey]) ?? defaults.deepSynthesisURL,

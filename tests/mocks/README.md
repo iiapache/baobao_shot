@@ -2,7 +2,7 @@
 
 > 任务 **T0.20** · 供 staging / 本地联调替代 Apple IAP、微信、广告联盟、内容审核、AI 模型 outbound 调用
 
-## 快速启动
+## 快速启动（一键）
 
 ```bash
 cd tests/mocks
@@ -10,9 +10,21 @@ cd tests/mocks
 # 仅 API Mock（P0 冒烟）
 docker compose up -d mock-api
 
-# 全部 Mock（后端 outbound 联调）
+# 全部 Mock（后端 outbound 联调 · ENV-06）
 docker compose up -d
+
+# 健康检查
+../../tests/staging/verify-outbound.sh --local
+
+# 停止
+docker compose down
 ```
+
+| 命令 | 启动服务 |
+| --- | --- |
+| `docker compose up -d mock-api` | 仅 `mock-api` :18080 |
+| `docker compose up -d` | 全部 6 个 Mock（18080–18085） |
+| `docker compose ps` | 查看容器状态 |
 
 无 Docker 时可用 Python 备用服务（响应与 WireMock 映射一致）：
 
@@ -33,19 +45,23 @@ python3 api/mock_server.py
 
 技术栈：[WireMock](https://wiremock.org/) 3.x（`wiremock/wiremock:3.9.1`）。
 
-## 后端 staging 注入示例
+## 后端 staging 注入
+
+完整映射与 Helm values 见 [infra/staging/](../../infra/staging/)：
 
 ```yaml
-# values-staging.yaml（示意）
+# infra/staging/outbound-mapping.yaml（摘要）
 outbound:
-  apple_iap_url: http://mock-iap.baobao-staging.svc:8080
-  wechat_api_url: http://mock-wechat.baobao-staging.svc:8080
-  ad_ssv_url: http://mock-ad.baobao-staging.svc:8080
-  audit_url: http://mock-audit.baobao-staging.svc:8080
-  ai_dashscope_url: http://mock-ai.baobao-staging.svc:8080
+  mock-iap:    http://mock-iap.third-party-mocks.svc.cluster.local:8080      # 本地 :18081
+  mock-wechat: http://mock-wechat.third-party-mocks.svc.cluster.local:8080  # 本地 :18082
+  mock-ad:     http://mock-ad.third-party-mocks.svc.cluster.local:8080     # 本地 :18083
+  mock-audit:  http://mock-audit.third-party-mocks.svc.cluster.local:8080  # 本地 :18084
+  mock-ai:     http://mock-ai.third-party-mocks.svc.cluster.local:8080      # 本地 :18085
 ```
 
-本地开发可将上述 URL 设为 `http://host.docker.internal:1808x`。
+微服务 env 片段：`infra/staging/values/{auth-family,credit-sub-ad,audit,ai-dispatch}-svc.yaml`
+
+本地开发可将上述 URL 设为 `http://host.docker.internal:1808x`（Docker Desktop）或 `http://localhost:1808x`。
 
 ## mock-api 覆盖的 OpenAPI 端点
 

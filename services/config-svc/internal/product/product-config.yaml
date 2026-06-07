@@ -1,0 +1,86 @@
+# 宝宝成长相机 · V1.0 产品参数（单一事实来源）
+# OPT-05 · 对齐 PRD §4.11 / §12.1、dev-plan §15
+# 变更：追加版本号并同步 config-svc / 各服务常量；勿静默覆盖历史条目
+
+version: "20250607001"
+decided_at: "2026-06-07"
+status: confirmed_v1_0
+notes: "采纳 PRD v0.1 草案数值作为 V1.0 基线；积分 AI 扣减表与 rates.manifest.json 同步"
+
+family:
+  max_members: 8
+  max_babies: 5
+  max_families_created_per_user: 2
+  max_families_joined_per_user: 3
+
+invite:
+  code_length: 6
+  ttl_hours: 24
+  max_uses: 8
+
+admin_takeover:
+  inactive_days: 30
+  approval_ratio: 0.5
+  objection_days: 7
+
+credits:
+  signup: 100
+  profile_complete: 20
+  invite_reward: 50
+  sign_in_min: 5
+  sign_in_max: 20
+  ad_reward_per_view: 5
+  ad_reward_daily_limit: 5
+  caption_daily_limit: 50
+
+recharge_packs:
+  - product_id: credit_pack_60
+    credits: 60
+    price_cny: 6
+  - product_id: credit_pack_330
+    credits: 330
+    price_cny: 30
+  - product_id: credit_pack_800
+    credits: 800
+    price_cny: 68
+  - product_id: credit_pack_2500
+    credits: 2500
+    price_cny: 198
+
+subscription_tiers:
+  - sku: com.baobao.sub.monthly
+    price_cny: 18
+    bonus_credits: 0
+  - sku: com.baobao.sub.quarterly
+    price_cny: 45
+    bonus_credits: 0
+  - sku: com.baobao.sub.yearly
+    price_cny: 128
+    bonus_credits: 200
+  - sku: com.baobao.sub.lifetime
+    price_cny: 498
+    bonus_credits: 500
+
+ai_pricing:
+  rates_manifest_version: "20250606001"
+  plays:
+    ghibli_kid: 8
+    seedream_style: 8
+    gpt_portrait: 15
+    photo_restore: 10
+    video_walk_5s: 60
+    video_walk_10s: 120
+    year_review_regen: 50
+    smart_caption: 0
+
+ai_video:
+  duration_tiers_seconds: [5, 10]
+  trial_duration_seconds: null
+
+scope_v1:
+  pregnancy_mode: false
+  widget_sizes: [small, medium, large, lock_screen]
+  data_export_formats: [zip]
+  wechat_share_scope: [moments, friends]
+  deferred_platforms: [apple_watch, ipad]
+  overseas_original_to_openai: false

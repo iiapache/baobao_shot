@@ -246,6 +246,8 @@ func mapBabyError(w http.ResponseWriter, r *http.Request, err error) {
 		writeAPI(w, http.StatusBadRequest, "COMMON_BAD_PARAM", "invalid gender", r)
 	case errors.Is(err, baby.ErrInvalidBirth):
 		writeAPI(w, http.StatusBadRequest, "COMMON_BAD_PARAM", "invalid birth date or time", r)
+	case errors.Is(err, baby.ErrBabyLimit):
+		writeAPI(w, http.StatusConflict, "BABY_LIMIT", "baby limit reached", r)
 	default:
 		writeAPI(w, http.StatusInternalServerError, "SYS_INTERNAL", err.Error(), r)
 	}

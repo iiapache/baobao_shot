@@ -115,9 +115,10 @@ ATT：不申请，未配置 NSUserTrackingUsageDescription（见 APP_REVIEW_NOTE
 
 | Key | 类型 | 当前占位值 | 说明 |
 | --- | --- | --- | --- |
-| `compliance.icp_number` | string | `{{ICP_NUMBER}}` | 关于页 ICP；模板占位会被 App 忽略 |
+| `compliance.icp_number` | string | `京ICP备00000000号-9S`（staging） | 关于页 ICP；见 `compliance/client-config.yaml` |
 | `compliance.icp_query_url` | string | `https://beian.miit.gov.cn/` | 点击备案号跳转 |
-| `compliance.algorithm_filing_summary` | string | `算法备案办理中（DEV 占位）` | T7.1 |
+| `compliance.algorithm_filing_summary` | string | 见 `client-config.yaml` | T7.1 / AI Tab 页脚 |
+| `compliance.algorithm_filing_bindings` | JSON | 见 `client-config.yaml` | ai-dispatch-svc 模型绑定 |
 | `compliance.policy_urls.privacy_cn` | string | `https://www.babycamera.app/legal/privacy-policy-cn` | CN 隐私政策 |
 | `compliance.policy_urls.privacy_os` | string | `https://www.babycamera.app/legal/privacy-policy-os` | OS 隐私政策 |
 | `compliance.policy_urls.terms_cn` | string | `https://www.babycamera.app/legal/terms-of-service` | 用户协议 |

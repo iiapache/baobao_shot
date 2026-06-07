@@ -1,0 +1,4 @@
+// OPT-03 百度网盘 OAuth（真机密钥见 BaiduPan.Secrets.xcconfig.example）
+BAIDU_PAN_CLIENT_ID = babycamera-baidu-client-id
+BAIDU_PAN_REDIRECT_URI = babycamera:/$()/oauth/baidu
+BAIDU_PAN_USE_LIVE_OAUTH = NO

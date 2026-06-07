@@ -1,0 +1,28 @@
+{
+  "request": {
+    "method": "POST",
+    "queryParameters": {
+      "Action": {
+        "equalTo": "CVProcess"
+      },
+      "Version": {
+        "equalTo": "2022-08-31"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "code": 10000,
+      "message": "Success",
+      "data": {
+        "image_urls": [
+          "https://example.com/mock-seedream-output.png"
+        ]
+      }
+    }
+  }
+}
